@@ -8,7 +8,7 @@
    
 int main(int argc, char const *argv[]) 
 { 
-    //testhello1
+    //testhello222
     int sock = 0, valread; 
     struct sockaddr_in serv_addr; 
     char *hello = "Hello from client"; 
