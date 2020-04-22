@@ -8,6 +8,7 @@
    
 int main(int argc, char const *argv[]) 
 { 
+    //change made in the master branch
     int sock = 0, valread; 
     struct sockaddr_in serv_addr; 
     char *hello = "Hello from client"; 
