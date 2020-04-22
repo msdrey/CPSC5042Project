@@ -8,11 +8,7 @@
    
 int main(int argc, char const *argv[]) 
 { 
-<<<<<<< HEAD
-    //change made in the master branch
-=======
-    //testhello222
->>>>>>> audrey
+    //change made in the master branch when merging
     int sock = 0, valread; 
     struct sockaddr_in serv_addr; 
     char *hello = "Hello from client"; 
