@@ -4,7 +4,14 @@
 #include <arpa/inet.h> 
 #include <unistd.h> 
 #include <string.h> 
-#define PORT 8080 
+
+// Uncomment this for string class
+#include <iostream> 
+#include <string>
+using namespace std;
+
+//audrey's port on cs1 for cpsc5042
+#define PORT 12119
    
 int create_connection() {
     struct sockaddr_in serv_addr; //a struct containing the info of the server's address
@@ -44,25 +51,53 @@ int create_connection() {
     return sock;
 }
 
+
+
+
 int main(int argc, char const *argv[]) 
 {    
     int sock = create_connection();
     //the connection is established.
 
-    //testing communication
-    const char *hello = "This message was sent by the client"; 
-    char buffer[1024] = {0}; 
-    send(sock, hello , strlen(hello) , 0); 
-    printf("A message was sent to the server.\n"); 
-    int valread = read(sock , buffer, 1024); 
+    // //testing communication
+    // string hello = "This message was sent by the client"; 
+    // char buffer[1024] = {0}; 
+
+    // send(sock, hello.c_str(), hello.length(), 0); 
+    // printf("A message was sent to the server.\n"); 
+    // int valread = read(sock, buffer, 1024); 
+    // if (valread == -1) {
+	// 	printf("\n error \n");
+	// 	return -1;
+	// }
+    // printf("%s\n",buffer ); 
+
+    //game
+    //receive and print welcome message & prompt
+    char message[1024] = {0};
+    int valread = recv(sock, message, 1024, 0);
     if (valread == -1) {
-		printf("\n error \n");
+		cout << endl << "error" << endl;
 		return -1;
 	}
-    printf("%s\n",buffer ); 
+    cout << message << endl;
 
+    while(true) {
+        //take in user's answer and send to server
+        string ans;
+        cin >> ans;
+        send(sock, ans.c_str(), ans.length(), 0);
 
-    //start game here!
+        //recieve feedback and prompt and print them
+        char feedback[1024] = {0};
+        valread = read(sock, feedback, 1024);
+        if (valread == -1) {
+            cout << endl << "error" << endl;
+            return -1;
+        }
+        cout << feedback << endl;
+    }
+
 
     return 0; 
 } 
