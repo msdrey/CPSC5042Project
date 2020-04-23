@@ -84,5 +84,10 @@ int main(int argc, char const *argv[])
 	send(new_socket, hello, strlen(hello), 0); 
 	//prints a confirmation that a message was sent to the client
 	printf("A message was sent to the client.\n"); 
+
+
+	//game starts here!
+
+
 	return 0; 
 } 
