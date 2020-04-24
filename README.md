@@ -14,16 +14,17 @@ We are building aword guessing game that is inspired by the online game Drawasau
 ## Docs
 ### Compile
 ```
-g++ server.cpp -o bin/server 
-g++ client.cpp -o bin/client
+g++ server.cpp -o server 
+g++ client.cpp -o client
 ```
 
 ### Run
-On server
+Can either be run using published binaries in bin directory or by compiling as above.
+#### On server
 ```
 ./bin/server
 ```
-On client
+#### On client
 ```
 ./bin/client
 ```
