@@ -1,4 +1,4 @@
-# Drawasaurus
+# Wordasaurus
 Word guessing game demonstrating client and server programming in C++.  
 
 ## Overview
