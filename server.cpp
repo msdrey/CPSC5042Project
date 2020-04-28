@@ -28,8 +28,7 @@ int create_connection() {
 		exit(EXIT_FAILURE); 
 	} 
 
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, 
-												&opt, sizeof(opt))) 
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt))) 
 	{ 
 		perror("setsockopt"); 
 		exit(EXIT_FAILURE); 
