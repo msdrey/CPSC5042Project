@@ -39,7 +39,7 @@ int create_connection() {
 	address.sin_addr.s_addr = INADDR_ANY; 
 	address.sin_port = htons( PORT ); 
 
-	// Forcefully attaching socket to the port 8080 
+	// Forcefully attaching socket to the port 12119 
 	if (bind(server_fd, (struct sockaddr *)&address, 
 								sizeof(address))<0) 
 	{ 
@@ -55,7 +55,8 @@ int create_connection() {
 	} 
 
 	//wait for a connection on the server_fd socket.
-	//when a connection occurs, create a new socket for the client to connect with the server's socket
+	//when a connection occurs, create a new socket 
+	// for the client to connect with the server's socket
 	new_socket = accept(server_fd, (struct sockaddr *)&address, 
 					(socklen_t*)&addrlen);
 	if (new_socket < 0) 

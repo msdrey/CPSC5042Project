@@ -35,6 +35,7 @@ int create_connection() {
        
     // Convert IPv4 address from text to binary form and store in serv_addr.sin_addr
     //"127.0.0.1" is the localhost
+    //"54.91.202.143" is the aws box
     //CHANGE THIS ADDRESS FOR USE OVER THE INTERNET????????
     if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)  
     { 
