@@ -60,19 +60,6 @@ int main(int argc, char const *argv[])
     int sock = create_connection();
     //the connection is established.
 
-    // //testing communication
-    // string hello = "This message was sent by the client"; 
-    // char buffer[1024] = {0}; 
-
-    // send(sock, hello.c_str(), hello.length(), 0); 
-    // printf("A message was sent to the server.\n"); 
-    // int valread = read(sock, buffer, 1024); 
-    // if (valread == -1) {
-	// 	printf("\n error \n");
-	// 	return -1;
-	// }
-    // printf("%s\n",buffer ); 
-
     //game
     //receive and print welcome message & prompt
     char message[1024] = {0};
@@ -89,7 +76,7 @@ int main(int argc, char const *argv[])
         cin >> ans;
         send(sock, ans.c_str(), ans.length(), 0);
 
-        //recieve feedback and prompt and print them
+        //receive feedback and prompt and print them
         char feedback[1024] = {0};
         valread = read(sock, feedback, 1024);
         if (valread == -1) {
