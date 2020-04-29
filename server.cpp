@@ -68,7 +68,7 @@ int create_connection() {
 	return new_socket;
 }
 
-class Session {
+class GameSession {
   private:  
     
     string currentWord;
@@ -144,9 +144,26 @@ class Session {
 		}
 	}
 
+	string checkGuess(string guess) {
+		if (isAMatch(guess, currentWord)) {
+			string win = "Congrats, you win!\n";
+			selectWord();
+			score += 1;
+			currentStreak += 1;
+			updateBestStreak();
+			return win + displayScore()
+					+ "\nLet's try a new word. \n"
+					+ promptWord();
+		} else {
+			currentStreak = 0;
+			return "Nope, wrong word. Try again. \n" 
+					+ promptWord();
+		}
+	}
+
   public:
 	// Constructor
-    Session() {
+    GameSession() {
         score = 0;
         currentStreak = 0;
 		bestStreak = 0;
@@ -163,26 +180,15 @@ class Session {
 		return welcome + promptWord();
 	}
 
-	string checkGuess(string guess) {
-		if (isCommand(guess)) {
-			return handleCommand(guess);
+	string handleUserInput(string userInput) {
+		if (isCommand(userInput)) {
+			return handleCommand(userInput);
 		} else {
-			if (isAMatch(guess, currentWord)) {
-				string win = "Congrats, you win!\n";
-				selectWord();
-				score += 1;
-				currentStreak += 1;
-				updateBestStreak();
-				return win + displayScore()
-					   + "\nLet's try a new word. \n"
-					   + promptWord();
-			} else {
-				currentStreak = 0;
-				return "Nope, wrong word. Try again. \n" 
-						+ promptWord();
-			}
+			return checkGuess(userInput);
 		}		
 	}
+
+	
 
 };
 
@@ -193,21 +199,21 @@ int main(int argc, char const *argv[])
 	//the connection is now established.
 	
 	//game starts here! welcome user and prompt first word.
-    Session * thisSession = new Session();
+    GameSession * thisSession = new GameSession();
 	string newSessionText = thisSession->startSession();
 	send(new_socket, newSessionText.c_str(), newSessionText.length(), 0);
 
 	while(true) {
 		//receive client's answer into the "guess" variable
-		char guess[1024] = {0};
-		int valread = recv(new_socket, guess, 1024, 0);
+		char userInput[1024] = {0};
+		int valread = recv(new_socket, userInput, 1024, 0);
 		if (valread == -1) {
 			cout << endl << "error" << endl;
 			exit(EXIT_FAILURE);
 		}
 
 		//check client's answer and send feedback
-		string feedback = thisSession->checkGuess(string(guess));
+		string feedback = thisSession->handleUserInput(string(userInput));
 		send(new_socket, feedback.c_str(), feedback.length(), 0);
 	}
 
