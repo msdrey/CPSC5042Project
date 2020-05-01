@@ -24,14 +24,12 @@ int create_connection() {
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_fd < 0) 
 	{ 
-		perror("Server's socket creation failed"); 
-		exit(EXIT_FAILURE); 
+		throw "Server's socket creation failed"; 
 	} 
 
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt))) 
 	{ 
-		perror("setsockopt"); 
-		exit(EXIT_FAILURE); 
+		throw "setsockopt failed"; 
 	} 
 
 	address.sin_family = AF_INET; 
@@ -42,16 +40,16 @@ int create_connection() {
 	if (bind(server_fd, (struct sockaddr *)&address, 
 								sizeof(address))<0) 
 	{ 
-		perror("bind failed"); 
-		exit(EXIT_FAILURE); 
+		throw "bind failed"; 
 	} 
 
 	//prepare to accept connections
 	if (listen(server_fd, 3) < 0) 
 	{ 
-		perror("listen"); 
-		exit(EXIT_FAILURE); 
+		throw "listen failed"; 
 	} 
+
+	cout << "Waiting for a client to connect." << endl;
 
 	//wait for a connection on the server_fd socket.
 	//when a connection occurs, create a new socket 
@@ -60,11 +58,10 @@ int create_connection() {
 					(socklen_t*)&addrlen);
 	if (new_socket < 0) 
 	{ 
-		printf("\n error \n");
-		perror("accept"); 
-		exit(EXIT_FAILURE); 
+		throw "accept failed";
 	} 
 
+	cout << "A client is playing the game." << endl;
 	return new_socket;
 }
 
@@ -76,14 +73,13 @@ class GameSession {
     int score;
     int currentStreak;
 	int bestStreak;
+	int status; //1 if the game is ongoing, 0 if the client decides to quit
 
     void selectWord() {
         //to do!
         currentWord = "potato";
         currentClue = "A hearty root vegetable";
     }
-
-
 
     //check if client's input is a command or not. 
     bool isCommand(string str) {
@@ -100,8 +96,8 @@ class GameSession {
 		} else if (isAMatch(str, ".score")) {
 			return displayScore() + "\n" + promptWord();
 		} else if (isAMatch(str, ".exit")) {
-			// call disconnect from network class???
-			return "todo";
+			status = 0;
+			return displayScore() + "\nThank you for playing! Goodbye.";
 		} else {
 			return "Invalid command. \n" + promptWord();
 		}
@@ -167,6 +163,7 @@ class GameSession {
         score = 0;
         currentStreak = 0;
 		bestStreak = 0;
+		status = 1;
         selectWord();
     }
 
@@ -176,7 +173,7 @@ class GameSession {
 		welcome += "Options:";
 		welcome += "\n  .skip \t to skip the current word ";
 		welcome += "\n  .score \t to display the current score and best streak";
-		welcome += "\n  .quit \t to log out and quit \n\n";
+		welcome += "\n  .exit \t to log out and exit \n\n";
 		return welcome + promptWord();
 	}
 
@@ -188,33 +185,63 @@ class GameSession {
 		}		
 	}
 
+	bool getStatus() {
+		return status;
+	}
 	
 
 };
 
+//Second RPC
+void startGame(int socket, GameSession * thisSession) {
+	string newSessionText = thisSession->startSession();
+	send(socket, newSessionText.c_str(), newSessionText.length(), 0);
+}
+
+//Third RPC
+string receive(int socket) {
+	char userInput[1024] = {0};
+	int valread = recv(socket, userInput, 1024, 0);
+	if (valread == -1) {
+		throw "recv error";
+	}
+	return string(userInput);
+}
+
 int main(int argc, char const *argv[]) 
 { 	
-	
-	int new_socket = create_connection();
-	//the connection is now established.
-	
-	//game starts here! welcome user and prompt first word.
-    GameSession * thisSession = new GameSession();
-	string newSessionText = thisSession->startSession();
-	send(new_socket, newSessionText.c_str(), newSessionText.length(), 0);
 
-	while(true) {
-		//receive client's answer into the "guess" variable
-		char userInput[1024] = {0};
-		int valread = recv(new_socket, userInput, 1024, 0);
-		if (valread == -1) {
-			cout << endl << "error" << endl;
+	//infinite loop to keep the server running indefinitely
+	while (1) {
+		try{
+
+			//creating a socket and establishing connection with a client
+			int socket = create_connection();
+
+			//set up a new game session
+			GameSession * thisSession = new GameSession();
+
+			//welcome user and start game
+			startGame(socket, thisSession);
+
+			string userInput, feedback;
+			while (thisSession->getStatus() == 1) {
+				//receive client's answer into the "userInput" variable
+				userInput = receive(socket);
+				
+				//check client's answer and send feedback
+				feedback = thisSession->handleUserInput(userInput);
+				send(socket, feedback.c_str(), feedback.length(), 0);
+
+			}
+
+			//
+			cout << "The client exit the game." << endl << endl;
+
+		} catch (const char* message) {
+			cerr << message << endl;
 			exit(EXIT_FAILURE);
 		}
-
-		//check client's answer and send feedback
-		string feedback = thisSession->handleUserInput(string(userInput));
-		send(new_socket, feedback.c_str(), feedback.length(), 0);
 	}
 
 	return 0; 

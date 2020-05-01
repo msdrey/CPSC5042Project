@@ -13,6 +13,8 @@ using namespace std;
 //audrey's port on cs1 for cpsc5042
 #define PORT 12119
    
+//First RPC
+//Setting up server and establishing connection with a client   
 int create_connection() {
     struct sockaddr_in serv_addr; //a struct containing the info of the server's address
     
@@ -21,8 +23,7 @@ int create_connection() {
     //SOCK_STREAM indicates the kind of socket to be created: a tcp socket
     int sock = socket(AF_INET, SOCK_STREAM, 0);// returns a descriptor of this client's socket
     if (sock < 0) { 
-        printf("\n Client's socket creation error \n"); 
-        return -1; 
+        throw "Client's socket creation error";
     } 
    
     //defining the server's address.
@@ -35,56 +36,77 @@ int create_connection() {
        
     // Convert IPv4 address from text to binary form and store in serv_addr.sin_addr
     //"127.0.0.1" is the localhost
-    //"54.91.202.143" is the aws box
-    //CHANGE THIS ADDRESS FOR USE OVER THE INTERNET????????
+    //"54.91.202.143" is the aws box (does this change when we reboot the box?)
+    //CHANGE THIS ADDRESS FOR USE OVER THE INTERNET
     if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)  
     { 
-        printf("\nInvalid address/ Address not supported \n"); 
-        return -1; 
+        throw "Invalid IP address/ Address not supported"; 
+
     } 
    
     //open a connection between this client's socket and the server's address info
     if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) 
     { 
-		printf("\nConnection Failed \n"); 
-        return -1; 
+		throw "Connecting the socket to the address failed. The server might be down."; 
     } 
     return sock;
 }
 
-
-
-
-int main(int argc, char const *argv[]) 
-{    
-    int sock = create_connection();
-    //the connection is established.
-
-    //game
-    //receive and print welcome message & prompt
+//Second RPC
+//receive and print welcome message & prompt
+void receiveAndPrintToUser(int sock) {
     char message[1024] = {0};
     int valread = recv(sock, message, 1024, 0);
     if (valread == -1) {
-		cout << endl << "error" << endl;
-		return -1;
+		throw "receiving error";
 	}
     cout << message << endl;
+}
 
-    while(true) {
-        //take in user's answer and send to server
-        string ans;
-        cin >> ans;
-        send(sock, ans.c_str(), ans.length(), 0);
+//Third RPC
+//Take in user's input and send to server
+string takeInputAndSend(int sock) {
+    string ans;
+    cin >> ans;
+    send(sock, ans.c_str(), ans.length(), 0);
+    return ans;
+}
 
-        //receive feedback and prompt and print them
-        char feedback[1024] = {0};
-        valread = read(sock, feedback, 1024);
-        if (valread == -1) {
-            cout << endl << "error" << endl;
-            return -1;
-        }
-        cout << feedback << endl;
+int main(int argc, char const *argv[]) 
+{    
+    int sock;
+
+    try {
+        //establishing connection with the server
+        sock = create_connection();
+        
+        //receive and print welcome message & prompt
+        receiveAndPrintToUser(sock);
+    
+    } catch (const char* message) {
+        cerr << message << endl;
+        exit(EXIT_FAILURE);
     }
+    
+    string userInput = "";
+    while(userInput.compare(".exit")) {
+        
+        try {
+            //take in user's input and send to server
+            userInput = takeInputAndSend(sock);
+
+            //receive feedback and prompt, and print them
+            receiveAndPrintToUser(sock);
+
+    
+        } catch (const char* message) {
+            cerr << message << endl;
+            exit(EXIT_FAILURE);
+        }
+        
+    }
+
+    cout << "Disconnected." << endl;
 
 
     return 0; 
