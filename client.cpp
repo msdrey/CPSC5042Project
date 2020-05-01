@@ -12,8 +12,9 @@ using namespace std;
 
 //audrey's port on cs1 for cpsc5042
 #define PORT 12119
+#define AWS_IP "54.91.202.143"
    
-int create_connection() {
+int create_connection(string hostname = "127.0.0.1", int port = PORT) {
     struct sockaddr_in serv_addr; //a struct containing the info of the server's address
     
     //create an endpoint socket for communication
@@ -24,20 +25,19 @@ int create_connection() {
         printf("\n Client's socket creation error \n"); 
         return -1; 
     } 
-   
     //defining the server's address.
     //first, specify address family
     serv_addr.sin_family = AF_INET;
     //then, the server's port number. 
     //htons translates from a 16-bit number in host byte order into a 16-bit
     //number in network byte order (used in the AF_INET family)
-    serv_addr.sin_port = htons(PORT); 
+    serv_addr.sin_port = htons(port); 
        
     // Convert IPv4 address from text to binary form and store in serv_addr.sin_addr
     //"127.0.0.1" is the localhost
     //"54.91.202.143" is the aws box
     //CHANGE THIS ADDRESS FOR USE OVER THE INTERNET????????
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)  
+    if(inet_pton(AF_INET, hostname.c_str(), &serv_addr.sin_addr)<=0)  
     { 
         printf("\nInvalid address/ Address not supported \n"); 
         return -1; 
@@ -49,15 +49,27 @@ int create_connection() {
 		printf("\nConnection Failed \n"); 
         return -1; 
     } 
+    // do auth here?
     return sock;
 }
 
-
-
-
-int main(int argc, char const *argv[]) 
-{    
-    int sock = create_connection();
+int main(int argc, char const *argv[]) {
+    int sock;
+    string hostnameKeyword;
+    if (argc == 2) {
+        hostnameKeyword = argv[1];
+        if (hostnameKeyword.compare("aws") == 0) {
+            sock = create_connection(AWS_IP);
+        } else {
+            sock = create_connection();
+        }
+    } else if (argc > 2) {
+        string hostname = argv[1];
+        int port = atoi(argv[2]);
+        sock = create_connection(hostname, port);
+    } else {
+        sock = create_connection();
+    }
     //the connection is established.
 
     //game
