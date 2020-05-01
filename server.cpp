@@ -17,14 +17,13 @@ using namespace std;
 class Network {
 	public:
 	  static int createListener() {
-		int server_fd, newSocket; 
-		cout << "Server is running. socket: " <<  newSocket << ", server_fd: " << server_fd << ", port: " << PORT << endl;;
+		//int server_fd, newSocket; 
 		struct sockaddr_in address; 
 		int opt = 1; 
 		int addrlen = sizeof(address); 
 		
 		// Creating socket file descriptor 
-		server_fd = socket(AF_INET, SOCK_STREAM, 0);
+		int server_fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (server_fd < 0) 
 		{ 
 			perror("Server's socket creation failed"); 
@@ -43,7 +42,7 @@ class Network {
 		address.sin_port = htons( PORT ); 
 
 		// Forcefully attaching socket to the port 8080 
-		if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) 
+		if (::bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) 
 		{ 
 			perror("bind failed"); 
 			exit(EXIT_FAILURE); 
@@ -55,17 +54,20 @@ class Network {
 			perror("listen"); 
 			exit(EXIT_FAILURE); 
 		} 
+		cout << "Server is listening on port " << PORT << endl;
 
 		//wait for a connection on the server_fd socket.
 		//when a connection occurs, create a new socket for the client to connect with the server's socket
-		newSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
+		int newSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
 		if (newSocket < 0) 
 		{ 
 			printf("\n error \n");
 			perror("accept"); 
 			exit(EXIT_FAILURE); 
 		} 
+		cout << "New connection was made." << endl;;
 
+		// TODO: Handle authentication hand shake
 		return newSocket;
 	  }
 };
@@ -84,8 +86,6 @@ class GameSession {
         currentWord = "potato";
         currentClue = "A hearty root vegetable";
     }
-
-
 
     //check if client's input is a command or not. 
     bool isCommand(string str) {
@@ -189,9 +189,6 @@ class GameSession {
 			return checkGuess(userInput);
 		}		
 	}
-
-	
-
 };
 
 int main(int argc, char const *argv[]) {
