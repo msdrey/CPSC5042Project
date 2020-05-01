@@ -55,9 +55,8 @@ int create_connection(string hostname = "127.0.0.1", int port = PORT) {
 
 int main(int argc, char const *argv[]) {
     int sock;
-    string hostnameKeyword;
     if (argc == 2) {
-        hostnameKeyword = argv[1];
+        string hostnameKeyword = argv[1];
         if (hostnameKeyword.compare("aws") == 0) {
             sock = create_connection(AWS_IP);
         } else {
