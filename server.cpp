@@ -70,6 +70,16 @@ class Network {
 		// TODO: Handle authentication hand shake
 		return newSocket;
 	  }
+	private:
+		static bool authenticateUser(string username, string password) {
+			return true;
+		}
+		static string decryptPassword(string encryptedPassword) {
+			return "";
+		}
+		static string parseAuthenticationString(string authString) {
+			return "";
+		}
 };
 
 class GameSession {
