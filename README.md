@@ -4,7 +4,7 @@ Word guessing game demonstrating client and server programming in C++.
 ## Overview
 Creeated as group project for Seattle University class CSPC5042, spring quarter 2020.  
 Project members
-- Audry Morin
+- Audrey Morin
 - Ken Comvandee
 - Noah Glusenkamp
 

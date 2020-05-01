@@ -67,11 +67,10 @@ class Network {
 		} 
 
 		return newSocket;
-
 	  }
 };
 
-class Session {
+class GameSession {
   private:  
     
     string currentWord;
@@ -86,7 +85,42 @@ class Session {
         currentClue = "A hearty root vegetable";
     }
 
-    string getHint() {
+
+
+    //check if client's input is a command or not. 
+    bool isCommand(string str) {
+        return str[0] == '.';
+    }
+
+	//handling commands
+	string handleCommand(string str) {
+		if (isAMatch(str, ".skip")) {
+			selectWord();
+			currentStreak = 0;
+			return "Let's try a different word. \n" + 
+					promptWord();
+		} else if (isAMatch(str, ".score")) {
+			return displayScore() + "\n" + promptWord();
+		} else if (isAMatch(str, ".exit")) {
+			// call disconnect from network class???
+			return "todo";
+		} else {
+			return "Invalid command. \n" + promptWord();
+		}
+	}
+
+	// returns true if the two strings match
+	bool isAMatch(string str1, string str2) {
+		return str1.compare(str2) == 0;
+	}
+
+	// returns a string prompting the user for an answer
+	string promptWord() {
+		return "Guess the word: " + getHint() + "\n";
+	}
+
+	// returns a formatted hint for the current word
+	string getHint() {
         string result = "";
         for (int i = 0; i < (int) currentWord.length(); i++) {
             result += "__ ";
@@ -95,57 +129,33 @@ class Session {
         return result;
     }
 
-    //check if client's input is a command or not. If it is, handle it.
-    bool handleCommand() {
-        //todo
-		return 0;
-    }
-
-	bool isAMatch(string guess) {
-		return guess.compare(currentWord) == 0;
-	}
-
-	string promptWord() {
-		return "Guess the word: " + getHint() + "\n";
-	}
-
+	// returns a string that displays the current score and streak
 	string displayScore() {
 		string result = "Your score: " + to_string(score);
 		result += "\n";
 		result += "Your best streak: " + to_string(bestStreak);
 		result += "\n";
 		return result;
-		// return "Your score: " + " \nYour best streak: " + getStreak() + "\n";
 	}
 
+	// checks if current streak is better than best streak and
+	// updates bestStreak
 	void updateBestStreak() {
 		if (currentStreak > bestStreak) {
 			bestStreak = currentStreak;
 		}
 	}
 
-  public:
-    Session() {
-        score = 0;
-        currentStreak = 0;
-		bestStreak = 0;
-        selectWord();
-    }
-
-	string startSession() {
-		return "Welcome to Wordasaurus!\n" + promptWord();
-	}
-
 	string checkGuess(string guess) {
-		if (isAMatch(guess)) {
+		if (isAMatch(guess, currentWord)) {
 			string win = "Congrats, you win!\n";
 			selectWord();
 			score += 1;
 			currentStreak += 1;
 			updateBestStreak();
 			return win + displayScore()
-					   + "Let's try a new word. \n"
-					   + promptWord();
+					+ "\nLet's try a new word. \n"
+					+ promptWord();
 		} else {
 			currentStreak = 0;
 			return "Nope, wrong word. Try again. \n" 
@@ -153,28 +163,58 @@ class Session {
 		}
 	}
 
+  public:
+	// Constructor
+    GameSession() {
+        score = 0;
+        currentStreak = 0;
+		bestStreak = 0;
+        selectWord();
+    }
+
+	string startSession() {
+		string welcome = "Welcome to Wordasaurus!\n" ;
+		welcome += "This is a guessing word game. Just type your best guess!\n";
+		welcome += "Options:";
+		welcome += "\n  .skip \t to skip the current word ";
+		welcome += "\n  .score \t to display the current score and best streak";
+		welcome += "\n  .quit \t to log out and quit \n\n";
+		return welcome + promptWord();
+	}
+
+	string handleUserInput(string userInput) {
+		if (isCommand(userInput)) {
+			return handleCommand(userInput);
+		} else {
+			return checkGuess(userInput);
+		}		
+	}
+
+	
+
 };
 
 int main(int argc, char const *argv[]) {
 
 	int newSocket = Network::createListener();
+	//the connection is now established.
 
 	//game starts here! welcome user and prompt first word.
-    Session * thisSession = new Session();
+    GameSession * thisSession = new GameSession();
 	string newSessionText = thisSession->startSession();
 	send(newSocket, newSessionText.c_str(), newSessionText.length(), 0);
 
 	while(true) {
-		//recieve client's answer into the "guess" variable
-		char guess[1024] = {0};
-		int valread = recv(newSocket, guess, 1024, 0);
+		//receive client's answer into the "guess" variable
+		char userInput[1024] = {0};
+		int valread = recv(newSocket, userInput, 1024, 0);
 		if (valread == -1) {
 			cout << endl << "error" << endl;
 			exit(EXIT_FAILURE);
 		}
 
 		//check client's answer and send feedback
-		string feedback = thisSession->checkGuess(string(guess));
+		string feedback = thisSession->handleUserInput(string(userInput));
 		send(newSocket, feedback.c_str(), feedback.length(), 0);
 	}
 
