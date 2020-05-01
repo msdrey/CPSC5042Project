@@ -98,8 +98,10 @@ class GameSession {
 		} else if (isAMatch(str, ".exit")) {
 			status = 0;
 			return displayScore() + "\nThank you for playing! Goodbye.";
+		} else if (isAMatch(str, ".help")){
+			return displayCommands() + promptWord();
 		} else {
-			return "Invalid command. \n" + promptWord();
+			return "Invalid command. \n" + displayCommands() + promptWord();
 		}
 	}
 
@@ -170,11 +172,16 @@ class GameSession {
 	string startSession() {
 		string welcome = "Welcome to Wordasaurus!\n" ;
 		welcome += "This is a guessing word game. Just type your best guess!\n";
-		welcome += "Options:";
-		welcome += "\n  .skip \t to skip the current word ";
-		welcome += "\n  .score \t to display the current score and best streak";
-		welcome += "\n  .exit \t to log out and exit \n\n";
+		welcome += displayCommands();
 		return welcome + promptWord();
+	}
+
+	string displayCommands() {
+		string result = "Options:\n";
+		return result 	+ "  .skip \t to skip the current word\n"
+						+ "  .score \t to display the current score and best streak\n"
+						+ "  .help \t to display commands again\n"
+						+ "  .exit \t to log out and exit\n\n";
 	}
 
 	string handleUserInput(string userInput) {
@@ -193,12 +200,6 @@ class GameSession {
 };
 
 //Second RPC
-void startGame(int socket, GameSession * thisSession) {
-	string newSessionText = thisSession->startSession();
-	send(socket, newSessionText.c_str(), newSessionText.length(), 0);
-}
-
-//Third RPC
 string receive(int socket) {
 	char userInput[1024] = {0};
 	int valread = recv(socket, userInput, 1024, 0);
@@ -206,6 +207,14 @@ string receive(int socket) {
 		throw "recv error";
 	}
 	return string(userInput);
+}
+
+//third rpc
+void sendToClient(int socket, string message) {
+	int valsend = send(socket, message.c_str(), message.length(), 0);
+	if (valsend == -1) {
+        throw "error occured while sending data to server";
+    }
 }
 
 int main(int argc, char const *argv[]) 
@@ -222,20 +231,18 @@ int main(int argc, char const *argv[])
 			GameSession * thisSession = new GameSession();
 
 			//welcome user and start game
-			startGame(socket, thisSession);
+			sendToClient(socket, thisSession->startSession());
 
-			string userInput, feedback;
-			while (thisSession->getStatus() == 1) {
-				//receive client's answer into the "userInput" variable
+			string userInput;
+			while (thisSession->getStatus() == 1) { //while session is active
+
+				//receive client's answer
 				userInput = receive(socket);
 				
-				//check client's answer and send feedback
-				feedback = thisSession->handleUserInput(userInput);
-				send(socket, feedback.c_str(), feedback.length(), 0);
-
+				//handle client's answer and send feedback
+				sendToClient(socket, thisSession->handleUserInput(userInput));
 			}
 
-			//
 			cout << "The client exit the game." << endl << endl;
 
 		} catch (const char* message) {

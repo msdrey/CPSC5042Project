@@ -53,7 +53,7 @@ int create_connection() {
 }
 
 //Second RPC
-//receive and print welcome message & prompt
+//receive and print message + prompt
 void receiveAndPrintToUser(int sock) {
     char message[1024] = {0};
     int valread = recv(sock, message, 1024, 0);
@@ -68,7 +68,10 @@ void receiveAndPrintToUser(int sock) {
 string takeInputAndSend(int sock) {
     string ans;
     cin >> ans;
-    send(sock, ans.c_str(), ans.length(), 0);
+    int valsend = send(sock, ans.c_str(), ans.length(), 0);
+    if (valsend == -1) {
+        throw "error occured while sending data to server";
+    }
     return ans;
 }
 
@@ -83,31 +86,23 @@ int main(int argc, char const *argv[])
         //receive and print welcome message & prompt
         receiveAndPrintToUser(sock);
     
+   
+        string userInput = "";
+        while(userInput.compare(".exit")) {
+
+                //take in user's input and send to server
+                userInput = takeInputAndSend(sock);
+
+                //receive feedback + prompt from server, and print them
+                receiveAndPrintToUser(sock);
+        }
+
+        cout << "Disconnected from server." << endl;
+    
     } catch (const char* message) {
         cerr << message << endl;
         exit(EXIT_FAILURE);
     }
     
-    string userInput = "";
-    while(userInput.compare(".exit")) {
-        
-        try {
-            //take in user's input and send to server
-            userInput = takeInputAndSend(sock);
-
-            //receive feedback and prompt, and print them
-            receiveAndPrintToUser(sock);
-
-    
-        } catch (const char* message) {
-            cerr << message << endl;
-            exit(EXIT_FAILURE);
-        }
-        
-    }
-
-    cout << "Disconnected." << endl;
-
-
     return 0; 
 } 
