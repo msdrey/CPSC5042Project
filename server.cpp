@@ -14,56 +14,65 @@ using namespace std;
 //audrey's port on cs1 for cpsc5042
 #define PORT 12119
 
-int create_connection() {
-	int server_fd, new_socket; 
-	struct sockaddr_in address; 
-	int opt = 1; 
-	int addrlen = sizeof(address); 
-	
-	// Creating socket file descriptor 
-	server_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (server_fd < 0) 
-	{ 
-		throw "Server's socket creation failed"; 
-	} 
+class Connection {
+  public:
+	int server_socket;
+	struct sockaddr_in address;	
+	int addrlen;
 
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt))) 
-	{ 
-		throw "setsockopt failed"; 
-	} 
 
-	address.sin_family = AF_INET; 
-	address.sin_addr.s_addr = INADDR_ANY; 
-	address.sin_port = htons( PORT ); 
+	Connection() {
+		// Creating socket file descriptor 
+		int opt = 1; 
+		server_socket = socket(AF_INET, SOCK_STREAM, 0);
+		if (server_socket < 0) 
+		{ 
+			throw "Server's socket creation failed"; 
+		} 
 
-	// Forcefully attaching socket to the port 12119 
-	if (bind(server_fd, (struct sockaddr *)&address, 
-								sizeof(address))<0) 
-	{ 
-		throw "bind failed"; 
-	} 
+		if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt))) 
+		{ 
+			throw "setsockopt failed"; 
+		}
 
-	//prepare to accept connections
-	if (listen(server_fd, 3) < 0) 
-	{ 
-		throw "listen failed"; 
-	} 
+		addrlen = sizeof(address); 
+		
+		address.sin_family = AF_INET; 
+		address.sin_addr.s_addr = INADDR_ANY; 
+		address.sin_port = htons( PORT ); 
 
-	cout << "Waiting for a client to connect." << endl;
+		// Forcefully attaching socket to the port 12119 
+		if (bind(server_socket, (struct sockaddr *)&address, 
+									sizeof(address))<0) 
+		{ 
+			throw "bind failed"; 
+		} 
 
-	//wait for a connection on the server_fd socket.
-	//when a connection occurs, create a new socket 
-	// for the client to connect with the server's socket
-	new_socket = accept(server_fd, (struct sockaddr *)&address, 
-					(socklen_t*)&addrlen);
-	if (new_socket < 0) 
-	{ 
-		throw "accept failed";
-	} 
+		//prepare to accept connections
+		if (listen(server_socket, 3) < 0) 
+		{ 
+			throw "listen failed"; 
+		} 
 
-	cout << "A client is playing the game." << endl;
-	return new_socket;
-}
+		cout << "Waiting for a client to connect." << endl;
+	}
+
+	int connect() {
+		//wait for a connection on the server_socket socket.
+		//when a connection occurs, create a new socket 
+		// for the client to connect with the server's socket
+		int new_socket = accept(server_socket, (struct sockaddr *)&address, 
+						(socklen_t*)&addrlen);
+		if (new_socket < 0) 
+		{ 
+			throw "accept failed";
+		} 
+
+		cout << "A client is playing the game." << endl;
+		return new_socket;
+	}
+
+};
 
 class GameSession {
   private:  
@@ -195,6 +204,10 @@ class GameSession {
 	bool getStatus() {
 		return status;
 	}
+
+	void setStatus(int s) {
+		status = s;
+	}
 	
 
 };
@@ -203,8 +216,9 @@ class GameSession {
 string receive(int socket) {
 	char userInput[1024] = {0};
 	int valread = recv(socket, userInput, 1024, 0);
-	if (valread == -1) {
-		throw "recv error";
+	// cout << "valread: " << valread << endl;
+	if (valread == 0) {
+		return "";
 	}
 	return string(userInput);
 }
@@ -212,6 +226,7 @@ string receive(int socket) {
 //third rpc
 void sendToClient(int socket, string message) {
 	int valsend = send(socket, message.c_str(), message.length(), 0);
+	// cout << "valsend = " << valsend << endl;
 	if (valsend == -1) {
         throw "error occured while sending data to server";
     }
@@ -219,13 +234,16 @@ void sendToClient(int socket, string message) {
 
 int main(int argc, char const *argv[]) 
 { 	
+	//creating a socket
+	Connection * connection = new Connection();
 
 	//infinite loop to keep the server running indefinitely
 	while (1) {
 		try{
 
-			//creating a socket and establishing connection with a client
-			int socket = create_connection();
+			// establishing connection with a client		
+			int socket = connection->connect();
+			cout << "post connection check. socket = " << socket << endl;
 
 			//set up a new game session
 			GameSession * thisSession = new GameSession();
@@ -238,11 +256,18 @@ int main(int argc, char const *argv[])
 
 				//receive client's answer
 				userInput = receive(socket);
-				
+				// cout << "userInput : " << userInput << endl;
+				if (userInput.empty()) {
+					cout << "The client has unexpectedly disconnected" << endl;
+					thisSession->setStatus(0);
+					break;
+				}
+
 				//handle client's answer and send feedback
 				sendToClient(socket, thisSession->handleUserInput(userInput));
 			}
 
+			close(socket);
 			cout << "The client exit the game." << endl << endl;
 
 		} catch (const char* message) {
@@ -250,6 +275,8 @@ int main(int argc, char const *argv[])
 			exit(EXIT_FAILURE);
 		}
 	}
+
+	//TODO: close server_fd socket from the create_connection() call
 
 	return 0; 
 } 

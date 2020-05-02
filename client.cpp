@@ -80,8 +80,11 @@ int main(int argc, char const *argv[])
     int sock;
 
     try {
+        cout << "pre connection check" << endl;
         //establishing connection with the server
         sock = create_connection();
+
+        cout << "post connection check. Sock = " << sock << endl;
         
         //receive and print welcome message & prompt
         receiveAndPrintToUser(sock);
@@ -97,6 +100,7 @@ int main(int argc, char const *argv[])
                 receiveAndPrintToUser(sock);
         }
 
+        close(sock);
         cout << "Disconnected from server." << endl;
     
     } catch (const char* message) {
