@@ -72,6 +72,9 @@ class Connection {
 		return new_socket;
 	}
 
+	void closeServerSocket() {
+		close(server_socket);
+	}
 };
 
 class GameSession {
@@ -276,7 +279,7 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	//TODO: close server_fd socket from the create_connection() call
+	network->closeServerSocket();
 
 	return 0; 
 } 
