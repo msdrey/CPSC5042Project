@@ -14,67 +14,79 @@ using namespace std;
 //audrey's port on cs1 for cpsc5042
 #define PORT 12119
 
-class Connection {
-  public:
-	int server_socket;
-	struct sockaddr_in address;	
+class Network {
+  private:
+    int server_fd;
+	struct sockaddr_in address;
 	int addrlen;
+	
+  public:
 
-
-	Connection() {
-		// Creating socket file descriptor 
+	// class constructor sets up the server
+	Network() {
+		//int server_fd, newSocket;
 		int opt = 1; 
-		server_socket = socket(AF_INET, SOCK_STREAM, 0);
-		if (server_socket < 0) 
+		addrlen = sizeof(address); 
+		
+		// Creating socket file descriptor 
+		server_fd = socket(AF_INET, SOCK_STREAM, 0);
+		if (server_fd < 0) 
 		{ 
 			throw "Server's socket creation failed"; 
 		} 
 
-		if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt))) 
+		if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt))) 
 		{ 
-			throw "setsockopt failed"; 
-		}
+			throw "setsockopt failed";
+		} 
 
-		addrlen = sizeof(address); 
-		
 		address.sin_family = AF_INET; 
 		address.sin_addr.s_addr = INADDR_ANY; 
 		address.sin_port = htons( PORT ); 
 
 		// Forcefully attaching socket to the port 12119 
-		if (bind(server_socket, (struct sockaddr *)&address, 
-									sizeof(address))<0) 
+		if (::bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) 
 		{ 
-			throw "bind failed"; 
+			throw "bind failed";
 		} 
 
 		//prepare to accept connections
-		if (listen(server_socket, 3) < 0) 
+		if (listen(server_fd, 3) < 0) 
 		{ 
 			throw "listen failed"; 
 		} 
-
-		cout << "Waiting for a client to connect." << endl;
+		cout << "Server is listening on port " << PORT << endl;
 	}
 
+	//accepting a connection from a client
 	int connect() {
-		//wait for a connection on the server_socket socket.
-		//when a connection occurs, create a new socket 
-		// for the client to connect with the server's socket
-		int new_socket = accept(server_socket, (struct sockaddr *)&address, 
-						(socklen_t*)&addrlen);
-		if (new_socket < 0) 
+		//wait for a connection on the server_fd socket.
+		//when a connection occurs, create a new socket for the client to connect with the server's socket
+		int newSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
+		if (newSocket < 0) 
 		{ 
 			throw "accept failed";
 		} 
+		cout << "New connection was made." << endl;
 
-		cout << "A client is playing the game." << endl;
-		return new_socket;
+		// TODO: Handle authentication hand shake
+		return newSocket;
 	}
 
 	void closeServerSocket() {
 		close(server_socket);
 	}
+	
+	private:
+		static bool authenticateUser(string username, string password) {
+			return true;
+		}
+		static string decryptPassword(string encryptedPassword) {
+			return "";
+		}
+		static string parseAuthenticationString(string authString) {
+			return "";
+		}
 };
 
 class GameSession {
@@ -238,14 +250,14 @@ void sendToClient(int socket, string message) {
 int main(int argc, char const *argv[]) 
 { 	
 	//creating a socket
-	Connection * connection = new Connection();
+	Network * network = new Network();
 
 	//infinite loop to keep the server running indefinitely
 	while (1) {
 		try{
 
 			// establishing connection with a client		
-			int socket = connection->connect();
+			int socket = network->connect();
 			cout << "post connection check. socket = " << socket << endl;
 
 			//set up a new game session

@@ -12,10 +12,11 @@ using namespace std;
 
 //audrey's port on cs1 for cpsc5042
 #define PORT 12119
+#define AWS_IP "54.91.202.143"
    
 //First RPC
 //Setting up server and establishing connection with a client   
-int create_connection() {
+int create_connection(string hostname = "127.0.0.1", int port = PORT) {
     struct sockaddr_in serv_addr; //a struct containing the info of the server's address
     
     //create an endpoint socket for communication
@@ -25,20 +26,19 @@ int create_connection() {
     if (sock < 0) { 
         throw "Client's socket creation error";
     } 
-   
     //defining the server's address.
     //first, specify address family
     serv_addr.sin_family = AF_INET;
     //then, the server's port number. 
     //htons translates from a 16-bit number in host byte order into a 16-bit
     //number in network byte order (used in the AF_INET family)
-    serv_addr.sin_port = htons(PORT); 
+    serv_addr.sin_port = htons(port); 
        
     // Convert IPv4 address from text to binary form and store in serv_addr.sin_addr
     //"127.0.0.1" is the localhost
-    //"54.91.202.143" is the aws box (does this change when we reboot the box?)
-    //CHANGE THIS ADDRESS FOR USE OVER THE INTERNET
-    if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)  
+    //"54.91.202.143" is the aws box
+    //CHANGE THIS ADDRESS FOR USE OVER THE INTERNET????????
+    if(inet_pton(AF_INET, hostname.c_str(), &serv_addr.sin_addr)<=0)  
     { 
         throw "Invalid IP address/ Address not supported"; 
 
@@ -49,6 +49,7 @@ int create_connection() {
     { 
 		throw "Connecting the socket to the address failed. The server might be down."; 
     } 
+    // do auth here?
     return sock;
 }
 
@@ -75,14 +76,30 @@ string takeInputAndSend(int sock) {
     return ans;
 }
 
-int main(int argc, char const *argv[]) 
-{    
+int main(int argc, char const *argv[]) {    
     int sock;
 
+    //the connection is established.
+
+    //game
+    //receive and print welcome message & prompt
     try {
         cout << "pre connection check" << endl;
         //establishing connection with the server
-        sock = create_connection();
+        if (argc == 2) {
+            string hostnameKeyword = argv[1];
+            if (hostnameKeyword.compare("aws") == 0) {
+                sock = create_connection(AWS_IP);
+            } else {
+                sock = create_connection();
+            }
+        } else if (argc > 2) {
+            string hostname = argv[1];
+            int port = atoi(argv[2]);
+            sock = create_connection(hostname, port);
+        } else {
+            sock = create_connection();
+        }
 
         cout << "post connection check. Sock = " << sock << endl;
         
