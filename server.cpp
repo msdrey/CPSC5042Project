@@ -72,6 +72,11 @@ class Network {
 		// TODO: Handle authentication hand shake
 		return newSocket;
 	}
+
+	void disconnect() {
+		close(server_fd);
+		cout << "The server is now disconnected. " << endl;
+	}
 	
 	private:
 		static bool authenticateUser(string username, string password) {
@@ -237,13 +242,19 @@ string receive(int socket) {
 	return string(userInput);
 }
 
-//third rpc
+//third RPC
 void sendToClient(int socket, string message) {
 	int valsend = send(socket, message.c_str(), message.length(), 0);
 	// cout << "valsend = " << valsend << endl;
 	if (valsend == -1) {
         throw "error occured while sending data to server";
     }
+}
+
+//Fourth RPC
+void disconnect(int socket) {
+	close(socket);
+	cout << "The client exit the game." << endl << endl;
 }
 
 int main(int argc, char const *argv[]) 
@@ -281,8 +292,7 @@ int main(int argc, char const *argv[])
 				sendToClient(socket, thisSession->handleUserInput(userInput));
 			}
 
-			close(socket);
-			cout << "The client exit the game." << endl << endl;
+			disconnect(socket);
 
 		} catch (const char* message) {
 			cerr << message << endl;
@@ -290,7 +300,7 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	//TODO: close server_fd socket from the create_connection() call
+	//network->disconnect();
 
 	return 0; 
 } 
