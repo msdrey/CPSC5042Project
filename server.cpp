@@ -74,7 +74,7 @@ class Network {
 	}
 
 	void closeServerSocket() {
-		close(server_socket);
+		close(server_fd);
 	}
 	
 	private:
