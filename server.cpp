@@ -5,8 +5,8 @@
 #include <stdlib.h> 
 #include <netinet/in.h> 
 #include <string.h> 
+#include "WordLibrary.h"
 
-// Uncomment this for string class
 #include <iostream> 
 #include <string>
 using namespace std;
@@ -87,18 +87,19 @@ class Network {
 
 class GameSession {
   private:  
-    
+    WordLibrary *wordBank;
     string currentWord;
     string currentClue;
+	int index;
     int score;
     int currentStreak;
 	int bestStreak;
 	int status; //1 if the game is ongoing, 0 if the client decides to quit
 
     void selectWord() {
-        //to do!
-        currentWord = "potato";
-        currentClue = "A hearty root vegetable";
+        currentWord = wordBank->getWord(index);
+        currentClue = wordBank->getHint(index);
+		index++;
     }
 
     //check if client's input is a command or not. 
@@ -182,6 +183,8 @@ class GameSession {
   public:
 	// Constructor
     GameSession() {
+		wordBank = new WordLibrary();
+		index = 0;
         score = 0;
         currentStreak = 0;
 		bestStreak = 0;
