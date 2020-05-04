@@ -62,7 +62,7 @@ WordLibrary :: WordLibrary(){
         library[24].hint = "Homeland of Maori";
         library[25].word = "Russia";
         library[25].hint = "Most famous vodka ever";
-        library[26].word = "Thailand";
+        library[27].word = "Thailand";
         library[27].hint = "Land of smile";
         library[28].word = "United Kingdom";
         library[28].hint = "You may call Great Britain";
