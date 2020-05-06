@@ -14,6 +14,33 @@ using namespace std;
 //audrey's port on cs1 for cpsc5042
 #define PORT 12119
 
+// Helper functions
+// Second RPC (first is connect in Network class)
+string receive(int socket) {
+	char userInput[1024] = {0};
+	int valread = recv(socket, userInput, 1024, 0);
+	// cout << "valread: " << valread << endl;
+	if (valread == 0) {
+		return "";
+	}
+	return string(userInput);
+}
+
+//Third RPC
+void sendToClient(int socket, const string& message) {
+	int valsend = send(socket, message.c_str(), message.length(), 0);
+	// cout << "valsend = " << valsend << endl;
+	if (valsend == -1) {
+        throw "error occured while sending data to server";
+    }
+}
+
+//Fourth RPC
+void disconnect(int socket) {
+	close(socket);
+	cout << "The client exit the game." << endl << endl;
+}
+
 class Network {
   private:
     int server_fd;
@@ -24,7 +51,6 @@ class Network {
 
 	// class constructor sets up the server
 	Network() {
-		//int server_fd, newSocket;
 		int opt = 1; 
 		addrlen = sizeof(address); 
 		
@@ -68,25 +94,45 @@ class Network {
 			throw "accept failed";
 		} 
 		cout << "New connection was made." << endl;
-
-		// TODO: Handle authentication hand shake
 		return newSocket;
 	}
 
-	void disconnect() {
-		close(server_fd);
-		cout << "The server is now disconnected. " << endl;
-	}
-	
+	// void disconnect() {
+	// 	close(server_fd);
+	// 	cout << "The server is now disconnected. " << endl;
+	// }
+
+		static string serializeKeyValuePair(string key, string value) {
+			return key + "=" + value;
+		}
+
+		static bool isAuthenticatedClient(int newSock) {
+			string authString = receive(newSock);
+			// if password username and password match
+			if (isValid(authString)) {
+				cout << "Auth success for string: " << authString << endl;
+				return true;
+			} else {
+				cout << "Auth fail for string: " << authString << endl;
+				return false;
+			}
+		}
+
 	private:
-		static bool authenticateUser(string username, string password) {
-			return true;
+
+		static string serializeAuthString(string username, string password) {
+			string result;
+			result = serializeKeyValuePair("username", username);
+			result += "," + serializeKeyValuePair("password", password);
+			return result;
 		}
-		static string decryptPassword(string encryptedPassword) {
-			return "";
-		}
-		static string parseAuthenticationString(string authString) {
-			return "";
+		static bool isValid(string authString) {
+			// TODO: support multiple logins, create user class and use comparator
+			// TODO: add library of predefined Users
+			string validUsername = "asdf";
+			string validPassword = "qwer";
+			string validAuthString = serializeAuthString(validUsername, validPassword);
+			return (authString.compare(validAuthString) == 0);
 		}
 };
 
@@ -240,32 +286,6 @@ class GameSession {
 
 };
 
-//Second RPC
-string receive(int socket) {
-	char userInput[1024] = {0};
-	int valread = recv(socket, userInput, 1024, 0);
-	// cout << "valread: " << valread << endl;
-	if (valread == 0) {
-		return "";
-	}
-	return string(userInput);
-}
-
-//third RPC
-void sendToClient(int socket, const string& message) {
-	int valsend = send(socket, message.c_str(), message.length(), 0);
-	// cout << "valsend = " << valsend << endl;
-	if (valsend == -1) {
-        throw "error occured while sending data to server";
-    }
-}
-
-//Fourth RPC
-void disconnect(int socket) {
-	close(socket);
-	cout << "The client exit the game." << endl << endl;
-}
-
 int main(int argc, char const *argv[]) 
 { 	
 	//creating a socket
@@ -278,6 +298,17 @@ int main(int argc, char const *argv[])
 			// establishing connection with a client		
 			int socket = network->connect();
 			cout << "post connection check. socket = " << socket << endl;
+
+			// authenticate client that created connection
+			if (network->isAuthenticatedClient(socket)) {
+				sendToClient(socket, Network::serializeKeyValuePair("isValidLogin", "true"));
+			} else {
+				sendToClient(socket, Network::serializeKeyValuePair("isValidLogin", "false"));
+				// force disconnect on server side
+				disconnect(socket); 
+				// skip rest of while loop to keep server alive
+				continue;	
+			};
 
 			//set up a new game session
 			GameSession * thisSession = new GameSession();
