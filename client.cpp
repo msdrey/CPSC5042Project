@@ -79,7 +79,7 @@ void promptAndSendUserAuthentication(int sock) {
 	}
 
     string serverResponseString(serverResponseBuffer);
-    cout << serverResponseString << endl;
+    //cout << serverResponseString << endl;
     // TODO: deserialize with function
     if (serverResponseString.compare(serializeKeyValuePair("isValidLogin", "false")) == 0) {
         cout << "Incorrect username or password. Disconnecting..." << endl;
