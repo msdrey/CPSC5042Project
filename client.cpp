@@ -76,6 +76,13 @@ string takeInputAndSend(int sock) {
     return ans;
 }
 
+//Fourth RPC
+void disconnect(int socket) {
+    close(socket);
+    cout << "Disconnected from server." << endl;
+}
+
+
 int main(int argc, char const *argv[]) {    
     int sock;
 
@@ -117,8 +124,7 @@ int main(int argc, char const *argv[]) {
                 receiveAndPrintToUser(sock);
         }
 
-        close(sock);
-        cout << "Disconnected from server." << endl;
+        disconnect(sock);
     
     } catch (const char* message) {
         cerr << message << endl;

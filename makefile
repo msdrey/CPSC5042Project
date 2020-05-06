@@ -4,7 +4,7 @@ CFLAGS= -std=c++11 -Wall -Werror -pedantic -ggdb
 all: server client
 
 server: server.cpp
-	$(CC) $(CFLAGS) server.cpp -o bin/server
+	$(CC) $(CFLAGS) server.cpp WordLibrary.cpp -o bin/server
 
 client: client.cpp
 	$(CC) $(CFLAGS) client.cpp -o bin/client
