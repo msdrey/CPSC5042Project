@@ -5,8 +5,8 @@
 #include <stdlib.h> 
 #include <netinet/in.h> 
 #include <string.h> 
+#include "WordLibrary.h"
 
-// Uncomment this for string class
 #include <iostream> 
 #include <string>
 using namespace std;
@@ -72,6 +72,11 @@ class Network {
 		// TODO: Handle authentication hand shake
 		return newSocket;
 	}
+
+	void disconnect() {
+		close(server_fd);
+		cout << "The server is now disconnected. " << endl;
+	}
 	
 	private:
 		static bool authenticateUser(string username, string password) {
@@ -87,27 +92,28 @@ class Network {
 
 class GameSession {
   private:  
-    
+    WordLibrary *wordBank;
     string currentWord;
     string currentClue;
+	int index;
     int score;
     int currentStreak;
 	int bestStreak;
 	int status; //1 if the game is ongoing, 0 if the client decides to quit
 
     void selectWord() {
-        //to do!
-        currentWord = "potato";
-        currentClue = "A hearty root vegetable";
+        currentWord = wordBank->getWord(index);
+        currentClue = wordBank->getHint(index);
+		index++;
     }
 
     //check if client's input is a command or not. 
-    bool isCommand(string str) {
+    bool isCommand(const string& str) {
         return str[0] == '.';
     }
 
 	//handling commands
-	string handleCommand(string str) {
+	string handleCommand(const string& str) {
 		if (isAMatch(str, ".skip")) {
 			selectWord();
 			currentStreak = 0;
@@ -126,8 +132,17 @@ class GameSession {
 	}
 
 	// returns true if the two strings match
-	bool isAMatch(string str1, string str2) {
-		return str1.compare(str2) == 0;
+	bool isAMatch(const string& str1, const string& str2) {
+    	unsigned int len = str1.length();
+    	if (str2.length() != len){
+			return false;
+		}
+    	for (unsigned int i = 0; i < len; ++i) {
+			if (tolower(str1[i]) != tolower(str2[i])) {
+				return false;
+			}
+		}
+    	return true;
 	}
 
 	// returns a string prompting the user for an answer
@@ -162,7 +177,7 @@ class GameSession {
 		}
 	}
 
-	string checkGuess(string guess) {
+	string checkGuess(const string& guess) {
 		if (isAMatch(guess, currentWord)) {
 			string win = "Congrats, you win!\n";
 			selectWord();
@@ -182,6 +197,8 @@ class GameSession {
   public:
 	// Constructor
     GameSession() {
+		wordBank = new WordLibrary();
+		index = 0;
         score = 0;
         currentStreak = 0;
 		bestStreak = 0;
@@ -204,7 +221,7 @@ class GameSession {
 						+ "  .exit \t to log out and exit\n\n";
 	}
 
-	string handleUserInput(string userInput) {
+	string handleUserInput(const string& userInput) {
 		if (isCommand(userInput)) {
 			return handleCommand(userInput);
 		} else {
@@ -234,13 +251,19 @@ string receive(int socket) {
 	return string(userInput);
 }
 
-//third rpc
-void sendToClient(int socket, string message) {
+//third RPC
+void sendToClient(int socket, const string& message) {
 	int valsend = send(socket, message.c_str(), message.length(), 0);
 	// cout << "valsend = " << valsend << endl;
 	if (valsend == -1) {
         throw "error occured while sending data to server";
     }
+}
+
+//Fourth RPC
+void disconnect(int socket) {
+	close(socket);
+	cout << "The client exit the game." << endl << endl;
 }
 
 int main(int argc, char const *argv[]) 
@@ -278,8 +301,7 @@ int main(int argc, char const *argv[])
 				sendToClient(socket, thisSession->handleUserInput(userInput));
 			}
 
-			close(socket);
-			cout << "The client exit the game." << endl << endl;
+			disconnect(socket);
 
 		} catch (const char* message) {
 			cerr << message << endl;
@@ -287,7 +309,7 @@ int main(int argc, char const *argv[])
 		}
 	}
 
-	//TODO: close server_fd socket from the create_connection() call
+	//network->disconnect();
 
 	return 0; 
 } 
