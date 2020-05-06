@@ -5,7 +5,6 @@
 #include <unistd.h> 
 #include <string.h> 
 
-// Uncomment this for string class
 #include <iostream> 
 #include <string>
 using namespace std;
@@ -37,11 +36,9 @@ int create_connection(string hostname = "127.0.0.1", int port = PORT) {
     // Convert IPv4 address from text to binary form and store in serv_addr.sin_addr
     //"127.0.0.1" is the localhost
     //"54.91.202.143" is the aws box
-    //CHANGE THIS ADDRESS FOR USE OVER THE INTERNET????????
     if(inet_pton(AF_INET, hostname.c_str(), &serv_addr.sin_addr)<=0)  
     { 
         throw "Invalid IP address/ Address not supported"; 
-
     } 
    
     //open a connection between this client's socket and the server's address info
@@ -117,11 +114,11 @@ int main(int argc, char const *argv[]) {
         string userInput = "";
         while(userInput.compare(".exit")) {
 
-                //take in user's input and send to server
-                userInput = takeInputAndSend(sock);
+            //take in user's input and send to server
+            userInput = takeInputAndSend(sock);
 
-                //receive feedback + prompt from server, and print them
-                receiveAndPrintToUser(sock);
+            //receive feedback + prompt from server, and print them
+            receiveAndPrintToUser(sock);
         }
 
         disconnect(sock);
