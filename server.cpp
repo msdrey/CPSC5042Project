@@ -11,37 +11,12 @@
 #include <string>
 using namespace std;
 
-//audrey's port on cs1 for cpsc5042
+// Audrey's port on cs1 for cpsc5042
 #define PORT 12119
 #define USER_CAPACITY 100
 
-// Helper functions
-// Second RPC (first is connect in Network class)
-string receive(int socket) {
-	char userInput[1024] = {0};
-	int valread = recv(socket, userInput, 1024, 0);
-	// cout << "valread: " << valread << endl;
-	if (valread == 0) {
-		return "";
-	}
-	return string(userInput);
-}
-
-//Third RPC
-void sendToClient(int socket, const string& message) {
-	int valsend = send(socket, message.c_str(), message.length(), 0);
-	// cout << "valsend = " << valsend << endl;
-	if (valsend == -1) {
-        throw "error occured while sending data to server";
-    }
-}
-
-//Fourth RPC
-void disconnect(int socket) {
-	close(socket);
-	cout << "The client exit the game." << endl << endl;
-}
-
+// This class holds the details of the established server socket and its
+// address and allows the server to create a new socket, 
 class Network {
   private:
     int server_fd;
@@ -57,10 +32,9 @@ class Network {
 
 	int currentUserIndex;
 
-	
   public:
-
-	// class constructor sets up the server
+	int currentSocket; // holds the socket once a connection is established
+	// class constructor sets up the server and initializes users bank
 	Network() {
 
 		users = new user[USER_CAPACITY];
@@ -95,38 +69,58 @@ class Network {
 			throw "listen failed"; 
 		} 
 		cout << "Server is listening on port " << PORT << endl;
-
-		users[0].username = "asdf";
-		users[0].password = "qwer";
-		users[1].username = "noah";
-		users[1].password = "zxcv";
 	}
 
-	//accepting a connection from a client
-	int connect() {
-		//wait for a connection on the server_fd socket.
-		//when a connection occurs, create a new socket for the client to connect with the server's socket
+	// class destructor
+	~Network() {
+		delete[] users;
+	}
+
+	// First RPC
+	// this call is accepting a connection from a client and returning the 
+	// id of the socket of the new client connection
+	void connect() {
 		int newSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
 		if (newSocket < 0) 
 		{ 
 			throw "accept failed";
 		} 
 		cout << "New connection was made." << endl;
-		return newSocket;
+		currentSocket = newSocket;
+		return;
 	}
 
-	// void disconnect() {
-	// 	close(server_fd);
-	// 	cout << "The server is now disconnected. " << endl;
-	// }
-
-	static string serializeKeyValuePair(string key, string value) {
-		return key + "=" + value;
+	// Second RPC: receives whatever is found in the specified socket
+	//    		  and returns it
+	string receive() {
+		char userInput[1024] = {0};
+		int valread = recv(currentSocket, userInput, 1024, 0);
+		// cout << "valread: " << valread << endl;
+		if (valread == 0) {
+			return "";
+		}
+		return string(userInput);
 	}
 
-	bool isAuthenticatedClient(int newSock) {
-		string authString = receive(newSock);
-		// authString = "key=value,key=value"
+	// Third RPC: sends the inputted message into the specified socket
+	//           will throw an error message if the sending fails
+	void sendToClient(const string& message) {
+		int valsend = send(currentSocket, message.c_str(), message.length(), 0);
+		// cout << "valsend = " << valsend << endl;
+		if (valsend == -1) {
+			throw "error occured while sending data to server";
+		}
+	}
+
+	// Fourth RPC: closes the socket and confirms closure into console
+	void disconnect() {
+		close(currentSocket);
+		cout << "The client exit the game." << endl << endl;
+	}
+
+	bool isAuthenticatedClient() {
+		string authString = receive(); //"username=<value>,password=<value>"
+		cout << authString << endl; 
 
 		int equalPos = authString.find("=");
 		int commaPos = authString.find(",");
@@ -150,7 +144,13 @@ class Network {
 			cout << "Auth fail for string: " << authString << endl;
 			return false;
 		}
-	}
+	  }
+	  
+		// helper static function that puts a key and value into a 
+		// standardized format
+		static string serializeKeyValuePair(string key, string value) {
+			return key + "=" + value;
+		}
 
 	private:
 
@@ -162,13 +162,11 @@ class Network {
 		}
 
 		bool isValid(string authString) {
-			// TODO: support multiple logins, create user class and use comparator
-			// TODO: add library of predefined Users
-
-
 			string validAuthString = serializeAuthString(users[currentUserIndex].username, users[currentUserIndex].password);
 			return (authString.compare(validAuthString) == 0);
 		}
+
+
 };
 
 class GameSession {
@@ -331,19 +329,19 @@ int main(int argc, char const *argv[])
 		try{
 
 			// establishing connection with a client		
-			int socket = network->connect();
-			cout << "post connection check. socket = " << socket << endl;
+			network->connect();
+			cout << "post connection check. socket = " << network->currentSocket << endl;
 
 			// authenticate client that created connection
-			if (network->isAuthenticatedClient(socket)) {
+			if (network->isAuthenticatedClient()) {
 				cout << "User is authenticated" << endl;
-				sendToClient(socket, Network::serializeKeyValuePair("isValidLogin", "true"));
-				string clientConfirmsAuth = receive(socket);
+				network->sendToClient(Network::serializeKeyValuePair("isValidLogin", "true"));
+				string clientConfirmsAuth = network->receive();
 				cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;
 			} else {
-				sendToClient(socket, Network::serializeKeyValuePair("isValidLogin", "false"));
+				network->sendToClient(Network::serializeKeyValuePair("isValidLogin", "false"));
 				// force disconnect on server side
-				disconnect(socket); 
+				network->disconnect(); 
 				// skip rest of while loop to keep server alive
 				
 				continue;	
@@ -353,13 +351,13 @@ int main(int argc, char const *argv[])
 			GameSession * thisSession = new GameSession();
 
 			//welcome user and start game
-			sendToClient(socket, thisSession->startSession());
+			network->sendToClient(thisSession->startSession());
 
 			string userInput;
 			while (thisSession->getStatus() == 1) { //while session is active
 
 				//receive client's answer
-				userInput = receive(socket);
+				userInput = network->receive();
 				// cout << "userInput : " << userInput << endl;
 				if (userInput.empty()) {
 					cout << "The client has unexpectedly disconnected" << endl;
@@ -368,10 +366,10 @@ int main(int argc, char const *argv[])
 				}
 
 				//handle client's answer and send feedback
-				sendToClient(socket, thisSession->handleUserInput(userInput));
+				network->sendToClient(thisSession->handleUserInput(userInput));
 			}
 
-			disconnect(socket);
+			network->disconnect();
 
 		} catch (const char* message) {
 			cerr << message << endl;
