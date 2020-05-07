@@ -15,7 +15,7 @@ using namespace std;
 #define LOCAL_IP "127.0.0.1"
 
 // Helper functions
-//Second RPC
+
 //receive a string from the server and print it in console
 void receiveAndPrintToUser(int sock) {
     char message[1024] = {0};
@@ -28,7 +28,6 @@ void receiveAndPrintToUser(int sock) {
     cout << message << endl;
 }
 
-//Third RPC
 //Takes in user's input, and then both sends it to the server and returns it
 string takeInputAndSend(int sock) {
     string ans;
@@ -40,7 +39,6 @@ string takeInputAndSend(int sock) {
     return ans;
 }
 
-//Fourth RPC
 //closes the connection
 void disconnect(int socket) {
     close(socket);
@@ -108,7 +106,6 @@ bool receiveAuthResult(int sock) {
     }
 }
 
-//First RPC
 //establishing connection with the server according to default ip and port 
 //or according to specified values when program was executed
 //ex: ./bin/client aws          will set up ip and port automatically

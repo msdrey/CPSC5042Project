@@ -99,7 +99,6 @@ class Network {
 		delete[] users;
 	}
 
-	// First RPC
 	// this call is accepting a connection from a client and returning the 
 	// id of the socket of the new client connection
 	void connect() {
@@ -113,8 +112,8 @@ class Network {
 		return;
 	}
 
-	// Second RPC: receives whatever is found in the specified socket
-	//    		  and returns it
+	// receives whatever is found in the specified socket
+	// and returns it
 	string receive() {
 		char userInput[1024] = {0};
 		int valread = recv(currentClientSocket, userInput, 1024, 0);
@@ -125,8 +124,8 @@ class Network {
 		return string(userInput);
 	}
 
-	// Third RPC: sends the inputted message into the specified socket
-	//           will throw an error message if the sending fails
+	//sends the inputted message into the specified socket
+	// will throw an error message if the sending fails
 	void sendToClient(const string& message) {
 		int valsend = send(currentClientSocket, message.c_str(), message.length(), 0);
 		// cout << "valsend = " << valsend << endl;
@@ -135,7 +134,7 @@ class Network {
 		}
 	}
 
-	// Fourth RPC: closes the socket and confirms closure into console
+	//closes the socket and confirms closure into console
 	void disconnect() {
 		close(currentClientSocket);
 		cout << "The client exit the game." << endl << endl;
@@ -296,6 +295,15 @@ class GameSession {
 		}
 	}
 
+	// returns a formatted string explaining the available commands to the user
+	string displayCommands() {
+		string result = "Options:\n";
+		return result 	+ "  .skip \t to skip the current word\n"
+						+ "  .score \t to display the current score and best streak\n"
+						+ "  .help \t to display commands again\n"
+						+ "  .exit \t to log out and exit\n\n";
+	}
+
   public:
 	// Constructor initializes the game session's state
     GameSession() {
@@ -314,15 +322,6 @@ class GameSession {
 		welcome += "This is a guessing word game. Just type your best guess!\n";
 		welcome += displayCommands();
 		return welcome + promptWord();
-	}
-
-	// returns a formatted string explaining the available commands to the user
-	string displayCommands() {
-		string result = "Options:\n";
-		return result 	+ "  .skip \t to skip the current word\n"
-						+ "  .score \t to display the current score and best streak\n"
-						+ "  .help \t to display commands again\n"
-						+ "  .exit \t to log out and exit\n\n";
 	}
 
 	// determines if the user input is a command or a guess and calls the appropriate function
