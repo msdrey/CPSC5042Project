@@ -19,10 +19,12 @@ using namespace std;
 //receive and print message + prompt
 void receiveAndPrintToUser(int sock) {
     char message[1024] = {0};
+    //cout << "in receive and print" << endl;
     int valread = recv(sock, message, 1024, 0);
     if (valread == -1) {
 		throw "receiving error";
 	}
+    //cout << "after recv" << endl;
     cout << message << endl;
 }
 
@@ -86,6 +88,14 @@ void promptAndSendUserAuthentication(int sock) {
         // TODO: allow retries
         disconnect(sock);
         exit(0);
+    } else {
+        cout << "congrats your logged in." << endl;
+        //Confirm authorization to server.
+        string isConfirmed = "true";
+        int valsend = send(sock, isConfirmed.c_str(), isConfirmed.length(), 0);
+        if (valsend == -1) {
+            throw "error occured while sending data to server, on confirmation attempt";
+        }
     }
 }
 

@@ -13,6 +13,7 @@ using namespace std;
 
 //audrey's port on cs1 for cpsc5042
 #define PORT 12119
+#define USER_CAPACITY 100
 
 // Helper functions
 // Second RPC (first is connect in Network class)
@@ -46,11 +47,23 @@ class Network {
     int server_fd;
 	struct sockaddr_in address;
 	int addrlen;
+
+	struct user {
+		string username;
+		string password;
+	};
+
+	user * users;
+
+	int currentUserIndex;
+
 	
   public:
 
 	// class constructor sets up the server
 	Network() {
+
+		users = new user[USER_CAPACITY];
 		int opt = 1; 
 		addrlen = sizeof(address); 
 		
@@ -82,6 +95,11 @@ class Network {
 			throw "listen failed"; 
 		} 
 		cout << "Server is listening on port " << PORT << endl;
+
+		users[0].username = "asdf";
+		users[0].password = "qwer";
+		users[1].username = "noah";
+		users[1].password = "zxcv";
 	}
 
 	//accepting a connection from a client
@@ -102,21 +120,37 @@ class Network {
 	// 	cout << "The server is now disconnected. " << endl;
 	// }
 
-		static string serializeKeyValuePair(string key, string value) {
-			return key + "=" + value;
-		}
+	static string serializeKeyValuePair(string key, string value) {
+		return key + "=" + value;
+	}
 
-		static bool isAuthenticatedClient(int newSock) {
-			string authString = receive(newSock);
-			// if password username and password match
-			if (isValid(authString)) {
-				cout << "Auth success for string: " << authString << endl;
-				return true;
-			} else {
-				cout << "Auth fail for string: " << authString << endl;
-				return false;
+	bool isAuthenticatedClient(int newSock) {
+		string authString = receive(newSock);
+		// authString = "key=value,key=value"
+
+		int equalPos = authString.find("=");
+		int commaPos = authString.find(",");
+		string user = authString.substr(equalPos+1, commaPos - equalPos - 1);
+
+		for (int i = 0; i < USER_CAPACITY; i++) {
+			if (users[i].username.compare(user) == 0)  {
+				cout << "found user : " << user << endl;
+				currentUserIndex = i;
+				break;
 			}
 		}
+
+
+		cout << authString << endl;
+		// if password username and password match
+		if (isValid(authString)) {
+			cout << "Auth success for string: " << authString << endl;
+			return true;
+		} else {
+			cout << "Auth fail for string: " << authString << endl;
+			return false;
+		}
+	}
 
 	private:
 
@@ -126,12 +160,13 @@ class Network {
 			result += "," + serializeKeyValuePair("password", password);
 			return result;
 		}
-		static bool isValid(string authString) {
+
+		bool isValid(string authString) {
 			// TODO: support multiple logins, create user class and use comparator
 			// TODO: add library of predefined Users
-			string validUsername = "asdf";
-			string validPassword = "qwer";
-			string validAuthString = serializeAuthString(validUsername, validPassword);
+
+
+			string validAuthString = serializeAuthString(users[currentUserIndex].username, users[currentUserIndex].password);
 			return (authString.compare(validAuthString) == 0);
 		}
 };
@@ -301,14 +336,18 @@ int main(int argc, char const *argv[])
 
 			// authenticate client that created connection
 			if (network->isAuthenticatedClient(socket)) {
+				cout << "User is authenticated" << endl;
 				sendToClient(socket, Network::serializeKeyValuePair("isValidLogin", "true"));
+				string clientConfirmsAuth = receive(socket);
+				cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;
 			} else {
 				sendToClient(socket, Network::serializeKeyValuePair("isValidLogin", "false"));
 				// force disconnect on server side
 				disconnect(socket); 
 				// skip rest of while loop to keep server alive
+				
 				continue;	
-			};
+			}
 
 			//set up a new game session
 			GameSession * thisSession = new GameSession();
