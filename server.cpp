@@ -357,7 +357,6 @@ int main(int argc, char const *argv[])
 				// force disconnect on server side
 				network->disconnect(); 
 				// skip rest of while loop to keep server alive
-				
 				continue;	
 			}
 
