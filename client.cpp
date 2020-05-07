@@ -5,7 +5,6 @@
 #include <unistd.h> 
 #include <string.h> 
 
-// Uncomment this for string class
 #include <iostream> 
 #include <string>
 using namespace std;
@@ -13,10 +12,11 @@ using namespace std;
 //audrey's port on cs1 for cpsc5042
 #define PORT 12119
 #define AWS_IP "54.91.202.143"
+#define LOCAL_IP "127.0.0.1"
 
 // Helper functions
 //Second RPC
-//receive and print message + prompt
+//receive a string from the server and print it in console
 void receiveAndPrintToUser(int sock) {
     char message[1024] = {0};
     //cout << "in receive and print" << endl;
@@ -29,7 +29,7 @@ void receiveAndPrintToUser(int sock) {
 }
 
 //Third RPC
-//Take in user's input and send to server
+//Takes in user's input, and then both sends it to the server and returns it
 string takeInputAndSend(int sock) {
     string ans;
     cin >> ans;
@@ -41,15 +41,18 @@ string takeInputAndSend(int sock) {
 }
 
 //Fourth RPC
+//closes the connection
 void disconnect(int socket) {
     close(socket);
     cout << "Disconnected from server." << endl;
 }
 
+//formats a key and value pair
 string serializeKeyValuePair(string key, string value) {
     return key + "=" + value;
 }
 
+//formats a username and password pair for communication with the server
 string serializeAuthString(string username, string password) {
     string result;
     result = serializeKeyValuePair("username", username);
@@ -57,6 +60,7 @@ string serializeAuthString(string username, string password) {
     return result;
 }
 
+// prompt the user for a username and password and 
 void promptAndSendUserAuthentication(int sock) {
     string username;
     string password;
@@ -77,7 +81,7 @@ void promptAndSendUserAuthentication(int sock) {
 
     int valread = recv(sock, serverResponseBuffer, 1024, 0);
     if (valread == -1) {
-		throw "receiving error, on authentication on authentiction attempt";
+		throw "receiving error, on authentiction attempt";
 	}
 
     string serverResponseString(serverResponseBuffer);
@@ -89,7 +93,7 @@ void promptAndSendUserAuthentication(int sock) {
         disconnect(sock);
         exit(0);
     } else {
-        cout << "congrats your logged in." << endl;
+        cout << "Your login was successful." << endl;
         //Confirm authorization to server.
         string isConfirmed = "true";
         int valsend = send(sock, isConfirmed.c_str(), isConfirmed.length(), 0);
@@ -100,9 +104,27 @@ void promptAndSendUserAuthentication(int sock) {
 }
 
 //First RPC
-//Setting up server and establishing connection with a client   
-int create_connection(string hostname = "127.0.0.1", int port = PORT) {
+//establishing connection with the server according to default ip and port 
+//or according to specified values when program was executed
+//ex: ./bin/client aws          will set up ip and port automatically
+//    ./bin/client              will set up default ip and port (localhost and 12119)
+//    ./bin/client <IP> <port>  will set up specified IP and port 
+int create_connection(int argc, char const *argv[]) {
     struct sockaddr_in serv_addr; //a struct containing the info of the server's address
+    string hostname;
+    int port;
+
+    if (argc > 2) { //hostname and port were specified
+        hostname = argv[1];
+        port = atoi(argv[2]);
+    } else if (argc == 2 && string(argv[1]).compare("aws") == 0) {
+        //connecting to aws box with default port
+        hostname = AWS_IP;
+        port = PORT;
+    } else { //default values
+        hostname = LOCAL_IP;
+        port = PORT;
+    }
     
     //create an endpoint socket for communication
     //AF_INET is an address family: IPv4 Internet protocols
@@ -120,13 +142,9 @@ int create_connection(string hostname = "127.0.0.1", int port = PORT) {
     serv_addr.sin_port = htons(port); 
        
     // Convert IPv4 address from text to binary form and store in serv_addr.sin_addr
-    //"127.0.0.1" is the localhost
-    //"54.91.202.143" is the aws box
-    //CHANGE THIS ADDRESS FOR USE OVER THE INTERNET????????
     if(inet_pton(AF_INET, hostname.c_str(), &serv_addr.sin_addr)<=0)  
     { 
         throw "Invalid IP address/ Address not supported"; 
-
     } 
    
     //open a connection between this client's socket and the server's address info
@@ -139,49 +157,31 @@ int create_connection(string hostname = "127.0.0.1", int port = PORT) {
 }
 
 int main(int argc, char const *argv[]) {    
-    int sock;
-
-    //the connection is established.
-
-    //game
-    //receive and print welcome message & prompt
+    
     try {
-        cout << "pre connection check" << endl;
         //establishing connection with the server
-        if (argc == 2) {
-            string hostnameKeyword = argv[1];
-            if (hostnameKeyword.compare("aws") == 0) {
-                sock = create_connection(AWS_IP);
-            } else {
-                sock = create_connection();
-            }
-        } else if (argc > 2) {
-            string hostname = argv[1];
-            int port = atoi(argv[2]);
-            sock = create_connection(hostname, port);
-        } else {
-            sock = create_connection();
-        }
-
-        cout << "post connection check. Sock = " << sock << endl;
+        int sock;
+        sock = create_connection(argc, argv);
+        cout << "Post connection check. Sock = " << sock << endl;
         
-        // send expected auth string
+        // get username and password from user, format them, send them to server
+        // for verification, receive server response and display result
         promptAndSendUserAuthentication(sock);
 
-        //receive and print welcome message & prompt
+        //receive and display welcome message & prompt
         receiveAndPrintToUser(sock);
     
-   
-        string userInput = "";
-        while(userInput.compare(".exit")) {
+        //keep playing as long as the player does not issue the command ".exit"
+        string userInput;
+        do {
+            //take in user's input and send to server
+            userInput = takeInputAndSend(sock);
 
-                //take in user's input and send to server
-                userInput = takeInputAndSend(sock);
+            //receive feedback + next prompt from server, and display them
+            receiveAndPrintToUser(sock);
+        } while(userInput.compare(".exit") != 0);
 
-                //receive feedback + prompt from server, and print them
-                receiveAndPrintToUser(sock);
-        }
-
+        //close connection with server
         disconnect(sock);
     
     } catch (const char* message) {
