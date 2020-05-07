@@ -1,5 +1,4 @@
-./bin/client
-./bin/server
+./bin
 .vscode
 client
 server
