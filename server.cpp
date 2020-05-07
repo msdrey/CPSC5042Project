@@ -82,6 +82,10 @@ class Network {
 		users[2].password = "zxcv";
 		users[3].username = "audrey";
 		users[3].password = "zxcv";
+		users[4].username = "mikemckee";
+		users[4].password = "5042";
+		users[5].username = "default";
+		users[5].password = "123";
 
 		//creating a listening socket
 		int opt = 1; 
