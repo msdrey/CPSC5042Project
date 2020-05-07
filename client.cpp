@@ -60,12 +60,12 @@ string serializeAuthString(string username, string password) {
     return result;
 }
 
-// prompt the user for a username and password and 
+// prompt the user for a username and password and send it to server
 void promptAndSendUserAuthentication(int sock) {
     string username;
     string password;
     string authString;
-    char serverResponseBuffer[1024] = {0};
+
 
     cout << "Please enter your username: " << endl;
     cin >> username;
@@ -78,7 +78,12 @@ void promptAndSendUserAuthentication(int sock) {
     if (valsend == -1) {
         throw "error occured while sending data to server, on authentication attempt";
     }
+}
 
+//receive authentication result and check if valid. if valid,
+//finalize connection and return true. if not valid, return false.
+bool receiveAuthResult(int sock) {
+    char serverResponseBuffer[1024] = {0};
     int valread = recv(sock, serverResponseBuffer, 1024, 0);
     if (valread == -1) {
 		throw "receiving error, on authentiction attempt";
@@ -90,8 +95,7 @@ void promptAndSendUserAuthentication(int sock) {
     if (serverResponseString.compare(serializeKeyValuePair("isValidLogin", "false")) == 0) {
         cout << "Incorrect username or password. Disconnecting..." << endl;
         // TODO: allow retries
-        disconnect(sock);
-        exit(0);
+        return false;
     } else {
         cout << "Your login was successful." << endl;
         //Confirm authorization to server.
@@ -100,6 +104,7 @@ void promptAndSendUserAuthentication(int sock) {
         if (valsend == -1) {
             throw "error occured while sending data to server, on confirmation attempt";
         }
+        return true;
     }
 }
 
@@ -165,8 +170,14 @@ int main(int argc, char const *argv[]) {
         cout << "Post connection check. Sock = " << sock << endl;
         
         // get username and password from user, format them, send them to server
-        // for verification, receive server response and display result
+        // for verification
         promptAndSendUserAuthentication(sock);
+        
+        //receive authentication result and check if valid, if not, disconnect
+        if (!receiveAuthResult(sock)) {
+            disconnect(sock);
+            exit(0);
+        }
 
         //receive and display welcome message & prompt
         receiveAndPrintToUser(sock);
