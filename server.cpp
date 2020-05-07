@@ -16,7 +16,10 @@ using namespace std;
 #define USER_CAPACITY 100
 
 // Helper functions
+
 // Second RPC (first is connect in Network class)
+//			  Receives whatever is found in the specified socket
+//    		  and returns it
 string receive(int socket) {
 	char userInput[1024] = {0};
 	int valread = recv(socket, userInput, 1024, 0);
@@ -27,7 +30,8 @@ string receive(int socket) {
 	return string(userInput);
 }
 
-//Third RPC
+//Third RPC: sends the inputted message into the specified socket
+//           will throw an error message if the sending fails
 void sendToClient(int socket, const string& message) {
 	int valsend = send(socket, message.c_str(), message.length(), 0);
 	// cout << "valsend = " << valsend << endl;
@@ -36,34 +40,50 @@ void sendToClient(int socket, const string& message) {
     }
 }
 
-//Fourth RPC
+//Fourth RPC: closes the socket and confirms closure into console
 void disconnect(int socket) {
 	close(socket);
 	cout << "The client exit the game." << endl << endl;
 }
 
+
+// This class holds the details of the established server socket and its
+// address and allows the server to create a new socket, 
 class Network {
   private:
-    int server_fd;
-	struct sockaddr_in address;
-	int addrlen;
+    int server_fd; //the server's socket
+	struct sockaddr_in address; // the address information of the server socket
+	int addrlen; // the length of the address
 
-	struct user {
+	struct User { // a simple struct for keeping users information. 
+				  // may be expanded later with high score or other info
+				  // may be turned into a full class too
 		string username;
 		string password;
 	};
 
-	user * users;
-
-	int currentUserIndex;
+	User * users; //the bank of users
+	int currentUserIndex; //the index where we can find the information of the 
+						  //user that is currently connected
 
 	
   public:
 
-	// class constructor sets up the server
+	// class constructor sets up the server and initializes users bank
 	Network() {
 
-		users = new user[USER_CAPACITY];
+		//initializing the bank of users
+		users = new User[USER_CAPACITY];
+		users[0].username = "asdf";
+		users[0].password = "qwer";
+		users[1].username = "noah";
+		users[1].password = "zxcv";
+		users[2].username = "ken";
+		users[2].password = "zxcv";
+		users[3].username = "audrey";
+		users[3].password = "zxcv";
+
+		//creating a listening socket
 		int opt = 1; 
 		addrlen = sizeof(address); 
 		
@@ -74,11 +94,13 @@ class Network {
 			throw "Server's socket creation failed"; 
 		} 
 
+		//setting up the options for the socket
 		if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt))) 
 		{ 
 			throw "setsockopt failed";
 		} 
 
+		//specifying the address and the port the server will connect to
 		address.sin_family = AF_INET; 
 		address.sin_addr.s_addr = INADDR_ANY; 
 		address.sin_port = htons( PORT ); 
@@ -95,17 +117,22 @@ class Network {
 			throw "listen failed"; 
 		} 
 		cout << "Server is listening on port " << PORT << endl;
-
-		users[0].username = "asdf";
-		users[0].password = "qwer";
-		users[1].username = "noah";
-		users[1].password = "zxcv";
 	}
 
-	//accepting a connection from a client
+	//class destructor
+	~Network() {
+		delete[]users;
+	}
+
+	// closing the server's socket. Is never used because the server is in an infinite loop...
+	// void disconnect() {
+	// 	close(server_fd);
+	// 	cout << "The server is now disconnected. " << endl;
+	// }
+
+	//this call is accepting a connection from a client and returning the 
+	//id of the socket of the new client connection
 	int connect() {
-		//wait for a connection on the server_fd socket.
-		//when a connection occurs, create a new socket for the client to connect with the server's socket
 		int newSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
 		if (newSocket < 0) 
 		{ 
@@ -115,77 +142,62 @@ class Network {
 		return newSocket;
 	}
 
-	// void disconnect() {
-	// 	close(server_fd);
-	// 	cout << "The server is now disconnected. " << endl;
-	// }
-
-	static string serializeKeyValuePair(string key, string value) {
-		return key + "=" + value;
-	}
-
 	bool isAuthenticatedClient(int newSock) {
-		string authString = receive(newSock);
-		// authString = "key=value,key=value"
+		string authString = receive(newSock); //"username=<value>,password=<value>"
+		cout << authString << endl; 
 
+		//extract username and entered password from authString
 		int equalPos = authString.find("=");
 		int commaPos = authString.find(",");
 		string user = authString.substr(equalPos+1, commaPos - equalPos - 1);
+		string passwordAttempt = authString.substr(commaPos+10);
 
-		for (int i = 0; i < USER_CAPACITY; i++) {
+		//find the inputted user in our users bank, if so, initilize currentUserIndex
+		bool isFound = false;
+		for (int i = 0; i < USER_CAPACITY && !isFound; i++) {
 			if (users[i].username.compare(user) == 0)  {
 				cout << "found user : " << user << endl;
 				currentUserIndex = i;
-				break;
+				isFound = true;
 			}
 		}
 
-
-		cout << authString << endl;
-		// if password username and password match
-		if (isValid(authString)) {
-			cout << "Auth success for string: " << authString << endl;
-			return true;
-		} else {
+		//if user is not found or if user is found but password is wrong, authentication fails
+		if (!isFound || passwordAttempt.compare(users[currentUserIndex].password) != 0) {
 			cout << "Auth fail for string: " << authString << endl;
 			return false;
+		} else {
+			cout << "Auth success for string: " << authString << endl;
+			return true;
 		}
 	}
 
-	private:
-
-		static string serializeAuthString(string username, string password) {
-			string result;
-			result = serializeKeyValuePair("username", username);
-			result += "," + serializeKeyValuePair("password", password);
-			return result;
-		}
-
-		bool isValid(string authString) {
-			// TODO: support multiple logins, create user class and use comparator
-			// TODO: add library of predefined Users
-
-
-			string validAuthString = serializeAuthString(users[currentUserIndex].username, users[currentUserIndex].password);
-			return (authString.compare(validAuthString) == 0);
-		}
+	// helper static function that puts a key and value into a 
+	// standardized format
+	static string serializeKeyValuePair(string key, string value) {
+		return key + "=" + value;
+	}
 };
 
+
+//This class manages a game of guessing word. A game lasts as long as the player wants
+//to continue playing and keeps asking the user to guess words according to some
+//clues.
 class GameSession {
   private:  
     WordLibrary *wordBank;
     string currentWord;
     string currentClue;
-	int index;
-    int score;
-    int currentStreak;
-	int bestStreak;
+	int index; // index of the current word to be guessed in the word library
+    int score; // number of correct guesses since the beginning of the session
+    int currentStreak; // current streak of correct guesses by the player
+	int bestStreak; // greatest streak of correct guesses in the current game session
 	int status; //1 if the game is ongoing, 0 if the client decides to quit
 
     void selectWord() {
         currentWord = wordBank->getWord(index);
         currentClue = wordBank->getHint(index);
-		index++;
+		index++; // go to next word in the list (the list has been randomized upon its creation)
     }
 
     //check if client's input is a command or not. 
@@ -212,7 +224,7 @@ class GameSession {
 		}
 	}
 
-	// returns true if the two strings match
+	// returns true if the two strings match. Case insensitive.
 	bool isAMatch(const string& str1, const string& str2) {
     	unsigned int len = str1.length();
     	if (str2.length() != len){
@@ -258,9 +270,11 @@ class GameSession {
 		}
 	}
 
+	//checks the user's guess, modifies the state of the game accordingly
+	// and returns an appropriate response to be sent to the user 
 	string checkGuess(const string& guess) {
 		if (isAMatch(guess, currentWord)) {
-			string win = "Congrats, you win!\n";
+			string win = "\nCongrats, you win!\n";
 			selectWord();
 			score += 1;
 			currentStreak += 1;
@@ -276,7 +290,7 @@ class GameSession {
 	}
 
   public:
-	// Constructor
+	// Constructor initializes the game session's state
     GameSession() {
 		wordBank = new WordLibrary();
 		index = 0;
@@ -287,13 +301,15 @@ class GameSession {
         selectWord();
     }
 
+	// returns a welcoming message to the user
 	string startSession() {
-		string welcome = "Welcome to Wordasaurus!\n" ;
+		string welcome = "\n\n\nWelcome to Wordasaurus!\n" ;
 		welcome += "This is a guessing word game. Just type your best guess!\n";
 		welcome += displayCommands();
 		return welcome + promptWord();
 	}
 
+	// returns a formatted string explaining the available commands to the user
 	string displayCommands() {
 		string result = "Options:\n";
 		return result 	+ "  .skip \t to skip the current word\n"
@@ -302,6 +318,7 @@ class GameSession {
 						+ "  .exit \t to log out and exit\n\n";
 	}
 
+	// determines if the user input is a command or a guess and calls the appropriate function
 	string handleUserInput(const string& userInput) {
 		if (isCommand(userInput)) {
 			return handleCommand(userInput);
@@ -310,10 +327,12 @@ class GameSession {
 		}		
 	}
 
+	// returns the current status of the game session: 0 for inactive, 1 for active
 	bool getStatus() {
 		return status;
 	}
 
+	// sets the current status of the game session: 0 for inactive, 1 for active
 	void setStatus(int s) {
 		status = s;
 	}

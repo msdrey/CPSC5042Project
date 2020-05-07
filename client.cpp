@@ -88,7 +88,7 @@ void promptAndSendUserAuthentication(int sock) {
         disconnect(sock);
         exit(0);
     } else {
-        cout << "congrats your logged in." << endl;
+        cout << "Your login was successful." << endl;
         //Confirm authorization to server.
         string isConfirmed = "true";
         int valsend = send(sock, isConfirmed.c_str(), isConfirmed.length(), 0);
