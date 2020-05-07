@@ -141,7 +141,7 @@ class Network {
 		cout << "The client exit the game." << endl << endl;
 	}
 
-	bool isAuthenticatedClient() {
+	bool receiveAndCheckAuthentication() {
 		string authString = receive(); //"username=<value>,password=<value>"
 		cout << authString << endl; 
 
@@ -151,6 +151,10 @@ class Network {
 		string user = authString.substr(equalPos+1, commaPos - equalPos - 1);
 		string passwordAttempt = authString.substr(commaPos+10);
 
+		return userAuthentication(user, passwordAttempt);
+	}
+
+	bool userAuthentication(string user, string passwordAttempt) {
 		//find the inputted user in our users bank, if so, initilize currentUserIndex
 		bool isFound = false;
 		for (int i = 0; i < USER_CAPACITY && !isFound; i++) {
@@ -163,10 +167,10 @@ class Network {
 
 		//if user is not found or if user is found but password is wrong, authentication fails
 		if (!isFound || passwordAttempt.compare(users[currentUserIndex].password) != 0) {
-			cout << "Auth fail for string: " << authString << endl;
+			cout << "Auth fail " << endl; //for string: " << authString << endl;
 			return false;
 		} else {
-			cout << "Auth success for string: " << authString << endl;
+			cout << "Auth success " << endl;// for string: " << authString << endl;
 			return true;
 		}
 	}
@@ -174,7 +178,8 @@ class Network {
 	// helper static function that puts a key and value into a 
 	// standardized format
 	static string serializeKeyValuePair(string key, string value) {
-		return key + "=" + value;
+		return key + "=" + 
+		value;
 	}
 };
 
@@ -209,18 +214,23 @@ class GameSession {
 		if (isAMatch(str, ".skip")) {
 			selectWord();
 			currentStreak = 0;
-			return "Let's try a different word. \n" + 
-					promptWord();
+			return "Let's try a different word. \n";
 		} else if (isAMatch(str, ".score")) {
-			return displayScore() + "\n" + promptWord();
-		} else if (isAMatch(str, ".exit")) {
-			status = 0;
-			return displayScore() + "\nThank you for playing! Goodbye.";
+			return displayScore() + "\n";
+		} else if (isAMatch(str, ".addWord")) {
+			return addingWord();
+		} else if (isAMatch(str, ".leaderboard") ) {
+			return "todo: implement leaderboard";
 		} else if (isAMatch(str, ".help")){
-			return displayCommands() + promptWord();
+			return displayCommands();
 		} else {
-			return "Invalid command. \n" + displayCommands() + promptWord();
+			return "Invalid command. \n" + displayCommands();
 		}
+	}
+
+	string addingWord() {
+		//to do: implement adding word to dictionary funciton.
+		return "";
 	}
 
 	// returns true if the two strings match. Case insensitive.
@@ -279,12 +289,10 @@ class GameSession {
 			currentStreak += 1;
 			updateBestStreak();
 			return win + displayScore()
-					+ "\nLet's try a new word. \n"
-					+ promptWord();
+					+ "\nLet's try a new word. \n";
 		} else {
 			currentStreak = 0;
-			return "Nope, wrong word. Try again. \n" 
-					+ promptWord();
+			return "Nope, wrong word. Try again. \n";
 		}
 	}
 
@@ -319,11 +327,19 @@ class GameSession {
 
 	// determines if the user input is a command or a guess and calls the appropriate function
 	string handleUserInput(const string& userInput) {
+		string result;
+		if (userInput.compare(".exit")==0) {
+				status = 0;
+				return "\n\n" + displayScore() + "\nThank you for playing! Goodbye.";
+		}
+
 		if (isCommand(userInput)) {
-			return handleCommand(userInput);
+			result = handleCommand(userInput);
 		} else {
-			return checkGuess(userInput);
+			result = checkGuess(userInput);
 		}		
+	
+		return result + promptWord();
 	}
 
 	// returns the current status of the game session: 0 for inactive, 1 for active
@@ -351,7 +367,7 @@ int main(int argc, char const *argv[])
 			cout << "post connection check. socket = " << network->getCurrentClientSocket() << endl;
 
 			// authenticate client that created connection
-			if (network->isAuthenticatedClient()) {
+			if (network->receiveAndCheckAuthentication()) {
 				cout << "User is authenticated" << endl;
 				network->sendToClient(Network::serializeKeyValuePair("isValidLogin", "true"));
 				string clientConfirmsAuth = network->receive();
