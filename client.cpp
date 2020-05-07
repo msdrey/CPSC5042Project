@@ -12,7 +12,92 @@ using namespace std;
 //audrey's port on cs1 for cpsc5042
 #define PORT 12119
 #define AWS_IP "54.91.202.143"
-   
+
+// Helper functions
+//Second RPC
+//receive and print message + prompt
+void receiveAndPrintToUser(int sock) {
+    char message[1024] = {0};
+    //cout << "in receive and print" << endl;
+    int valread = recv(sock, message, 1024, 0);
+    if (valread == -1) {
+		throw "receiving error";
+	}
+    //cout << "after recv" << endl;
+    cout << message << endl;
+}
+
+//Third RPC
+//Take in user's input and send to server
+string takeInputAndSend(int sock) {
+    string ans;
+    cin >> ans;
+    int valsend = send(sock, ans.c_str(), ans.length(), 0);
+    if (valsend == -1) {
+        throw "error occured while sending data to server";
+    }
+    return ans;
+}
+
+//Fourth RPC
+void disconnect(int socket) {
+    close(socket);
+    cout << "Disconnected from server." << endl;
+}
+
+string serializeKeyValuePair(string key, string value) {
+    return key + "=" + value;
+}
+
+string serializeAuthString(string username, string password) {
+    string result;
+    result = serializeKeyValuePair("username", username);
+    result += "," + serializeKeyValuePair("password", password);
+    return result;
+}
+
+void promptAndSendUserAuthentication(int sock) {
+    string username;
+    string password;
+    string authString;
+    char serverResponseBuffer[1024] = {0};
+
+    cout << "Please enter your username: " << endl;
+    cin >> username;
+    cout << "Please enter your password: " << endl;
+    cin >> password;
+
+    authString = serializeAuthString(username, password);
+
+    int valsend = send(sock, authString.c_str(), authString.length(), 0);
+    if (valsend == -1) {
+        throw "error occured while sending data to server, on authentication attempt";
+    }
+
+    int valread = recv(sock, serverResponseBuffer, 1024, 0);
+    if (valread == -1) {
+		throw "receiving error, on authentication on authentiction attempt";
+	}
+
+    string serverResponseString(serverResponseBuffer);
+    //cout << serverResponseString << endl;
+    // TODO: deserialize with function
+    if (serverResponseString.compare(serializeKeyValuePair("isValidLogin", "false")) == 0) {
+        cout << "Incorrect username or password. Disconnecting..." << endl;
+        // TODO: allow retries
+        disconnect(sock);
+        exit(0);
+    } else {
+        cout << "congrats your logged in." << endl;
+        //Confirm authorization to server.
+        string isConfirmed = "true";
+        int valsend = send(sock, isConfirmed.c_str(), isConfirmed.length(), 0);
+        if (valsend == -1) {
+            throw "error occured while sending data to server, on confirmation attempt";
+        }
+    }
+}
+
 //First RPC
 //Setting up server and establishing connection with a client   
 int create_connection(string hostname = "127.0.0.1", int port = PORT) {
@@ -46,39 +131,9 @@ int create_connection(string hostname = "127.0.0.1", int port = PORT) {
     { 
 		throw "Connecting the socket to the address failed. The server might be down."; 
     } 
-    // do auth here?
+
     return sock;
 }
-
-//Second RPC
-//receive and print message + prompt
-void receiveAndPrintToUser(int sock) {
-    char message[1024] = {0};
-    int valread = recv(sock, message, 1024, 0);
-    if (valread == -1) {
-		throw "receiving error";
-	}
-    cout << message << endl;
-}
-
-//Third RPC
-//Take in user's input and send to server
-string takeInputAndSend(int sock) {
-    string ans;
-    cin >> ans;
-    int valsend = send(sock, ans.c_str(), ans.length(), 0);
-    if (valsend == -1) {
-        throw "error occured while sending data to server";
-    }
-    return ans;
-}
-
-//Fourth RPC
-void disconnect(int socket) {
-    close(socket);
-    cout << "Disconnected from server." << endl;
-}
-
 
 int main(int argc, char const *argv[]) {    
     int sock;
@@ -107,6 +162,9 @@ int main(int argc, char const *argv[]) {
 
         cout << "post connection check. Sock = " << sock << endl;
         
+        // send expected auth string
+        promptAndSendUserAuthentication(sock);
+
         //receive and print welcome message & prompt
         receiveAndPrintToUser(sock);
     
