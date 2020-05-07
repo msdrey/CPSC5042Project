@@ -33,9 +33,13 @@ class Network {
 	User * users; //the bank of users
 	int currentUserIndex; //the index where we can find the information of the 
 						  //user that is currently connected
+	int currentClientSocket; // holds the socket once a connection is established
 
   public:
-	int currentSocket; // holds the socket once a connection is established
+	int getCurrentClientSocket() {
+		return currentClientSocket;
+	}
+	
 	// class constructor sets up the server and initializes users bank
 	Network() {
 
@@ -105,7 +109,7 @@ class Network {
 			throw "accept failed";
 		} 
 		cout << "New connection was made." << endl;
-		currentSocket = newSocket;
+		currentClientSocket = newSocket;
 		return;
 	}
 
@@ -113,7 +117,7 @@ class Network {
 	//    		  and returns it
 	string receive() {
 		char userInput[1024] = {0};
-		int valread = recv(currentSocket, userInput, 1024, 0);
+		int valread = recv(currentClientSocket, userInput, 1024, 0);
 		// cout << "valread: " << valread << endl;
 		if (valread == 0) {
 			return "";
@@ -124,7 +128,7 @@ class Network {
 	// Third RPC: sends the inputted message into the specified socket
 	//           will throw an error message if the sending fails
 	void sendToClient(const string& message) {
-		int valsend = send(currentSocket, message.c_str(), message.length(), 0);
+		int valsend = send(currentClientSocket, message.c_str(), message.length(), 0);
 		// cout << "valsend = " << valsend << endl;
 		if (valsend == -1) {
 			throw "error occured while sending data to server";
@@ -133,7 +137,7 @@ class Network {
 
 	// Fourth RPC: closes the socket and confirms closure into console
 	void disconnect() {
-		close(currentSocket);
+		close(currentClientSocket);
 		cout << "The client exit the game." << endl << endl;
 	}
 
@@ -344,7 +348,7 @@ int main(int argc, char const *argv[])
 		try{
 			// establish connection with a client		
 			network->connect();
-			cout << "post connection check. socket = " << network->currentSocket << endl;
+			cout << "post connection check. socket = " << network->getCurrentClientSocket() << endl;
 
 			// authenticate client that created connection
 			if (network->isAuthenticatedClient()) {
