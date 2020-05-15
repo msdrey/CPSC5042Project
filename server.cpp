@@ -271,7 +271,7 @@ int main(int argc, char const *argv[])
 	//creating a socket
 	Network * network = new Network();
 
-	//infinite loop to keep the server running indefinitely
+	//infinite loop to keep the server running indefinitely 
 	while (1) {
 		try{
 
