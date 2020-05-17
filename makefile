@@ -6,8 +6,8 @@ all: server client
 server: Server.cpp
 	$(CC) $(CFLAGS) Server.cpp WordLibrary.cpp Network.cpp GameSession.cpp -o bin/server
 
-client: client.cpp
-	$(CC) $(CFLAGS) client.cpp -o bin/client
+client: Client.cpp
+	$(CC) $(CFLAGS) Client.cpp -o bin/client
 
 clean:
 	rm bin/*.o
