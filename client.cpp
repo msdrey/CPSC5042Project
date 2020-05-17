@@ -5,7 +5,6 @@
 #include <unistd.h> 
 #include <string.h> 
 
-// Uncomment this for string class
 #include <iostream> 
 #include <string>
 using namespace std;
@@ -13,11 +12,121 @@ using namespace std;
 //audrey's port on cs1 for cpsc5042
 #define PORT 12119
 #define AWS_IP "54.91.202.143"
-   
-//First RPC
-//Setting up server and establishing connection with a client   
-int create_connection(string hostname = "127.0.0.1", int port = PORT) {
+#define LOCAL_IP "127.0.0.1"
+
+// Helper functions
+
+//receive a string from the server and print it in console
+void receiveAndPrintToUser(int sock) {
+    char message[1024] = {0};
+    //cout << "in receive and print" << endl;
+    int valread = recv(sock, message, 1024, 0);
+    if (valread == -1) {
+		throw "receiving error";
+	}
+    //cout << "after recv" << endl;
+    cout << message << endl;
+}
+
+//Takes in user's input, and then both sends it to the server and returns it
+string takeInputAndSend(int sock) {
+    string ans;
+    cin >> ans;
+    int valsend = send(sock, ans.c_str(), ans.length(), 0);
+    if (valsend == -1) {
+        throw "error occured while sending data to server";
+    }
+    return ans;
+}
+
+//closes the connection
+void disconnect(int socket) {
+    close(socket);
+    cout << "Disconnected from server." << endl;
+}
+
+//formats a key and value pair
+string serializeKeyValuePair(string key, string value) {
+    return key + "=" + value;
+}
+
+//formats a username and password pair for communication with the server
+string serializeAuthString(string username, string password) {
+    string result;
+    result = serializeKeyValuePair("username", username);
+    result += "," + serializeKeyValuePair("password", password);
+    return result;
+}
+
+// prompt the user for a username and password and send it to server
+void promptAndSendUserAuthentication(int sock) {
+    string username;
+    string password;
+    string authString;
+
+
+    cout << "Please enter your username: " << endl;
+    cin >> username;
+    cout << "Please enter your password: " << endl;
+    cin >> password;
+
+    authString = serializeAuthString(username, password);
+
+    int valsend = send(sock, authString.c_str(), authString.length(), 0);
+    if (valsend == -1) {
+        throw "error occured while sending data to server, on authentication attempt";
+    }
+}
+
+//receive authentication result and check if valid. if valid,
+//finalize connection and return true. if not valid, return false.
+bool receiveAuthResult(int sock) {
+    char serverResponseBuffer[1024] = {0};
+    int valread = recv(sock, serverResponseBuffer, 1024, 0);
+    if (valread == -1) {
+		throw "receiving error, on authentiction attempt";
+	}
+
+    string serverResponseString(serverResponseBuffer);
+    //cout << serverResponseString << endl;
+    // TODO: deserialize with function
+    if (serverResponseString.compare(serializeKeyValuePair("isValidLogin", "false")) == 0) {
+        cout << "Incorrect username or password. Disconnecting..." << endl;
+        // TODO: allow retries
+        return false;
+    } else {
+        cout << "Your login was successful." << endl;
+        //Confirm authorization to server.
+        string isConfirmed = "true";
+        int valsend = send(sock, isConfirmed.c_str(), isConfirmed.length(), 0);
+        if (valsend == -1) {
+            throw "error occured while sending data to server, on confirmation attempt";
+        }
+        return true;
+    }
+}
+
+//establishing connection with the server according to default ip and port 
+//or according to specified values when program was executed
+//ex: ./bin/client aws          will set up ip and port automatically
+//    ./bin/client              will set up default ip and port (localhost and 12119)
+//    ./bin/client <IP> <port>  will set up specified IP and port 
+int create_connection(int argc, char const *argv[]) {
     struct sockaddr_in serv_addr; //a struct containing the info of the server's address
+    string hostname;
+    int port;
+
+    if (argc > 2) { //hostname and port were specified
+        hostname = argv[1];
+        port = atoi(argv[2]);
+    } else if (argc == 2 && string(argv[1]).compare("aws") == 0) {
+        //connecting to aws box with default port
+        hostname = AWS_IP;
+        port = PORT;
+    } else { //default values
+        hostname = LOCAL_IP;
+        port = PORT;
+    }
     
     //create an endpoint socket for communication
     //AF_INET is an address family: IPv4 Internet protocols
@@ -35,13 +144,9 @@ int create_connection(string hostname = "127.0.0.1", int port = PORT) {
     serv_addr.sin_port = htons(port); 
        
     // Convert IPv4 address from text to binary form and store in serv_addr.sin_addr
-    //"127.0.0.1" is the localhost
-    //"54.91.202.143" is the aws box
-    //CHANGE THIS ADDRESS FOR USE OVER THE INTERNET????????
     if(inet_pton(AF_INET, hostname.c_str(), &serv_addr.sin_addr)<=0)  
     { 
         throw "Invalid IP address/ Address not supported"; 
-
     } 
    
     //open a connection between this client's socket and the server's address info
@@ -49,81 +154,42 @@ int create_connection(string hostname = "127.0.0.1", int port = PORT) {
     { 
 		throw "Connecting the socket to the address failed. The server might be down."; 
     } 
-    // do auth here?
+
     return sock;
 }
 
-//Second RPC
-//receive and print message + prompt
-void receiveAndPrintToUser(int sock) {
-    char message[1024] = {0};
-    int valread = recv(sock, message, 1024, 0);
-    if (valread == -1) {
-		throw "receiving error";
-	}
-    cout << message << endl;
-}
-
-//Third RPC
-//Take in user's input and send to server
-string takeInputAndSend(int sock) {
-    string ans;
-    cin >> ans;
-    int valsend = send(sock, ans.c_str(), ans.length(), 0);
-    if (valsend == -1) {
-        throw "error occured while sending data to server";
-    }
-    return ans;
-}
-
-//Fourth RPC
-void disconnect(int socket) {
-    close(socket);
-    cout << "Disconnected from server." << endl;
-}
-
-
 int main(int argc, char const *argv[]) {    
-    int sock;
-
-    //the connection is established.
-
-    //game
-    //receive and print welcome message & prompt
+    
     try {
-        cout << "pre connection check" << endl;
         //establishing connection with the server
-        if (argc == 2) {
-            string hostnameKeyword = argv[1];
-            if (hostnameKeyword.compare("aws") == 0) {
-                sock = create_connection(AWS_IP);
-            } else {
-                sock = create_connection();
-            }
-        } else if (argc > 2) {
-            string hostname = argv[1];
-            int port = atoi(argv[2]);
-            sock = create_connection(hostname, port);
-        } else {
-            sock = create_connection();
+        int sock;
+        sock = create_connection(argc, argv);
+        cout << "Post connection check. Sock = " << sock << endl;
+        
+        // get username and password from user, format them, send them to server
+        // for verification
+        promptAndSendUserAuthentication(sock);
+        
+        //receive authentication result and check if valid, if not, disconnect
+        if (!receiveAuthResult(sock)) {
+            disconnect(sock);
+            exit(0);
         }
 
-        cout << "post connection check. Sock = " << sock << endl;
-        
-        //receive and print welcome message & prompt
+        //receive and display welcome message & prompt
         receiveAndPrintToUser(sock);
     
-   
-        string userInput = "";
-        while(userInput.compare(".exit")) {
+        //keep playing as long as the player does not issue the command ".exit"
+        string userInput;
+        do {
+            //take in user's input and send to server
+            userInput = takeInputAndSend(sock);
 
-                //take in user's input and send to server
-                userInput = takeInputAndSend(sock);
+            //receive feedback + next prompt from server, and display them
+            receiveAndPrintToUser(sock);
+        } while(userInput.compare(".exit") != 0);
 
-                //receive feedback + prompt from server, and print them
-                receiveAndPrintToUser(sock);
-        }
-
+        //close connection with server
         disconnect(sock);
     
     } catch (const char* message) {
