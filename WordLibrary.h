@@ -9,16 +9,17 @@ class WordLibrary{
         WordLibrary();
         string getWord(int);
         string getHint(int);
+        void addWord(string, string);
     private:
 
-        int const COUNT = 36;
+        int count = 36;
     
         struct wordCard{
             string word;
             string hint;
         };
 
-        wordCard *library = new wordCard[COUNT];
+        wordCard * library; 
         void shuffle();
 
 };

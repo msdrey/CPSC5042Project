@@ -13,6 +13,7 @@ using namespace std;
 #define PORT 12119
 #define AWS_IP "54.91.202.143"
 #define LOCAL_IP "127.0.0.1"
+bool wordAddingProcess = false;
 
 // Helper functions
 
@@ -106,6 +107,24 @@ bool receiveAuthResult(int sock) {
     }
 }
 
+void addWord(int sock){
+    string userWord;
+    string userHint;
+    string userWordAndHint;
+
+    cout << "Enter a word you want to add: ";
+    cin >> userWord;
+    cout <<"\nEnter hint for the word: ";
+    cin >> userHint;
+
+    userWordAndHint = serializeAuthString(userWord, userHint);
+    wordAddingProcess = false;
+    int valsend = send(sock, userWordAndHint.c_str(), userWordAndHint.length(), 0);
+    if (valsend == -1) {
+        throw "Error while sending user's word and hint suggestion";
+    }
+}
+
 //establishing connection with the server according to default ip and port 
 //or according to specified values when program was executed
 //ex: ./bin/client aws          will set up ip and port automatically
@@ -182,8 +201,17 @@ int main(int argc, char const *argv[]) {
         //keep playing as long as the player does not issue the command ".exit"
         string userInput;
         do {
+            if (wordAddingProcess == true) {    
+                addWord(sock);
+                receiveAndPrintToUser(sock);
+            }
+
             //take in user's input and send to server
             userInput = takeInputAndSend(sock);
+
+            if (userInput.compare(".addWord") == 0) {
+                wordAddingProcess = true;
+            }
 
             //receive feedback + next prompt from server, and display them
             receiveAndPrintToUser(sock);

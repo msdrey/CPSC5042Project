@@ -23,7 +23,8 @@ string GameSession::handleCommand(const string& str) {
     } else if (isAMatch(str, ".score")) {
         return displayScore() + "\n";
     } else if (isAMatch(str, ".addWord")) {
-        return addingWord();
+        wordAddingProcess = true;
+		return "Word add processing...";
     } else if (isAMatch(str, ".leaderboard") ) {
         return "todo: implement leaderboard";
     } else if (isAMatch(str, ".help")){
@@ -33,9 +34,17 @@ string GameSession::handleCommand(const string& str) {
     }
 }
 
-string GameSession::addingWord() {
-    //to do: implement adding word to dictionary funciton.
-    return "";
+string GameSession::addingWord(string userInput) {
+		int equalPos = userInput.find("=");
+		int commaPos = userInput.find(",");
+		string userWord = userInput.substr(equalPos+1, commaPos - equalPos - 1);
+		string userHint = userInput.substr(commaPos+10);
+
+		wordBank->addWord(userWord, userHint);
+			
+		wordAddingProcess = false;
+
+		return "Your word has been added to the library.\nLet's continue playing.\n\n";
 }
 
 // returns true if the two strings match. Case insensitive.
@@ -107,6 +116,7 @@ string GameSession::displayCommands() {
     return result 	+ "  .skip \t to skip the current word\n"
                     + "  .score \t to display the current score and best streak\n"
                     + "  .help \t to display commands again\n"
+                    + "  .addWord \t to add your own word and its hint to our game\n"
                     + "  .exit \t to log out and exit\n\n";
 }
 
@@ -118,6 +128,7 @@ GameSession::GameSession() {
     currentStreak = 0;
     bestStreak = 0;
     status = 1;
+    wordAddingProcess = 0;
     selectWord();
 }
 
@@ -137,8 +148,13 @@ string GameSession::handleUserInput(const string& userInput) {
             return "\n\n" + displayScore() + "\nThank you for playing! Goodbye.";
     }
 
-    if (isCommand(userInput)) {
+    if (isCommand(userInput) && userInput.compare(".addword") != 0) {
         result = handleCommand(userInput);
+    } else if (isCommand(userInput) && userInput.compare(".addword") == 0) {
+			result = handleCommand(userInput);
+			return result;
+    } else if (wordAddingProcess == true){
+			result = addingWord(userInput);
     } else {
         result = checkGuess(userInput);
     }		
