@@ -3,7 +3,7 @@ CFLAGS= -std=c++11 -Wall -Werror -pedantic -ggdb
 
 all: server client
 
-server: Server.cpp
+server: Server.cpp WordLibrary.cpp Network.cpp GameSession.cpp 
 	$(CC) $(CFLAGS) Server.cpp WordLibrary.cpp Network.cpp GameSession.cpp -o bin/server
 
 client: Client.cpp
@@ -11,9 +11,3 @@ client: Client.cpp
 
 clean:
 	rm bin/*.o
-
-runserver: bin/server
-	./bin/server
-
-runclient: bin/client
-	./bin/client
