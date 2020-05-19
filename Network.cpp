@@ -8,7 +8,12 @@ int Network::getCurrentClientSocket() {
 }
 
 // class constructor sets up the server and initializes users bank
-Network::Network() {
+Network::Network(int argc, char const *argv[]) {
+    if (argc == 2) {
+        port = atoi(argv[1]);
+    } else {
+        port = AUDREYS_PORT;
+    }
 
     //initializing the bank of users
     users = new User[USER_CAPACITY];
@@ -45,9 +50,9 @@ Network::Network() {
     //specifying the address and the port the server will connect to
     address.sin_family = AF_INET; 
     address.sin_addr.s_addr = INADDR_ANY; 
-    address.sin_port = htons( PORT ); 
+    address.sin_port = htons( port ); 
 
-    // Forcefully attaching socket to the port 12119 
+    // Forcefully attaching socket to the port  
     if (::bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) 
     { 
         throw "bind failed";
@@ -58,7 +63,7 @@ Network::Network() {
     { 
         throw "listen failed"; 
     } 
-    cout << "Server is listening on port " << PORT << endl;
+    cout << "Server is listening on port " << port << endl;
 }
 
 // class destructor

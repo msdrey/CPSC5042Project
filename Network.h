@@ -9,7 +9,7 @@
 #include <string>
 
 // Audrey's port on cs1 for cpsc5042
-#define PORT 12119
+#define AUDREYS_PORT 12119
 #define USER_CAPACITY 100
 
 using namespace std;
@@ -20,6 +20,7 @@ class Network {
     int server_fd; //the server's socket
 	struct sockaddr_in address; // the address information of the server socket
 	int addrlen; // the length of the address
+	int port;
 
 	struct User { // a simple struct for keeping users information. 
 				  // may be expanded later with high score or other info
@@ -36,7 +37,7 @@ class Network {
   public:
 	int getCurrentClientSocket(); 
 	string getCurrentUser();	
-	Network();
+	Network(int, const char**);
 	~Network();
     void connect();
 	string receive();
