@@ -27,7 +27,7 @@ class GameSession {
     void selectWord();
     bool isCommand(const string&);
 	string handleCommand(const string& );
-	string addingWord(string);
+	string addingWord(const string&);
 	bool isAMatch(const string& , const string& );
 	string promptWord();
 	string getHint();

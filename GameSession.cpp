@@ -24,7 +24,7 @@ string GameSession::handleCommand(const string& str) {
         return displayScore() + "\n";
     } else if (isAMatch(str, ".addWord")) {
         wordAddingProcess = true;
-		return "Word add processing...";
+		return "Adding word processing...";
     } else if (isAMatch(str, ".leaderboard") ) {
         return "todo: implement leaderboard";
     } else if (isAMatch(str, ".help")){
@@ -34,17 +34,17 @@ string GameSession::handleCommand(const string& str) {
     }
 }
 
-string GameSession::addingWord(string userInput) {
-		int equalPos = userInput.find("=");
-		int commaPos = userInput.find(",");
-		string userWord = userInput.substr(equalPos+1, commaPos - equalPos - 1);
-		string userHint = userInput.substr(commaPos+10);
+string GameSession::addingWord(const string& userInput) {
+	int equalPos = userInput.find("=");
+	int commaPos = userInput.find(",");
+	string userWord = userInput.substr(equalPos+1, commaPos - equalPos - 1);
+	string userHint = userInput.substr(commaPos+10);
 
-		wordBank->addWord(userWord, userHint);
+	wordBank->addWord(userWord, userHint);
 			
-		wordAddingProcess = false;
+	wordAddingProcess = false;
 
-		return "Your word has been added to the library.\nLet's continue playing.\n\n";
+	return "Your word has been added to the library.\nLet's continue playing.\n\n";
 }
 
 // returns true if the two strings match. Case insensitive.
@@ -128,7 +128,7 @@ GameSession::GameSession() {
     currentStreak = 0;
     bestStreak = 0;
     status = 1;
-    wordAddingProcess = 0;
+    wordAddingProcess = false;
     selectWord();
 }
 
@@ -151,10 +151,10 @@ string GameSession::handleUserInput(const string& userInput) {
     if (isCommand(userInput) && userInput.compare(".addword") != 0) {
         result = handleCommand(userInput);
     } else if (isCommand(userInput) && userInput.compare(".addword") == 0) {
-			result = handleCommand(userInput);
-			return result;
+		result = handleCommand(userInput);
+		return result;
     } else if (wordAddingProcess == true){
-			result = addingWord(userInput);
+		result = addingWord(userInput);
     } else {
         result = checkGuess(userInput);
     }		

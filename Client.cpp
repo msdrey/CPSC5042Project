@@ -209,7 +209,7 @@ int main(int argc, char const *argv[]) {
             //take in user's input and send to server
             userInput = takeInputAndSend(sock);
 
-            if (userInput.compare(".addWord") == 0) {
+            if (userInput.compare(".addword") == 0) {
                 wordAddingProcess = true;
             }
 
