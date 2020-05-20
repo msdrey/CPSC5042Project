@@ -7,8 +7,6 @@
 using namespace std;
 
 WordLibrary :: WordLibrary(){
-        
-    //library = new wordCard[count];
 
     library[0].word = "Avocado";
     library[0].hint = "Main ingredient in guacamole";
