@@ -8,8 +8,7 @@ using namespace std;
 
 WordLibrary :: WordLibrary(){
         
-        //What is the better design between adding each word in class like below, or loading from file.
-    library = new wordCard[count];
+    //library = new wordCard[count];
 
     library[0].word = "Avocado";
     library[0].hint = "Main ingredient in guacamole";
@@ -119,7 +118,6 @@ void WordLibrary :: shuffle(){
     }
 
 }
-
 
 void WordLibrary :: addWord(string userWord, string userHint){
 

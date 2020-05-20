@@ -19,7 +19,7 @@ class WordLibrary{
             string hint;
         };
 
-        wordCard * library; 
+        wordCard * library = new wordCard[count];
         void shuffle();
 
 };
