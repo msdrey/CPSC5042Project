@@ -27,6 +27,8 @@ int main(int argc, char const *argv[])
 			network->connect();
 			cout << "post connection check. socket = " << network->getCurrentClientSocket() << endl;
 
+			
+
 			// authenticate client that created connection
 			if (network->receiveAndCheckAuthentication()) {
 				cout << "User is authenticated" << endl;

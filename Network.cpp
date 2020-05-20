@@ -26,6 +26,7 @@ Network::Network(int argc, char const *argv[]) {
         users[i].password = line;
         i++;
     }
+    userbankfile.close();
     usersCount = i;
 
     // users[0].username = "asdf";
@@ -124,23 +125,54 @@ void Network::disconnectClient() {
 }
 
 bool Network::receiveAndCheckAuthentication() {
+    string loginOrSignin = receive(); //"log in " or "sign in"
+    //cout << "user choice: " << loginOrSignin << endl;
+
+    //send handshake
+    sendToClient("ans");
+
     string authString = receive(); //"username=<value>,password=<value>"
-    cout << authString << endl; 
+    //cout << authString << endl; 
 
     //extract username and entered password from authString
     int equalPos = authString.find("=");
     int commaPos = authString.find(",");
-    string user = authString.substr(equalPos+1, commaPos - equalPos - 1);
-    string passwordAttempt = authString.substr(commaPos+10);
+    string inputUser = authString.substr(equalPos+1, commaPos - equalPos - 1);
+    string inputPass = authString.substr(commaPos+10);
 
-    return userAuthentication(user, passwordAttempt);
+    if (loginOrSignin.compare("log in")==0) {
+        return validateUsernamePassword(inputUser, inputPass);
+    } else { // "sign in"
+        return createNewUser(inputUser, inputPass);
+    }
 }
 
-bool Network::userAuthentication(string user, string passwordAttempt) {
+bool Network::createNewUser(string inputUser, string inputPass) {
+    //add to file
+    ofstream userbankfile;
+    userbankfile.open("UserBank.txt", ios_base::app);//append to file
+    if (userbankfile.is_open()) {
+        userbankfile << "\n"<< inputUser << "\n" << inputPass;
+        userbankfile.close();
+    }
+    
+    //add to loaded userbank
+    //todo: check if there is space for a new user
+    //todo: make user capacity bigger if needed?
+    //todo: check if user already there
+    
+    users[usersCount].username = inputUser;
+    users[usersCount].password = inputPass;
+    usersCount++;
+    cout << "A new user signed in." << endl;
+    return true;
+}
+
+bool Network::validateUsernamePassword(string inputUser, string inputPass) {
     //find the inputted user in our users bank, if so, initilize currentUserIndex
     bool isFound = false;
     for (int i = 0; i < USER_CAPACITY && !isFound; i++) {
-        if (users[i].username.compare(user) == 0)  {
+        if (users[i].username.compare(inputUser) == 0)  {
             //cout << "found user : " << user << endl;
             currentUserIndex = i;
             isFound = true;
@@ -148,7 +180,7 @@ bool Network::userAuthentication(string user, string passwordAttempt) {
     }
 
     //if user is not found or if user is found but password is wrong, authentication fails
-    if (!isFound || passwordAttempt.compare(users[currentUserIndex].password) != 0) {
+    if (!isFound || inputPass.compare(users[currentUserIndex].password) != 0) {
         cout << "Auth fail " << endl; //for string: " << authString << endl;
         return false;
     } else {

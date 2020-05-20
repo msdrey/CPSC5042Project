@@ -47,7 +47,8 @@ class Network {
 	void disconnectClient();
 	void closeServerSocket();
 	bool receiveAndCheckAuthentication();
-	bool userAuthentication(string , string);
+	bool validateUsernamePassword(string , string);
+	bool createNewUser(string, string);
 	
     // helper static function that puts a key and value into a 
     // standardized format

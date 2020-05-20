@@ -79,6 +79,34 @@ void promptAndSendUserAuthentication(int sock) {
     }
 }
 
+//returns 'log in' or 'sign in'
+void promptSigninOrLogin(int sock) {
+    string choice;
+    bool validInput = false;
+    while(!validInput) {
+        cout << "Please enter 'sign in' if you are a new user or 'log in' if you are a returning user" << endl;
+        getline(cin, choice);
+
+        if (choice.compare("sign in")!=0&&choice.compare("log in")!=0) {
+            cout << "This is not a valid choice. Try again." << endl;
+        } else {
+            validInput = true;
+        }
+    }
+    //send choice to server so it prepares to get log in or sign in
+    int valsend = send(sock, choice.c_str(), choice.length(), 0);
+    if (valsend == -1) {
+        throw "error occured while sending data to server";
+    }
+    //receive handshake
+    char serverResponseBuffer[1024] = {0};
+    int valread = recv(sock, serverResponseBuffer, 1024, 0);
+    if (valread == -1) {
+        throw "receiving error";
+    }
+    ////////
+}
+
 //receive authentication result and check if valid. if valid,
 //finalize connection and return true. if not valid, return false.
 bool receiveAuthResult(int sock) {
@@ -185,9 +213,11 @@ int main(int argc, char const *argv[]) {
         sock = create_connection(argc, argv);
         cout << "Post connection check. Sock = " << sock << endl;
         
-        // get username and password from user, format them, send them to server
-        // for verification
+        // provide user with choice: sign in or log in?
+        promptSigninOrLogin(sock);
+
         promptAndSendUserAuthentication(sock);
+        
         
         //receive authentication result and check if valid, if not, disconnect
         if (!receiveAuthResult(sock)) {
