@@ -17,18 +17,29 @@ Network::Network(int argc, char const *argv[]) {
 
     //initializing the bank of users
     users = new User[USER_CAPACITY];
-    users[0].username = "asdf";
-    users[0].password = "qwer";
-    users[1].username = "noah";
-    users[1].password = "zxcv";
-    users[2].username = "ken";
-    users[2].password = "zxcv";
-    users[3].username = "audrey";
-    users[3].password = "zxcv";
-    users[4].username = "mikemckee";
-    users[4].password = "5042";
-    users[5].username = "default";
-    users[5].password = "123";
+    ifstream userbankfile("UserBank.txt");
+    string line;
+    int i = 0;
+    while (i < USER_CAPACITY && getline(userbankfile, line)) {
+        users[i].username = line;
+        getline(userbankfile, line);
+        users[i].password = line;
+        i++;
+    }
+    usersCount = i;
+
+    // users[0].username = "asdf";
+    // users[0].password = "qwer";
+    // users[1].username = "noah";
+    // users[1].password = "zxcv";
+    // users[2].username = "ken";
+    // users[2].password = "zxcv";
+    // users[3].username = "audrey";
+    // users[3].password = "zxcv";
+    // users[4].username = "mikemckee";
+    // users[4].password = "5042";
+    // users[5].username = "default";
+    // users[5].password = "123";
 
     //creating a listening socket
     int opt = 1; 

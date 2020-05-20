@@ -4,7 +4,7 @@
 //#include <sys/socket.h> 
 //#include <stdlib.h> 
 #include <netinet/in.h> 
-
+#include <fstream>
 #include <iostream> 
 #include <string>
 
@@ -31,6 +31,8 @@ class Network {
 	};
 
 	User * users; //the bank of users
+	int usersCount;//the number of registered users
+
 	int currentUserIndex;
 	int currentClientSocket;
 
