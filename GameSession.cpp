@@ -40,7 +40,7 @@ string GameSession::addingWord(const string& userInput) {
 	string userWord = userInput.substr(equalPos+1, commaPos - equalPos - 1);
 	string userHint = userInput.substr(commaPos+10);
 
-	wordBank->addWord(userWord, userHint);
+	wordBank->addWord(userInput);
 			
 	wordAddingProcess = false;
 

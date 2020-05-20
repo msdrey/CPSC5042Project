@@ -3,10 +3,37 @@
 #include "WordLibrary.h"
 #include <cstdlib>
 #include <ctime>
+#include <fstream>
 
 using namespace std;
 
 WordLibrary :: WordLibrary(){
+
+    ifstream infile;
+    infile.open("WordsAndHints.txt");
+
+    if (infile.is_open())
+    {
+        int i = 0;
+        string line;
+
+        while (getline(infile, line))
+        {
+            library[i] = line.c_str();
+            i++;
+        }
+    }
+
+    infile.close();
+     
+    
+    /*
+
+    Instead of hard code all the word to the array at the constriontion, we will create a file which contain words
+    and hints and we will read/write from file. Then, all the words and hints will be stored in the array 
+    <word=Avocado,hint=GUacamole> at construction. 
+
+    The question is, in the multiple treads programming, does each thread has it own WordLibrary ? 
 
     library[0].word = "Avocado";
     library[0].hint = "Main ingredient in guacamole";
@@ -80,46 +107,43 @@ WordLibrary :: WordLibrary(){
     library[34].hint = "You may confuse it with a hawk or an eagle";
     library[35].word = "Hyena";
     library[35].hint = "Laughter animal";
+    */
 
     shuffle();
  
 }
 
 string WordLibrary::getWord(int index){
-    return library[index].word;
+
+    int comma = library[index].find(",");
+    return library[index].substr(0, comma);
 }
 
 string WordLibrary::getHint(int index){
-    return library[index].hint;
+    int comma = library[index].find(",");
+    return library[index].substr(comma + 1, library[index].length() - 1);
 }
 
 
 void WordLibrary :: shuffle(){
 
-    string wordTemp;
-    string hintTemp;
+    string temp;
     int index;
     srand(time(NULL));
 
     for (int i = 0; i < count; i++)
     {
         index = rand() % count;
-        wordTemp = library[i].word;
-        hintTemp = library[i].hint;
-
-        library[i].word = library[index].word;
-        library[i].hint = library[index].hint;
-
-        library[index].word = wordTemp;
-        library[index].hint = hintTemp;
-
+        temp = library[i];
+        library[i] = library[index];
+        library[index] = temp;
     }
 
 }
 
-void WordLibrary :: addWord(string userWord, string userHint){
+void WordLibrary :: addWord(string userWordHint){
 
-    wordCard * temp = new wordCard[count + 1];
+    string * temp = new string[count + 1];
 
     for (int i = 0; i < count; i++)
         temp[i] = library[i];
@@ -129,6 +153,5 @@ void WordLibrary :: addWord(string userWord, string userHint){
 
     count += 1;
 
-    library[count - 1].word = userWord;
-    library[count - 1].hint = userHint;
+    library[count - 1] = userWordHint;
 }
