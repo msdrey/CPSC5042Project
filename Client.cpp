@@ -17,26 +17,27 @@ bool wordAddingProcess = false;
 
 // Helper functions
 
-//receive a string from the server and print it in console
-void receiveAndPrintToUser(int sock) {
+string receiveFromServer(int sock) {
     char message[1024] = {0};
-    //cout << "in receive and print" << endl;
     int valread = recv(sock, message, 1024, 0);
     if (valread == -1) {
 		throw "receiving error";
 	}
-    //cout << "after recv" << endl;
-    cout << message << endl;
+    return string(message);
+}
+
+void sendToServer(int sock, string message) {
+    int valsend = send(sock, message.c_str(), message.length(), 0);
+    if (valsend == -1) {
+        throw "error occured while sending data to server";
+    }
 }
 
 //Takes in user's input, and then both sends it to the server and returns it
 string takeInputAndSend(int sock) {
     string ans;
     cin >> ans;
-    int valsend = send(sock, ans.c_str(), ans.length(), 0);
-    if (valsend == -1) {
-        throw "error occured while sending data to server";
-    }
+    sendToServer(sock, ans);
     return ans;
 }
 
@@ -71,12 +72,7 @@ void promptAndSendUserAuthentication(int sock) {
     cout << "Please enter your password: " << endl;
     cin >> password;
 
-    authString = serializeAuthString(username, password);
-
-    int valsend = send(sock, authString.c_str(), authString.length(), 0);
-    if (valsend == -1) {
-        throw "error occured while sending data to server, on authentication attempt";
-    }
+    sendToServer(sock, serializeAuthString(username, password));
 }
 
 //returns 'log in' or 'sign up'
@@ -94,31 +90,16 @@ void promptSignupOrLogin(int sock) {
         }
     }
     //send choice to server so it prepares to get log in or sign in
-    int valsend = send(sock, choice.c_str(), choice.length(), 0);
-    if (valsend == -1) {
-        throw "error occured while sending data to server";
-    }
-    //receive handshake
-    char serverResponseBuffer[1024] = {0};
-    int valread = recv(sock, serverResponseBuffer, 1024, 0);
-    if (valread == -1) {
-        throw "receiving error";
-    }
+    sendToServer(sock, choice);
+    receiveFromServer(sock);
 }
 
-//receive authentication result and check if valid. if valid,
+//check if authentication is valid. if valid,
 //finalize connection and return true. if not valid, return false.
-bool receiveAuthResult(int sock) {
-    char serverResponseBuffer[1024] = {0};
-    int valread = recv(sock, serverResponseBuffer, 1024, 0);
-    if (valread == -1) {
-		throw "receiving error, on authentiction attempt";
-	}
+bool checkAuthResult(int sock, string serverResponse) {
 
-    string serverResponseString(serverResponseBuffer);
-    //cout << serverResponseString << endl;
     // TODO: deserialize with function
-    if (serverResponseString.compare(serializeKeyValuePair("isValidLogin", "false")) == 0) {
+    if (serverResponse.compare(serializeKeyValuePair("isValidLogin", "false")) == 0) {
         cout << "Incorrect username or password. Disconnecting..." << endl;
         // TODO: allow retries
         return false;
@@ -126,10 +107,7 @@ bool receiveAuthResult(int sock) {
         cout << "Your login was successful." << endl;
         //Confirm authorization to server.
         string isConfirmed = "true";
-        int valsend = send(sock, isConfirmed.c_str(), isConfirmed.length(), 0);
-        if (valsend == -1) {
-            throw "error occured while sending data to server, on confirmation attempt";
-        }
+        sendToServer(sock, isConfirmed);
         return true;
     }
 }
@@ -137,19 +115,14 @@ bool receiveAuthResult(int sock) {
 void addWord(int sock){
     string userWord;
     string userHint;
-    string userWordAndHint;
 
     cout << "Enter a word you want to add: ";
     cin >> userWord;
     cout <<"\nEnter hint for the word: ";
     cin >> userHint;
 
-    userWordAndHint = serializeAuthString(userWord, userHint);
     wordAddingProcess = false;
-    int valsend = send(sock, userWordAndHint.c_str(), userWordAndHint.length(), 0);
-    if (valsend == -1) {
-        throw "Error while sending user's word and hint suggestion";
-    }
+    sendToServer(sock, serializeAuthString(userWord, userHint));
 }
 
 //establishing connection with the server according to default ip and port 
@@ -219,20 +192,20 @@ int main(int argc, char const *argv[]) {
         
         
         //receive authentication result and check if valid, if not, disconnect
-        if (!receiveAuthResult(sock)) {
+        if (!checkAuthResult(sock, receiveFromServer(sock))) {
             disconnect(sock);
             exit(0);
         }
 
         //receive and display welcome message & prompt
-        receiveAndPrintToUser(sock);
+        cout << receiveFromServer(sock) << endl;
     
         //keep playing as long as the player does not issue the command ".exit"
         string userInput;
         do {
             if (wordAddingProcess == true) {    
                 addWord(sock);
-                receiveAndPrintToUser(sock);
+                cout << receiveFromServer(sock) << endl;
             }
 
             //take in user's input and send to server
@@ -243,7 +216,7 @@ int main(int argc, char const *argv[]) {
             }
 
             //receive feedback + next prompt from server, and display them
-            receiveAndPrintToUser(sock);
+            cout << receiveFromServer(sock) << endl;
         } while(userInput.compare(".exit") != 0);
 
         //close connection with server
