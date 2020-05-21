@@ -4,7 +4,7 @@
 //#include <sys/socket.h> 
 //#include <stdlib.h> 
 #include <netinet/in.h> 
-
+#include <fstream>
 #include <iostream> 
 #include <string>
 
@@ -31,6 +31,8 @@ class Network {
 	};
 
 	User * users; //the bank of users
+	int usersCount;//the number of registered users
+
 	int currentUserIndex;
 	int currentClientSocket;
 
@@ -45,7 +47,8 @@ class Network {
 	void disconnectClient();
 	void closeServerSocket();
 	bool receiveAndCheckAuthentication();
-	bool userAuthentication(string , string);
+	bool validateUsernamePassword(string , string);
+	bool createNewUser(string, string);
 	
     // helper static function that puts a key and value into a 
     // standardized format
