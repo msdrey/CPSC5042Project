@@ -148,9 +148,9 @@ string GameSession::handleUserInput(const string& userInput) {
             return "\n\n" + displayScore() + "\nThank you for playing! Goodbye.";
     }
 
-    if (isCommand(userInput) && userInput.compare(".addword") != 0) {
+    if (isCommand(userInput) && !isAMatch(userInput, ".addword")) {
         result = handleCommand(userInput);
-    } else if (isCommand(userInput) && userInput.compare(".addword") == 0) {
+    } else if (isCommand(userInput) && isAMatch(userInput, ".addword")) {
 		result = handleCommand(userInput);
 		return result;
     } else if (wordAddingProcess == true){

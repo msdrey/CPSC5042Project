@@ -125,6 +125,18 @@ void addWord(int sock){
     }
 }
 
+string toLowerCase(const string &userInput){
+    int len = userInput.length();
+    string temp;
+
+    for (int i = 0; i < len; i++)
+    {
+        temp += tolower(userInput[i]);
+    }
+
+    return temp;
+}
+
 //establishing connection with the server according to default ip and port 
 //or according to specified values when program was executed
 //ex: ./bin/client aws          will set up ip and port automatically
@@ -209,7 +221,7 @@ int main(int argc, char const *argv[]) {
             //take in user's input and send to server
             userInput = takeInputAndSend(sock);
 
-            if (userInput.compare(".addword") == 0) {
+            if (toLowerCase(userInput).compare(".addword") == 0) {
                 wordAddingProcess = true;
             }
 
