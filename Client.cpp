@@ -114,8 +114,10 @@ void addWord(int sock){
 
     cout << "Enter a word you want to add: ";
     cin >> userWord;
+    cin.ignore();
     cout <<"\nEnter hint for the word: ";
-    cin >> userHint;
+    getline(cin, userHint);
+    
 
     userWordAndHint = serializeAuthString(userWord, userHint);
     wordAddingProcess = false;
