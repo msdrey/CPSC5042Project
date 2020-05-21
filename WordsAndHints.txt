@@ -1,38 +1,38 @@
-Avocado,Ingredient for guakamole
-Broccoli,King of vegetable. Kids hate it
+Avocado,Main ingredient in guacamole
+Broccoli,The king of vegetables. Kids hate it.
 Carrot,Rabbit's favourite
-Eggplant,It's a long shape vegetable, 
-Grapefruit,Taste like orange, look like orange but bigger
-Kiwi,It's a fruit cover will small hair, green inside, taste sour
+Eggplant,It's a long shaped vegetable
+Grapefruit,Tastes like an orange, looks like an orange, but bigger
+Kiwi,It's a fruit cover will small hairs, green inside, tastes sour
 Lemon,Yellow and sour, people like to make them juice
 Mango,Tropical fruit, yellow and sweet
-Onion,It's make you cry, if you cut it
-Potato,Good cabohydrate plant
+Onion,It makes you cry, if you cut it
+Potato,Good carbohydrate plant
 Raisin,Dry grape
-Tomato,It's red, it's juicy, it's make your skin bright
-Watermelon,It's red but cover in green, great for summer
-Zucchini,You may confuse with cucumber, but it’s not
-Argentina,Capital of Buenos Aires
-Brazil,One of the well known country for soccer
-Canada,You can find the great maple syrup in this country
-Egypt,Well known for mummy
+Tomato,It's red, it's juicy, it makes your skin bright
+Watermelon,It's red but covered in green, great for summer
+Zucchini,You may confuse it with a cucumber, but it’s not
+Argentina,Its capital is Buenos Aires
+Brazil,One of the well known countries for soccer
+Canada,You can find the greatest maple syrup in this country
+Egypt,Well known for mummies
 France,World of perfume
-Guam,It's the island in United State territory
-Coronavirus,What make eveyone stay home in 2020
-Iceland,It sound cold, but full of green
+Guam,It's an island in United State territory
+Coronavirus,What makes eveyone stay home in 2020
+Iceland,It sounds cold, but is full of green
 Japan,2020 Olympic host
-Kenya,World fastest human alive
-Australia, Land of kangaroos
-Russia,House of Vladimir Putin
+Kenya,The world's fastest humans' origin country
+Australia, Land of the kangaroos
+Russia,Home of Vladimir Putin
 Thailand,Land of smile
 Scotland,Land of kilts and tartan
-Aligator,Relative to crocodile
+Aligator,Relative to the crocodile
 Bear,His favourite is honey
-Camel,Great vehicle in dessert
-Dog,The most loyalty creature
-Elephant,They are big with the long nose
-Falcon,You may confuse it with hawk or eagle
-Goat,You can dring its milk either
+Camel,Great vehicle in desert
+Dog,The most loyal creature
+Elephant,They are big, with a long nose
+Falcon,You may confuse it with a hawk or an eagle
+Goat,You can drink its milk
 Hyena,Laughter animal
 Seattle,Emerald city
 Lion,King of the jungle

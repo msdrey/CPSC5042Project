@@ -121,11 +121,9 @@ void addWord(int sock){
     cin.ignore();
     cout <<"\nEnter hint for the word: ";
     getline(cin, userHint);
-    
-    string userWordAndHint = userWord + "," + userHint;
 
     wordAddingProcess = false;
-    sendToServer(sock, userWordAndHint);
+    sendToServer(sock, userWord + "," + userHint);
 }
 
 string toLowerCase(const string &userInput){
