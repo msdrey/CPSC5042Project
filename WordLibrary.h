@@ -1,6 +1,7 @@
 #ifndef WORDLIBRARY_WORDLIBRARY_H
 #define WORDLIBRARY_WORDLIBRARY_H
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
@@ -13,13 +14,8 @@ class WordLibrary{
     private:
 
         int count = 36;
-    
-        // struct wordCard{
-        //     string word;
-        //     string hint;
-       // };
 
-        string *library = new string[count];
+        vector<string> library;
         void shuffle();
 
 };

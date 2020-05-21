@@ -118,8 +118,8 @@ void addWord(int sock){
     cout <<"\nEnter hint for the word: ";
     getline(cin, userHint);
     
+    userWordAndHint = userWord + "," + userHint;
 
-    userWordAndHint = serializeAuthString(userWord, userHint);
     wordAddingProcess = false;
     int valsend = send(sock, userWordAndHint.c_str(), userWordAndHint.length(), 0);
     if (valsend == -1) {

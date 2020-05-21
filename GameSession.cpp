@@ -35,10 +35,6 @@ string GameSession::handleCommand(const string& str) {
 }
 
 string GameSession::addingWord(const string& userInput) {
-	int equalPos = userInput.find("=");
-	int commaPos = userInput.find(",");
-	string userWord = userInput.substr(equalPos+1, commaPos - equalPos - 1);
-	string userHint = userInput.substr(commaPos+10);
 
 	wordBank->addWord(userInput);
 			
