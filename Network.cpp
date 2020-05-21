@@ -125,7 +125,7 @@ void Network::disconnectClient() {
 }
 
 bool Network::receiveAndCheckAuthentication() {
-    string loginOrSignin = receive(); //"log in " or "sign in"
+    string loginOrSignup = receive(); //"log in " or "sign in"
     //cout << "user choice: " << loginOrSignin << endl;
 
     //send handshake
@@ -140,9 +140,9 @@ bool Network::receiveAndCheckAuthentication() {
     string inputUser = authString.substr(equalPos+1, commaPos - equalPos - 1);
     string inputPass = authString.substr(commaPos+10);
 
-    if (loginOrSignin.compare("log in")==0) {
+    if (loginOrSignup.compare("log in")==0) {
         return validateUsernamePassword(inputUser, inputPass);
-    } else { // "sign in"
+    } else { // "sign up"
         return createNewUser(inputUser, inputPass);
     }
 }
@@ -164,7 +164,7 @@ bool Network::createNewUser(string inputUser, string inputPass) {
     users[usersCount].username = inputUser;
     users[usersCount].password = inputPass;
     usersCount++;
-    cout << "A new user signed in." << endl;
+    cout << "A new user signed up." << endl;
     return true;
 }
 

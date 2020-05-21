@@ -79,15 +79,15 @@ void promptAndSendUserAuthentication(int sock) {
     }
 }
 
-//returns 'log in' or 'sign in'
-void promptSigninOrLogin(int sock) {
+//returns 'log in' or 'sign up'
+void promptSignupOrLogin(int sock) {
     string choice;
     bool validInput = false;
     while(!validInput) {
-        cout << "Please enter 'sign in' if you are a new user or 'log in' if you are a returning user" << endl;
+        cout << "Please enter 'sign up' if you are a new user or 'log in' if you are a returning user" << endl;
         getline(cin, choice);
 
-        if (choice.compare("sign in")!=0&&choice.compare("log in")!=0) {
+        if (choice.compare("sign up")!=0&&choice.compare("log in")!=0) {
             cout << "This is not a valid choice. Try again." << endl;
         } else {
             validInput = true;
@@ -104,7 +104,6 @@ void promptSigninOrLogin(int sock) {
     if (valread == -1) {
         throw "receiving error";
     }
-    ////////
 }
 
 //receive authentication result and check if valid. if valid,
@@ -214,7 +213,7 @@ int main(int argc, char const *argv[]) {
         cout << "Post connection check. Sock = " << sock << endl;
         
         // provide user with choice: sign in or log in?
-        promptSigninOrLogin(sock);
+        promptSignupOrLogin(sock);
 
         promptAndSendUserAuthentication(sock);
         
