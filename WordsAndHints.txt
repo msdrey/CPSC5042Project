@@ -36,3 +36,4 @@ Goat,You can dring its milk either
 Hyena,Laughter animal
 Seattle,Emerald city
 Lion,King of the jungle
+Venice,Italian city, famous for its canals

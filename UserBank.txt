@@ -6,5 +6,3 @@ ken
 zxcv
 default
 123
-olivier
-785

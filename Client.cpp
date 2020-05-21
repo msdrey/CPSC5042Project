@@ -122,10 +122,10 @@ void addWord(int sock){
     cout <<"\nEnter hint for the word: ";
     getline(cin, userHint);
     
-    userWordAndHint = userWord + "," + userHint;
+    string userWordAndHint = userWord + "," + userHint;
 
     wordAddingProcess = false;
-    sendToServer(sock, serializeAuthString(userWord, userHint));
+    sendToServer(sock, userWordAndHint);
 }
 
 string toLowerCase(const string &userInput){
