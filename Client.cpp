@@ -116,7 +116,7 @@ void addWord(int sock){
     string userWord;
     string userHint;
 
-    cout << "Enter a word you want to add: ";
+    cout << "Enter a word you want to add(with no space): ";
     cin >> userWord;
     cin.ignore();
     cout <<"\nEnter hint for the word: ";
