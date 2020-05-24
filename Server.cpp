@@ -12,9 +12,6 @@
 #include <string>
 using namespace std;
 
-// Audrey's port on cs1 for cpsc5042
-#define PORT 12119
-
 int main(int argc, char const *argv[]) 
 { 	
 	//creating a socket
