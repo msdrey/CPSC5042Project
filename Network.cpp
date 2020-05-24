@@ -148,6 +148,14 @@ bool Network::receiveAndCheckAuthentication() {
 }
 
 bool Network::createNewUser(string inputUser, string inputPass) {
+    //todo: check if user already there
+    for (int i = 0; i < usersCount; i++) {
+        if (users[i].username.compare(inputUser) == 0) {
+            //user already exists
+            return false;
+        }
+    }
+    
     //add to file
     ofstream userbankfile;
     userbankfile.open("UserBank.txt", ios_base::app);//append to file
@@ -159,8 +167,7 @@ bool Network::createNewUser(string inputUser, string inputPass) {
     //add to loaded userbank
     //todo: check if there is space for a new user
     //todo: make user capacity bigger if needed?
-    //todo: check if user already there
-    
+        
     users[usersCount].username = inputUser;
     users[usersCount].password = inputPass;
     usersCount++;
