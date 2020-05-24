@@ -124,7 +124,7 @@ void Network::disconnectClient() {
     cout << "The client exit the game." << endl << endl;
 }
 
-bool Network::receiveAndCheckAuthentication() {
+int Network::receiveAndCheckAuthentication() {
     string loginOrSignup = receive(); //"log in " or "sign in"
     //cout << "user choice: " << loginOrSignin << endl;
 
@@ -147,12 +147,12 @@ bool Network::receiveAndCheckAuthentication() {
     }
 }
 
-bool Network::createNewUser(string inputUser, string inputPass) {
-    //todo: check if user already there
+int Network::createNewUser(string inputUser, string inputPass) {
+    //check if user already exists
     for (int i = 0; i < usersCount; i++) {
         if (users[i].username.compare(inputUser) == 0) {
-            //user already exists
-            return false;
+            cout << "Auth fail: user already exists " << endl;
+            return -3;
         }
     }
     
@@ -172,10 +172,10 @@ bool Network::createNewUser(string inputUser, string inputPass) {
     users[usersCount].password = inputPass;
     usersCount++;
     cout << "A new user signed up." << endl;
-    return true;
+    return 0;
 }
 
-bool Network::validateUsernamePassword(string inputUser, string inputPass) {
+int Network::validateUsernamePassword(string inputUser, string inputPass) {
     //find the inputted user in our users bank, if so, initilize currentUserIndex
     bool isFound = false;
     for (int i = 0; i < USER_CAPACITY && !isFound; i++) {
@@ -187,12 +187,15 @@ bool Network::validateUsernamePassword(string inputUser, string inputPass) {
     }
 
     //if user is not found or if user is found but password is wrong, authentication fails
-    if (!isFound || inputPass.compare(users[currentUserIndex].password) != 0) {
-        cout << "Auth fail " << endl; //for string: " << authString << endl;
-        return false;
+    if (!isFound) {
+        cout << "Auth fail: user not found " << endl; //for string: " << authString << endl;
+        return -1;
+    } else if (inputPass.compare(users[currentUserIndex].password) != 0) {
+        cout << "Auth fail: wrong password " << endl;
+        return -2;
     } else {
         //cout << "Auth success " << endl;// for string: " << authString << endl;
-        return true;
+        return 0;
     }
 }
 

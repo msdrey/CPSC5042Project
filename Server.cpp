@@ -24,17 +24,18 @@ int main(int argc, char const *argv[])
 			network->connect();
 			cout << "post connection check. socket = " << network->getCurrentClientSocket() << endl;
 
-			
-
 			// authenticate client that created connection
-			if (network->receiveAndCheckAuthentication()) {
+			// authStatus: 0 --> success
+			//             -1 --> user not found
+			//             -2 --> wrong password
+			//             -3 --> user already exists
+			int authStatus = network->receiveAndCheckAuthentication();
+			network->sendToClient(Network::serializeKeyValuePair("isValidLogin", to_string(authStatus)));
+			if (authStatus == 0) {
 				cout << "User is authenticated" << endl;
-				network->sendToClient(Network::serializeKeyValuePair("isValidLogin", "true"));
 				string clientConfirmsAuth = network->receive();
 				cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;
 			} else {
-				network->sendToClient(Network::serializeKeyValuePair("isValidLogin", "false"));
-				// force disconnect on server side
 				network->disconnectClient(); 
 				// skip rest of while loop to keep server alive
 				continue;	
