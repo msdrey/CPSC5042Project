@@ -10,6 +10,7 @@
 
 #include <thread>
 #include <mutex>
+#include <vector>
 
 // Audrey's port on cs1 for cpsc5042
 #define AUDREYS_PORT 12119
@@ -39,6 +40,7 @@ class Network {
 	int currentUserIndex;
 	int currentClientSocket;
 
+	vector<std::thread> threads;
 	void createGameThread();
 	void startNewGame();
 	

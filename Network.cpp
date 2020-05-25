@@ -69,6 +69,11 @@ Network::Network(int argc, char const *argv[]) {
 // class destructor
 Network::~Network() {
     delete[] users;
+    // join each thread in vector
+    // program will terminate prematurely if thise step is not done
+    for(auto& t : threads) {
+        t.join();
+    }
 }
 
 // this call is accepting a connection from a client and returning the 
@@ -91,17 +96,17 @@ void Network::acceptConnections() {
 			// establish connection with a client		
 			this->acceptConnection();
 			cout << "post connection check. socket = " << this->getCurrentClientSocket() << endl;
-            //createGameThread();
-            this->startNewGame();
+            this->createGameThread();
 		} catch (const char* message) {
 			cerr << message << endl;
 			exit(EXIT_FAILURE);
 		}
 	}
-
 }
 
 void Network::createGameThread() {
+    std::thread t(&Network::startNewGame, this);
+    threads.push_back(std::move(t));
 }
 
 void Network::startNewGame() {
