@@ -8,6 +8,9 @@
 #include <iostream> 
 #include <string>
 
+#include <thread>
+#include <mutex>
+
 // Audrey's port on cs1 for cpsc5042
 #define AUDREYS_PORT 12119
 #define USER_CAPACITY 100
@@ -36,12 +39,16 @@ class Network {
 	int currentUserIndex;
 	int currentClientSocket;
 
+	void createGameThread();
+	void startNewGame();
+	
   public:
 	int getCurrentClientSocket(); 
 	string getCurrentUser();	
 	Network(int, const char**);
 	~Network();
-    void connect();
+	void acceptConnection();
+    void acceptConnections();
 	string receive();
 	void sendToClient(const string& );
 	void disconnectClient();

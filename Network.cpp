@@ -1,4 +1,5 @@
 #include "Network.h"
+#include "GameSession.h"
 
 using namespace std;
 
@@ -28,19 +29,6 @@ Network::Network(int argc, char const *argv[]) {
     }
     userbankfile.close();
     usersCount = i;
-
-    // users[0].username = "asdf";
-    // users[0].password = "qwer";
-    // users[1].username = "noah";
-    // users[1].password = "zxcv";
-    // users[2].username = "ken";
-    // users[2].password = "zxcv";
-    // users[3].username = "audrey";
-    // users[3].password = "zxcv";
-    // users[4].username = "mikemckee";
-    // users[4].password = "5042";
-    // users[5].username = "default";
-    // users[5].password = "123";
 
     //creating a listening socket
     int opt = 1; 
@@ -85,7 +73,7 @@ Network::~Network() {
 
 // this call is accepting a connection from a client and returning the 
 // id of the socket of the new client connection
-void Network::connect() {
+void Network::acceptConnection() {
     int newSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
     if (newSocket < 0) 
     { 
@@ -94,6 +82,64 @@ void Network::connect() {
     cout << "New connection was made." << endl;
     currentClientSocket = newSocket;
     return;
+}
+
+void Network::acceptConnections() {
+    //infinite loop to keep the server running indefinitely 
+	while (1) {
+		try{
+			// establish connection with a client		
+			this->acceptConnection();
+			//cout << "post connection check. socket = " << network->getCurrentClientSocket() << endl;
+            //createGameThread();
+            this->startNewGame();
+		} catch (const char* message) {
+			cerr << message << endl;
+			exit(EXIT_FAILURE);
+		}
+	}
+
+}
+
+void Network::createGameThread() {
+}
+
+void Network::startNewGame() {
+    // authenticate client that created connection
+	if (this->receiveAndCheckAuthentication()) {
+		cout << "User is authenticated" << endl;
+		this->sendToClient(Network::serializeKeyValuePair("isValidLogin", "true"));
+		string clientConfirmsAuth = this->receive();
+		cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;
+	} else {
+		this->sendToClient(Network::serializeKeyValuePair("isValidLogin", "false"));
+		// force disconnect on server side
+		this->disconnectClient(); 
+	}
+
+	//set up a new game session
+	GameSession * thisSession = new GameSession();
+
+	//welcome user and start game
+	this->sendToClient(thisSession->startSession());
+
+	string userInput;
+	while (thisSession->getStatus() == 1) { //while session is active
+
+		//receive client's answer
+		userInput = this->receive();
+		// cout << "userInput : " << userInput << endl;
+		if (userInput.empty()) {
+			cout << "The client has unexpectedly disconnected" << endl;
+			thisSession->setStatus(0);
+			break;
+		}
+
+		//handle client's answer and send feedback
+		this->sendToClient(thisSession->handleUserInput(userInput));
+	}
+
+	this->disconnectClient();
 }
 
 // receives whatever is found in the specified socket
