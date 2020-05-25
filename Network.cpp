@@ -90,7 +90,7 @@ void Network::acceptConnections() {
 		try{
 			// establish connection with a client		
 			this->acceptConnection();
-			//cout << "post connection check. socket = " << network->getCurrentClientSocket() << endl;
+			cout << "post connection check. socket = " << this->getCurrentClientSocket() << endl;
             //createGameThread();
             this->startNewGame();
 		} catch (const char* message) {
