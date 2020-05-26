@@ -12,12 +12,12 @@ class ThreadContext{
     private:
         int socket;
 
-        struct User { // a simple struct for keeping users information. 
-                    // may be expanded later with high score or other info
-                    // may be turned into a full class too
-            string username;
-            string password;
-        };
+        // struct User { // a simple struct for keeping users information. 
+        //             // may be expanded later with high score or other info
+        //             // may be turned into a full class too
+        //     string username;
+        //     string password;
+        // };
         
         int currentUserIndex;
 

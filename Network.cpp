@@ -121,6 +121,11 @@ void *Network::startNewGame(void * arg) {
 			thisSession->setStatus(0);
 			break;
 		}
+        // get a struct or something from thisSession->someNewFunction(); getScores or something
+        //user ID retrieved from threadCOntext
+        // connection->updateLeaderboard(the struct of scores, streaks, packaged with current user ID)
+
+
 
 		//handle client's answer and send feedback
 		threadContext->sendToClient(thisSession->handleUserInput(userInput));
