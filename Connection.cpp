@@ -1,42 +1,85 @@
 #include "Connection.h"
-#include <unistd.h> 
-#include <netinet/in.h> 
-#include <string>
-#include <iostream> 
 
 Connection::Connection(int socket) {
-    socket = socket;
-}
+    this->socket = socket;
 
-// receives whatever is found in the specified socket
-// and returns it
-string Connection::receive() {
-    char userInput[1024] = {0};
-    int valread = recv(socket, userInput, 1024, 0);
-    // cout << "valread: " << valread << endl;
-    if (valread == 0) {
-        return "";
+    //initializing the bank of users
+    users = new User[USER_CAPACITY];
+    ifstream userbankfile("UserBank.txt");
+    string line;
+    int i = 0;
+    while (i < USER_CAPACITY && getline(userbankfile, line)) {
+        users[i].username = line;
+        getline(userbankfile, line);
+        users[i].password = line;
+        i++;
     }
-    return string(userInput);
+    userbankfile.close();
+    usersCount = i;
 }
 
-//sends the inputted message into the specified socket
-// will throw an error message if the sending fails
-void Connection::sendToClient(const string& message) {
-    int valsend = send(socket, message.c_str(), message.length(), 0);
-    // cout << "valsend = " << valsend << endl;
-    if (valsend == -1) {
-        throw "error occured while sending data to server";
+int Connection::getSocket() {
+    return socket;
+}
+
+int Connection::checkAuthentication(string authInfo) {
+    
+    //extract username and entered password from authString
+    int colonPos = authInfo.find(";");
+    int equalPos = authInfo.find("=");
+    int commaPos = authInfo.find(",");
+    string loginOrSignup = authInfo.substr(0, colonPos);
+    string inputUser = authInfo.substr(equalPos+1, commaPos - equalPos - 1);
+    string inputPass = authInfo.substr(commaPos+10);
+
+    if (loginOrSignup.compare("log in")==0) {
+        return validateUsernamePassword(inputUser, inputPass);
+    } else { // "sign up"
+        return createNewUser(inputUser, inputPass);
     }
 }
 
-//closes the socket and confirms closure into console
-void Connection::disconnectClient() {
-    close(socket);
-    cout << "The client exited the game." << endl << endl;
+int Connection::createNewUser(string inputUser, string inputPass) {
+    //add to file
+    ofstream userbankfile;
+    userbankfile.open("UserBank.txt", ios_base::app);//append to file
+    if (userbankfile.is_open()) {
+        userbankfile << "\n"<< inputUser << "\n" << inputPass;
+        userbankfile.close();
+    }
+    
+    //add to loaded userbank
+    //todo: check if there is space for a new user
+    //todo: make user capacity bigger if needed?
+    //todo: check if user already there
+    
+    users[usersCount].username = inputUser;
+    users[usersCount].password = inputPass;
+    usersCount++;
+    cout << "A new user signed up." << endl;
+    return usersCount - 1;
 }
 
+int Connection::validateUsernamePassword(string inputUser, string inputPass) {
+    //find the inputted user in our users bank, if so, initilize currentUserIndex
+    bool isFound = false;
+    int currentUserIndex;
+    for (int i = 0; i < USER_CAPACITY && !isFound; i++) {
+        if (users[i].username.compare(inputUser) == 0)  {
+            //cout << "found user : " << user << endl;
+            currentUserIndex = i;
+            isFound = true;
+        }
+    }
 
-
+    //if user is not found or if user is found but password is wrong, authentication fails
+    if (!isFound || inputPass.compare(users[currentUserIndex].password) != 0) {
+        cout << "Auth fail " << endl; //for string: " << authString << endl;
+        return -1;
+    } else {
+        //cout << "Auth success " << endl;// for string: " << authString << endl;
+        return currentUserIndex;
+    }
+}
 
 

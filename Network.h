@@ -4,8 +4,8 @@
 //#include <sys/socket.h> 
 //#include <stdlib.h> 
 #include <netinet/in.h> 
-#include <fstream>
-#include <iostream> 
+
+
 #include <string>
 
 #include <thread>
@@ -13,10 +13,11 @@
 #include <vector>
 
 #include "Connection.h"
+#include "GameSession.h"
+#include "ThreadContext.h"
 
 // Audrey's port on cs1 for cpsc5042
 #define AUDREYS_PORT 12119
-#define USER_CAPACITY 100
 
 using namespace std;
 // This class holds the details of the established server socket and its
@@ -28,29 +29,16 @@ class Network {
 	int addrlen; // the length of the address
 	int port;
 
-	struct User { // a simple struct for keeping users information. 
-			// may be expanded later with high score or other info
-			// may be turned into a full class too
-	string username;
-	string password;
-	int socket;
-	};
-
-	User * users; //the bank of users
-	int usersCount;//the number of registered users
-    int currentUserIndex;
-
-	vector<std::thread> threads;
-	void startNewGame(Connection *connection);
+	//vector<std::thread> threads;
+	static void *startNewGame(void *);
 	
   public:	
 	Network(int, const char**);
 	~Network();
 	Connection * acceptConnection();
     void acceptConnections();
-	bool receiveAndCheckAuthentication(Connection *connection);
-	bool validateUsernamePassword(string , string);
-	bool createNewUser(string, string);
+	
+
 
 	// helper static function that puts a key and value into a 
     // standardized format

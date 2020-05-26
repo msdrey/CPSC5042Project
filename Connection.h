@@ -1,6 +1,15 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
+#include <fstream>
+#include <unistd.h> 
+#include <netinet/in.h> 
+#include <string>
+#include <iostream> 
+
+
+#define USER_CAPACITY 100
+
 using namespace std;
 
 class Connection{
@@ -12,15 +21,18 @@ class Connection{
                     // may be turned into a full class too
             string username;
             string password;
-            int socket;
         };
 
+        User * users; //the bank of users
+	    int usersCount;//the number of registered users
+
     public:
-        Connection(int socket);
-        int getSocket(int);
-        string receive();
-	    void sendToClient(const string& );
-	    void disconnectClient();
+        Connection(int );
+        int getSocket();
+        int checkAuthentication(string);
+        int createNewUser(string, string);
+        int validateUsernamePassword(string , string);
+	    
 };
 
 #endif //CONNECTION_H
