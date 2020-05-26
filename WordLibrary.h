@@ -1,7 +1,11 @@
 #ifndef WORDLIBRARY_WORDLIBRARY_H
 #define WORDLIBRARY_WORDLIBRARY_H
-#include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 using namespace std;
 

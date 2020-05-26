@@ -1,11 +1,4 @@
-#include <iostream>
-#include <string>
 #include "WordLibrary.h"
-#include <cstdlib>
-#include <ctime>
-#include <fstream>
-
-using namespace std;
 
 WordLibrary :: WordLibrary(){
 
@@ -36,7 +29,7 @@ string WordLibrary::getWord(int index){
 
 string WordLibrary::getHint(int index){
     int comma = library.at(index).find(",");
-    return library.at(index).substr(comma + 1, library.at(index).length() - 1);
+    return library.at(index).substr(comma + 1);
 }
 
 
@@ -61,13 +54,15 @@ void WordLibrary :: addWord(string userWordHint){
 
     ofstream outfile;
     outfile.open("WordsAndHints.txt", ios::app);
-    outfile << userWordHint << endl;
+    if (outfile.is_open()) {
+        outfile << userWordHint << endl;
+        outfile.close();
+    }
 
-    outfile.close();
 
     // Add to the vector 
 
-    //Keep tracks of the sequence in vector
+    // Keep track of the sequence in vector
 
     // Handle boundary
 
