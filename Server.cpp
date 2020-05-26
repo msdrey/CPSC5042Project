@@ -4,21 +4,8 @@
  *  Group members: Audrey Morin, Ken Comvandee, Noah Glusenkamp
  */
 
-// C dependencies
-#include <unistd.h> 
-#include <stdio.h> 
-#include <sys/socket.h> 
-#include <stdlib.h> 
-#include <netinet/in.h> 
-
-// C++ dependencies
-#include <iostream> 
-#include <string>
-
 // Project files
 #include "Network.h"
-
-using namespace std;
 
 int main(int argc, char const *argv[]) 
 { 	
