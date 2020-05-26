@@ -29,8 +29,7 @@ class Network {
 	int addrlen; // the length of the address
 	int port;
 
-	//vector<std::thread> threads;
-	static void *startNewGame(void *);
+	static void *startNewGame(void *); //starts new threads for clients
 	
   public:	
 	Network(int, const char**);
@@ -38,8 +37,6 @@ class Network {
 	int acceptConnection();
     void acceptConnections();
 	
-
-
 	// helper static function that puts a key and value into a 
     // standardized format
     static string serializeKeyValuePair(string key, string value) {
