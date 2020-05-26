@@ -35,7 +35,7 @@ class Network {
   public:	
 	Network(int, const char**);
 	~Network();
-	Connection * acceptConnection();
+	int acceptConnection();
     void acceptConnections();
 	
 

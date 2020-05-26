@@ -27,7 +27,8 @@ class Connection{
         vector<User> users; //the bank of users
 
     public:
-        Connection(int);
+        Connection();
+        void setSocket(int);
         int getSocket();
         int checkAuthentication(string);
         int createNewUser(string, string);

@@ -1,8 +1,6 @@
 #include "Connection.h"
 
-Connection::Connection(int socket) {
-    this->socket = socket;
-
+Connection::Connection() {
     //initializing the bank of users
     ifstream userbankfile("UserBank.txt");
     string line;
@@ -14,6 +12,10 @@ Connection::Connection(int socket) {
         users.push_back(newUser);
     }
     userbankfile.close();
+}
+
+void Connection::setSocket(int newSocket) {
+    this->socket = newSocket;
 }
 
 int Connection::getSocket() {

@@ -58,31 +58,28 @@ Network::~Network() {
 
 // this call is accepting a connection from a client and returning the 
 // id of the socket of the new client connection
-Connection * Network::acceptConnection() {
+int Network::acceptConnection() {
     int newSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
     if (newSocket < 0) 
     { 
         throw "accept failed";
     } 
     cout << "New connection was made." << endl;
-    Connection * newConnectionPtr = new Connection(newSocket);
-    return newConnectionPtr;
+    return newSocket;
 }
 
 void Network::acceptConnections() {
     //infinite loop to keep the server running indefinitely 
+    Connection * connectionPtr = new Connection();
 	while (1) {
 		try{
 			// establish connection with a client		
-			Connection * connectionPtr = this->acceptConnection();
-			//cout << "post connection check. socket = " << this->getCurrentClientSocket() << endl; 
-            //std::thread t(&Network::startNewGame, ref(connectionPtr));
-            //threads.push_back(std::move(t));
+			int newSocket = this->acceptConnection();
+            connectionPtr->setSocket(newSocket);
+            // start a new thread for the client
             pthread_t p1;
-
             //lock mutex here
             pthread_create(&p1, NULL, startNewGame, (void *) connectionPtr);
-            cout << "server started a new thread" << endl;
 		} catch (const char* message) {
 			cerr << message << endl;
 			exit(EXIT_FAILURE);
