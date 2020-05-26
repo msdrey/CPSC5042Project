@@ -1,17 +1,7 @@
 #ifndef NETWORK_H
 #define NETWORK_H
-#include <unistd.h> 
-//#include <sys/socket.h> 
-//#include <stdlib.h> 
-#include <netinet/in.h> 
-
-
 #include <string>
-
-#include <thread>
 #include <mutex>
-#include <vector>
-
 #include "Connection.h"
 #include "GameSession.h"
 #include "ThreadContext.h"
