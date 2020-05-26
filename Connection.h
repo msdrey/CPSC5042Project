@@ -1,15 +1,19 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
+/*
+* A unique Connection object is held by the Network and distributed 
+* to all Threads so they can access common data such as the userBank 
+* and the leaderboard.
+*
+* All data here must be protected with mutexes since it will be 
+* accessed by multiple concurrent threads.
+*/
+
 #include <fstream>
-#include <unistd.h> 
-#include <netinet/in.h> 
 #include <string>
 #include <iostream> 
 #include <vector>
-
-
-#define USER_CAPACITY 100
 
 using namespace std;
 
@@ -25,6 +29,7 @@ class Connection{
         };
 
         vector<User> users; //the bank of users
+        //leaderboard;
 
     public:
         Connection();
