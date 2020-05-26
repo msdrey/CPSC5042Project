@@ -98,14 +98,13 @@ void *Network::startNewGame(void * arg) {
     string authInfo = threadContext->receive();
     //cout << "authInfo: " << authInfo << endl;
     int authResult = connection->checkAuthentication(authInfo);
+    threadContext->sendToClient(Network::serializeKeyValuePair("isValidLogin", to_string(authResult)));
     if (authResult > -1) {
         cout << "User is authenticated" << endl;
         threadContext->setCurrentUser(authResult);
-        threadContext->sendToClient(Network::serializeKeyValuePair("isValidLogin", "true"));
         string clientConfirmsAuth = threadContext->receive();
         cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;
     } else {
-        threadContext->sendToClient(Network::serializeKeyValuePair("isValidLogin", "false"));
         threadContext->disconnectClient();
         return NULL;
     }

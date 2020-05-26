@@ -93,19 +93,24 @@ void promptAndSendUserAuthentication(int sock) {
 //check if authentication is valid. if valid,
 //finalize connection and return true. if not valid, return false.
 bool checkAuthResult(int sock, string serverResponse) {
-
-    // TODO: deserialize with function
-    if (serverResponse.compare(serializeKeyValuePair("isValidLogin", "false")) == 0) {
-        cout << "Incorrect username or password. Disconnecting..." << endl;
-        // TODO: allow retries
-        return false;
-    } else {
+    int authStatus = stoi(serverResponse.substr(13));
+    cout << "authStatus = " << authStatus<< endl;
+    if (authStatus >= 0) {
         cout << "Your login was successful." << endl;
         //Confirm authorization to server.
-        string isConfirmed = "true";
-        sendToServer(sock, isConfirmed);
+        sendToServer(sock, "true");
         return true;
+    } else if (authStatus == -1) {
+        cout << "Incorrect username. Disconnecting..." << endl;
+        // TODO: allow retries
+    } else if (authStatus == -2) {
+        cout << "Incorrect password. Disconnecting..." << endl;
+    } else if (authStatus == -3) {
+        cout << "User already exists. Disconnecting..." << endl;
+    } else {
+        cout << "auth error" << endl;
     }
+    return false;
 }
 
 void addWord(int sock){
@@ -194,12 +199,8 @@ int main(int argc, char const *argv[]) {
         sock = create_connection(argc, argv);
         cout << "Post connection check. Sock = " << sock << endl;
         
-        // provide user with choice: sign in or log in?
-        //promptSignupOrLogin(sock);
-
         promptAndSendUserAuthentication(sock);
-        
-        
+                
         //receive authentication result and check if valid, if not, disconnect
         if (!checkAuthResult(sock, receiveFromServer(sock))) {
             disconnect(sock);

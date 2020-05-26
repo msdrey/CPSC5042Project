@@ -6,6 +6,7 @@
 #include <netinet/in.h> 
 #include <string>
 #include <iostream> 
+#include <vector>
 
 
 #define USER_CAPACITY 100
@@ -23,8 +24,7 @@ class Connection{
             string password;
         };
 
-        User * users; //the bank of users
-	    int usersCount;//the number of registered users
+        vector<User> users; //the bank of users
 
     public:
         Connection(int );
