@@ -16,31 +16,16 @@ Network::Network(int argc, char const *argv[]) {
     }
 
     //initializing the bank of users
-    users = new User[USER_CAPACITY];
     ifstream userbankfile("UserBank.txt");
     string line;
-    int i = 0;
-    while (i < USER_CAPACITY && getline(userbankfile, line)) {
-        users[i].username = line;
+    while (getline(userbankfile, line)) {
+        User newUser;
+        newUser.username = line;
         getline(userbankfile, line);
-        users[i].password = line;
-        i++;
+        newUser.password = line;
+        users.push_back(newUser);
     }
     userbankfile.close();
-    usersCount = i;
-
-    // users[0].username = "asdf";
-    // users[0].password = "qwer";
-    // users[1].username = "noah";
-    // users[1].password = "zxcv";
-    // users[2].username = "ken";
-    // users[2].password = "zxcv";
-    // users[3].username = "audrey";
-    // users[3].password = "zxcv";
-    // users[4].username = "mikemckee";
-    // users[4].password = "5042";
-    // users[5].username = "default";
-    // users[5].password = "123";
 
     //creating a listening socket
     int opt = 1; 
@@ -80,7 +65,6 @@ Network::Network(int argc, char const *argv[]) {
 
 // class destructor
 Network::~Network() {
-    delete[] users;
 }
 
 // this call is accepting a connection from a client and returning the 
@@ -149,7 +133,7 @@ int Network::receiveAndCheckAuthentication() {
 
 int Network::createNewUser(string inputUser, string inputPass) {
     //check if user already exists
-    for (int i = 0; i < usersCount; i++) {
+    for (unsigned int i = 0; i < users.size(); i++) {
         if (users[i].username.compare(inputUser) == 0) {
             cout << "Auth fail: user already exists " << endl;
             return -3;
@@ -164,13 +148,14 @@ int Network::createNewUser(string inputUser, string inputPass) {
         userbankfile.close();
     }
     
-    //add to loaded userbank
     //todo: check if there is space for a new user
     //todo: make user capacity bigger if needed?
-        
-    users[usersCount].username = inputUser;
-    users[usersCount].password = inputPass;
-    usersCount++;
+
+    //add to loaded userbank
+    User newUser;
+    newUser.username = inputUser;
+    newUser.password = inputPass;
+    users.push_back(newUser);   
     cout << "A new user signed up." << endl;
     return 0;
 }
@@ -178,7 +163,7 @@ int Network::createNewUser(string inputUser, string inputPass) {
 int Network::validateUsernamePassword(string inputUser, string inputPass) {
     //find the inputted user in our users bank, if so, initilize currentUserIndex
     bool isFound = false;
-    for (int i = 0; i < USER_CAPACITY && !isFound; i++) {
+    for (unsigned int i = 0; i < users.size() && !isFound; i++) {
         if (users[i].username.compare(inputUser) == 0)  {
             //cout << "found user : " << user << endl;
             currentUserIndex = i;

@@ -7,10 +7,10 @@
 #include <fstream>
 #include <iostream> 
 #include <string>
+#include <vector>
 
 // Audrey's port on cs1 for cpsc5042
 #define AUDREYS_PORT 12119
-#define USER_CAPACITY 100
 
 using namespace std;
 // This class holds the details of the established server socket and its
@@ -30,8 +30,7 @@ class Network {
 		int socket;
 	};
 
-	User * users; //the bank of users
-	int usersCount;//the number of registered users
+	vector<User> users; //the bank of users
 
 	int currentUserIndex;
 	int currentClientSocket;
