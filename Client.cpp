@@ -94,7 +94,7 @@ void promptAndSendUserAuthentication(int sock) {
 //finalize connection and return true. if not valid, return false.
 bool checkAuthResult(int sock, string serverResponse) {
     int authStatus = stoi(serverResponse.substr(13));
-    cout << "authStatus = " << authStatus<< endl;
+    //cout << "authStatus = " << authStatus<< endl;
     if (authStatus >= 0) {
         cout << "Your login was successful." << endl;
         //Confirm authorization to server.

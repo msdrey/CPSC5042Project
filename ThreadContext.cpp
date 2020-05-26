@@ -1,7 +1,7 @@
 #include "ThreadContext.h"
 
-ThreadContext::ThreadContext(int socket) {
-    this->socket = socket;
+ThreadContext::ThreadContext(int sock) {
+    this->socket = sock;
 }
 
 //closes the socket and confirms closure into console

@@ -93,7 +93,7 @@ void Network::acceptConnections() {
 void *Network::startNewGame(void * arg) {
     Connection * connection = (Connection *) arg;
     ThreadContext * threadContext = new ThreadContext(connection->getSocket());
-    //unlock mutex here
+    //unlock race condition mutex here
 
     string authInfo = threadContext->receive();
     //cout << "authInfo: " << authInfo << endl;
