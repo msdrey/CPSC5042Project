@@ -37,4 +37,3 @@ Hyena,Laughter animal
 Seattle,Emerald city
 Lion,King of the jungle
 Venice,Italian city, famous for its canals
-Salmon,Makes great sushi, pink flesh

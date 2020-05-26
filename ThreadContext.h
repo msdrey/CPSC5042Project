@@ -20,6 +20,7 @@ class ThreadContext{
             string username;
             string password;
         };
+        
         int currentUserIndex;
 
     public:
