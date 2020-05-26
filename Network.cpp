@@ -2,7 +2,7 @@
 
 using namespace std;
 
-// class constructor sets up the server and initializes users bank
+// class constructor sets up the server
 Network::Network(int argc, char const *argv[]) {
     if (argc == 2) {
         port = atoi(argv[1]);
@@ -48,12 +48,6 @@ Network::Network(int argc, char const *argv[]) {
 
 // class destructor
 Network::~Network() {
-    //delete[] users;
-    // join each thread in vector
-    // program will terminate prematurely if thise step is not done
-    //for(auto& t : threads) {
-        //t.join();
-    //}
 }
 
 // this call is accepting a connection from a client and returning the 
@@ -75,10 +69,11 @@ void Network::acceptConnections() {
 		try{
 			// establish connection with a client		
 			int newSocket = this->acceptConnection();
+            // temporarily set connection socket to the new socket
+            // lock mutex here
             connectionPtr->setSocket(newSocket);
             // start a new thread for the client
             pthread_t p1;
-            //lock mutex here
             pthread_create(&p1, NULL, startNewGame, (void *) connectionPtr);
 		} catch (const char* message) {
 			cerr << message << endl;
@@ -92,16 +87,19 @@ void *Network::startNewGame(void * arg) {
     ThreadContext * threadContext = new ThreadContext(connection->getSocket());
     //unlock race condition mutex here
 
+    //receive client's authentication info: log in or sign up, username and pw
     string authInfo = threadContext->receive();
-    //cout << "authInfo: " << authInfo << endl;
+    // ask the connection object to validate authentication info
     int authResult = connection->checkAuthentication(authInfo);
+    // send the result back to the client
     threadContext->sendToClient(Network::serializeKeyValuePair("isValidLogin", to_string(authResult)));
-    if (authResult > -1) {
+    
+    if (authResult > -1) { //successful authentication. Handshake from client.
         cout << "User is authenticated" << endl;
         threadContext->setCurrentUser(authResult);
         string clientConfirmsAuth = threadContext->receive();
         cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;
-    } else {
+    } else { // authentication failed. Disconnect and force exit thread.
         threadContext->disconnectClient();
         return NULL;
     }
