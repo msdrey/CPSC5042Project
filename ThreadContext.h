@@ -1,12 +1,10 @@
 #ifndef THREADCONTEXT_H
 #define THREADCONTEXT_H
 
-#include <fstream>
 #include <unistd.h> 
 #include <netinet/in.h> 
 #include <string>
 #include <iostream> 
-
 
 using namespace std;
 
