@@ -1,12 +1,8 @@
 #include "Network.h"
 #include "GameSession.h"
+#include "Connection.h"
 
 using namespace std;
-
-// getter for current client's socket identifier
-int Network::getCurrentClientSocket() {
-    return currentClientSocket;
-}
 
 // class constructor sets up the server and initializes users bank
 Network::Network(int argc, char const *argv[]) {
@@ -78,15 +74,15 @@ Network::~Network() {
 
 // this call is accepting a connection from a client and returning the 
 // id of the socket of the new client connection
-void Network::acceptConnection() {
+Connection * Network::acceptConnection() {
     int newSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
     if (newSocket < 0) 
     { 
         throw "accept failed";
     } 
     cout << "New connection was made." << endl;
-    currentClientSocket = newSocket;
-    return;
+    Connection * newConnectionPtr = new Connection(newSocket);
+    return newConnectionPtr;
 }
 
 void Network::acceptConnections() {
@@ -94,9 +90,11 @@ void Network::acceptConnections() {
 	while (1) {
 		try{
 			// establish connection with a client		
-			this->acceptConnection();
-			cout << "post connection check. socket = " << this->getCurrentClientSocket() << endl;
-            this->createGameThread();
+			Connection * connectionPtr = this->acceptConnection();
+			//cout << "post connection check. socket = " << this->getCurrentClientSocket() << endl; 
+            ////////// TODO /////// FIX Compile error
+            std::thread t(&Network::startNewGame, ref(connectionPtr));
+            threads.push_back(std::move(t));
 		} catch (const char* message) {
 			cerr << message << endl;
 			exit(EXIT_FAILURE);
@@ -104,35 +102,30 @@ void Network::acceptConnections() {
 	}
 }
 
-void Network::createGameThread() {
-    std::thread t(&Network::startNewGame, this);
-    threads.push_back(std::move(t));
-}
-
-void Network::startNewGame() {
+void Network::startNewGame(Connection * connection) {
     // authenticate client that created connection
-	if (this->receiveAndCheckAuthentication()) {
-		cout << "User is authenticated" << endl;
-		this->sendToClient(Network::serializeKeyValuePair("isValidLogin", "true"));
-		string clientConfirmsAuth = this->receive();
-		cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;
-	} else {
-		this->sendToClient(Network::serializeKeyValuePair("isValidLogin", "false"));
-		// force disconnect on server side
-		this->disconnectClient(); 
-	}
+	// if (this->receiveAndCheckAuthentication()) {
+	// 	cout << "User is authenticated" << endl;
+	// 	connection->sendToClient(Network::serializeKeyValuePair("isValidLogin", "true"));
+	// 	string clientConfirmsAuth = connection->receive();
+	// 	cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;
+	// } else {
+	// 	connection->sendToClient(Network::serializeKeyValuePair("isValidLogin", "false"));
+	// 	// force disconnect on server side
+	// 	connection->disconnectClient(); 
+	// }
 
 	//set up a new game session
 	GameSession * thisSession = new GameSession();
 
 	//welcome user and start game
-	this->sendToClient(thisSession->startSession());
+	connection->sendToClient(thisSession->startSession());
 
 	string userInput;
 	while (thisSession->getStatus() == 1) { //while session is active
 
 		//receive client's answer
-		userInput = this->receive();
+		userInput = connection->receive();
 		// cout << "userInput : " << userInput << endl;
 		if (userInput.empty()) {
 			cout << "The client has unexpectedly disconnected" << endl;
@@ -141,61 +134,10 @@ void Network::startNewGame() {
 		}
 
 		//handle client's answer and send feedback
-		this->sendToClient(thisSession->handleUserInput(userInput));
+		connection->sendToClient(thisSession->handleUserInput(userInput));
 	}
 
-	this->disconnectClient();
-}
-
-// receives whatever is found in the specified socket
-// and returns it
-string Network::receive() {
-    char userInput[1024] = {0};
-    int valread = recv(currentClientSocket, userInput, 1024, 0);
-    // cout << "valread: " << valread << endl;
-    if (valread == 0) {
-        return "";
-    }
-    return string(userInput);
-}
-
-//sends the inputted message into the specified socket
-// will throw an error message if the sending fails
-void Network::sendToClient(const string& message) {
-    int valsend = send(currentClientSocket, message.c_str(), message.length(), 0);
-    // cout << "valsend = " << valsend << endl;
-    if (valsend == -1) {
-        throw "error occured while sending data to server";
-    }
-}
-
-//closes the socket and confirms closure into console
-void Network::disconnectClient() {
-    close(currentClientSocket);
-    cout << "The client exit the game." << endl << endl;
-}
-
-bool Network::receiveAndCheckAuthentication() {
-    string loginOrSignup = receive(); //"log in " or "sign in"
-    //cout << "user choice: " << loginOrSignin << endl;
-
-    //send handshake
-    sendToClient("ans");
-
-    string authString = receive(); //"username=<value>,password=<value>"
-    //cout << authString << endl; 
-
-    //extract username and entered password from authString
-    int equalPos = authString.find("=");
-    int commaPos = authString.find(",");
-    string inputUser = authString.substr(equalPos+1, commaPos - equalPos - 1);
-    string inputPass = authString.substr(commaPos+10);
-
-    if (loginOrSignup.compare("log in")==0) {
-        return validateUsernamePassword(inputUser, inputPass);
-    } else { // "sign up"
-        return createNewUser(inputUser, inputPass);
-    }
+	connection->disconnectClient();
 }
 
 bool Network::createNewUser(string inputUser, string inputPass) {
@@ -240,4 +182,25 @@ bool Network::validateUsernamePassword(string inputUser, string inputPass) {
     }
 }
 
+bool Network::receiveAndCheckAuthentication(Connection *connection) {
+    string loginOrSignup = connection->receive(); //"log in " or "sign in"
+    //cout << "user choice: " << loginOrSignin << endl;
 
+    //send handshake
+    connection->sendToClient("ans");
+
+    string authString = connection->receive(); //"username=<value>,password=<value>"
+    //cout << authString << endl; 
+
+    //extract username and entered password from authString
+    int equalPos = authString.find("=");
+    int commaPos = authString.find(",");
+    string inputUser = authString.substr(equalPos+1, commaPos - equalPos - 1);
+    string inputPass = authString.substr(commaPos+10);
+
+    if (loginOrSignup.compare("log in")==0) {
+        return validateUsernamePassword(inputUser, inputPass);
+    } else { // "sign up"
+        return createNewUser(inputUser, inputPass);
+    }
+}

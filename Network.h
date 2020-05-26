@@ -12,6 +12,8 @@
 #include <mutex>
 #include <vector>
 
+#include "Connection.h"
+
 // Audrey's port on cs1 for cpsc5042
 #define AUDREYS_PORT 12119
 #define USER_CAPACITY 100
@@ -27,39 +29,30 @@ class Network {
 	int port;
 
 	struct User { // a simple struct for keeping users information. 
-				  // may be expanded later with high score or other info
-				  // may be turned into a full class too
-		string username;
-		string password;
-		int socket;
+			// may be expanded later with high score or other info
+			// may be turned into a full class too
+	string username;
+	string password;
+	int socket;
 	};
 
 	User * users; //the bank of users
 	int usersCount;//the number of registered users
-
-	int currentUserIndex;
-	int currentClientSocket;
+    int currentUserIndex;
 
 	vector<std::thread> threads;
-	void createGameThread();
-	void startNewGame();
+	void startNewGame(Connection *connection);
 	
-  public:
-	int getCurrentClientSocket(); 
-	string getCurrentUser();	
+  public:	
 	Network(int, const char**);
 	~Network();
-	void acceptConnection();
+	Connection * acceptConnection();
     void acceptConnections();
-	string receive();
-	void sendToClient(const string& );
-	void disconnectClient();
-	void closeServerSocket();
-	bool receiveAndCheckAuthentication();
+	bool receiveAndCheckAuthentication(Connection *connection);
 	bool validateUsernamePassword(string , string);
 	bool createNewUser(string, string);
-	
-    // helper static function that puts a key and value into a 
+
+	// helper static function that puts a key and value into a 
     // standardized format
     static string serializeKeyValuePair(string key, string value) {
         return key + "=" + value;
