@@ -1,37 +1,44 @@
 #ifndef NETWORK_H
 #define NETWORK_H
-#include <string>
-#include <mutex>
-#include "Connection.h"
-#include "GameSession.h"
-#include "ThreadContext.h"
 
-// Audrey's port on cs1 for cpsc5042
-#define AUDREYS_PORT 12119
+/*
+* A unique Connection object is held by the Network and distributed 
+* to all Threads so they can access common data such as the userBank 
+* and the leaderboard.
+*
+* All data here must be protected with mutexes since it will be 
+* accessed by multiple concurrent threads.
+*/
+
+#include <fstream>
+#include <string>
+#include <iostream> 
+#include <vector>
 
 using namespace std;
-// This class holds the details of the established server socket and its
-// address and allows the server to create a new socket, 
-class Network {
-  private:
-    int server_fd; //the server's socket
-	struct sockaddr_in address; // the address information of the server socket
-	int addrlen; // the length of the address
-	int port;
 
-	static void *startNewGame(void *); //starts new threads for clients
-	
-  public:	
-	Network(int, const char**);
-	~Network();
-	int acceptConnection();
-    void acceptConnections();
-	
-	// helper static function that puts a key and value into a 
-    // standardized format
-    static string serializeKeyValuePair(string key, string value) {
-        return key + "=" + value;
-    }
+class Network{
+    private:
+        int socket;
+
+        struct User { // a simple struct for keeping users information. 
+                    // may be expanded later with high score or other info
+                    // may be turned into a full class too
+            string username;
+            string password;
+        };
+
+        vector<User> users; //the bank of users
+        //leaderboard;
+
+    public:
+        Network();
+        void setSocket(int);
+        int getSocket();
+        int checkAuthentication(string);
+        int createNewUser(string, string);
+        int validateUsernamePassword(string , string);
+	    
 };
 
 #endif //NETWORK_H

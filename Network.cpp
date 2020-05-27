@@ -1,137 +1,93 @@
 #include "Network.h"
 
-using namespace std;
+Network::Network() {
+    //initializing the bank of users
+    ifstream userbankfile("UserBank.txt");
+    string line;
+    while (getline(userbankfile, line)) {
+        User newUser;
+        newUser.username = line;
+        getline(userbankfile, line);
+        newUser.password = line;
+        users.push_back(newUser);
+    }
+    userbankfile.close();
+}
 
-// class constructor sets up the server
-Network::Network(int argc, char const *argv[]) {
-    if (argc == 2) {
-        port = atoi(argv[1]);
+void Network::setSocket(int newSocket) {
+    this->socket = newSocket;
+}
+
+int Network::getSocket() {
+    return socket;
+}
+
+int Network::checkAuthentication(string authInfo) {
+    
+    //extract username and entered password from authString
+    int colonPos = authInfo.find(";");
+    int equalPos = authInfo.find("=");
+    int commaPos = authInfo.find(",");
+    string loginOrSignup = authInfo.substr(0, colonPos);
+    string inputUser = authInfo.substr(equalPos+1, commaPos - equalPos - 1);
+    string inputPass = authInfo.substr(commaPos+10);
+
+    if (loginOrSignup.compare("log in")==0) {
+        return validateUsernamePassword(inputUser, inputPass);
+    } else { // "sign up"
+        return createNewUser(inputUser, inputPass);
+    }
+}
+
+int Network::createNewUser(string inputUser, string inputPass) {
+    //check if user already exists
+    for (unsigned int i = 0; i < users.size(); i++) {
+        if (users[i].username.compare(inputUser) == 0) {
+            cout << "Auth fail: user already exists " << endl;
+            return -3;
+        }
+    }
+    
+    //add to file
+    ofstream userbankfile;
+    userbankfile.open("UserBank.txt", ios_base::app);//append to file
+    if (userbankfile.is_open()) {
+        userbankfile << "\n"<< inputUser << "\n" << inputPass;
+        userbankfile.close();
+    }
+    
+    //add to loaded userbank
+    User newUser;
+    newUser.username = inputUser;
+    newUser.password = inputPass;
+    users.push_back(newUser);   
+    cout << "A new user signed up." << endl;
+    return users.size() - 1;
+}
+
+int Network::validateUsernamePassword(string inputUser, string inputPass) {
+    //find the inputted user in our users bank, if so, initilize currentUserIndex
+    bool isFound = false;
+    int currentUserIndex;
+    for (unsigned int i = 0; i < users.size() && !isFound; i++) {
+        if (users[i].username.compare(inputUser) == 0)  {
+            //cout << "found user : " << user << endl;
+            currentUserIndex = i;
+            isFound = true;
+        }
+    }
+
+    //if user is not found or if user is found but password is wrong, authentication fails
+    if (!isFound) {
+        cout << "Auth fail: user not found " << endl; //for string: " << authString << endl;
+        return -1;
+    } else if (inputPass.compare(users[currentUserIndex].password) != 0) {
+        cout << "Auth fail: wrong password " << endl;
+        return -2;
     } else {
-        port = AUDREYS_PORT;
+        //cout << "Auth success " << endl;// for string: " << authString << endl;
+        return currentUserIndex;
     }
-
-    //creating a listening socket
-    int opt = 1; 
-    addrlen = sizeof(address); 
-    
-    // Creating socket file descriptor 
-    server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd < 0) 
-    { 
-        throw "Server's socket creation failed"; 
-    } 
-
-    //setting up the options for the socket
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt))) 
-    { 
-        throw "setsockopt failed";
-    } 
-
-    //specifying the address and the port the server will connect to
-    address.sin_family = AF_INET; 
-    address.sin_addr.s_addr = INADDR_ANY; 
-    address.sin_port = htons( port ); 
-
-    // Forcefully attaching socket to the port  
-    if (::bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) 
-    { 
-        throw "bind failed";
-    } 
-
-    //prepare to accept connections
-    if (listen(server_fd, 3) < 0) 
-    { 
-        throw "listen failed"; 
-    } 
-    cout << "Server is listening on port " << port << endl;
 }
 
-// class destructor
-Network::~Network() {
-}
-
-// this call is accepting a connection from a client and returning the 
-// id of the socket of the new client connection
-int Network::acceptConnection() {
-    int newSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
-    if (newSocket < 0) 
-    { 
-        throw "accept failed";
-    } 
-    cout << "New connection was made." << endl;
-    return newSocket;
-}
-
-void Network::acceptConnections() {
-    //infinite loop to keep the server running indefinitely 
-    Connection * connectionPtr = new Connection();
-	while (1) {
-		try{
-			// establish connection with a client		
-			int newSocket = this->acceptConnection();
-            // temporarily set connection socket to the new socket
-            // lock mutex here
-            connectionPtr->setSocket(newSocket);
-            // start a new thread for the client
-            pthread_t p1;
-            pthread_create(&p1, NULL, startNewGame, (void *) connectionPtr);
-		} catch (const char* message) {
-			cerr << message << endl;
-			exit(EXIT_FAILURE);
-		}
-	}
-}
-
-void *Network::startNewGame(void * arg) {
-    Connection * connection = (Connection *) arg;
-    ThreadContext * threadContext = new ThreadContext(connection->getSocket());
-    //unlock race condition mutex here
-
-    //receive client's authentication info: log in or sign up, username and pw
-    string authInfo = threadContext->receive();
-    // ask the connection object to validate authentication info
-    int authResult = connection->checkAuthentication(authInfo);
-    // send the result back to the client
-    threadContext->sendToClient(Network::serializeKeyValuePair("isValidLogin", to_string(authResult)));
-    
-    if (authResult > -1) { //successful authentication. Handshake from client.
-        cout << "User is authenticated" << endl;
-        threadContext->setCurrentUser(authResult);
-        string clientConfirmsAuth = threadContext->receive();
-        cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;
-    } else { // authentication failed. Disconnect and force exit thread.
-        threadContext->disconnectClient();
-        return NULL;
-    }
-    
-	//set up a new game session
-	GameSession * thisSession = new GameSession();
-
-	//welcome user and start game
-	threadContext->sendToClient(thisSession->startSession());
-
-	string userInput;
-	while (thisSession->getStatus() == 1) { //while session is active
-
-		//receive client's answer
-		userInput = threadContext->receive();
-		// cout << "userInput : " << userInput << endl;
-		if (userInput.empty()) {
-			cout << "The client has unexpectedly disconnected" << endl;
-			thisSession->setStatus(0);
-			break;
-		}
-        // get a struct or something from thisSession->someNewFunction(); getScores or something
-        //user ID retrieved from threadCOntext
-        // connection->updateLeaderboard(the struct of scores, streaks, packaged with current user ID)
-
-
-
-		//handle client's answer and send feedback
-		threadContext->sendToClient(thisSession->handleUserInput(userInput));
-	}
-
-	threadContext->disconnectClient();
-    return NULL;
-}
 
