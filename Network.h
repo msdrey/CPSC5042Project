@@ -32,6 +32,8 @@ class Network{
         //leaderboard;
 
     public:
+        pthread_mutex_t socket_lock;
+
         Network();
         void setSocket(int);
         int getSocket();

@@ -69,13 +69,21 @@ void Server::acceptConnections() {
 		try{
 			// establish connection with a client		
 			int newSocket = this->acceptConnection();
-            // temporarily set connection socket to the new socket
+            
             // lock mutex here
+            pthread_mutex_lock(&networkPtr->socket_lock);
+            // cout << "before sleep..." << endl;
+            // sleep(20);
+            // cout << "after sleep..." << endl;
+            
+            // temporarily set network's socket to the new socket
             networkPtr->setSocket(newSocket);
+            
             // start a new thread for the client
             pthread_t p1;
             pthread_create(&p1, NULL, startNewGame, (void *) networkPtr);
-		} catch (const char* message) {
+		
+        } catch (const char* message) {
 			cerr << message << endl;
 			exit(EXIT_FAILURE);
 		}
@@ -83,9 +91,10 @@ void Server::acceptConnections() {
 }
 
 void *Server::startNewGame(void * arg) {
-    Network * network = (Network *) arg;
-    Connection * connection = new Connection(network->getSocket());
+    Network * network = (Network *) arg; // the shared data
+    Connection * connection = new Connection(network->getSocket()); //the thread-specific data
     //unlock race condition mutex here
+    pthread_mutex_unlock(&network->socket_lock);
 
     //receive client's authentication info: log in or sign up, username and pw
     string authInfo = connection->receive();

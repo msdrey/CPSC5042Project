@@ -13,21 +13,22 @@ using namespace std;
 // This class holds the details of the established server socket and its
 // address and allows the server to create a new socket, 
 class Server {
-  private:
+private:
     int server_fd; //the server's socket
-	struct sockaddr_in address; // the address information of the server socket
-	int addrlen; // the length of the address
-	int port;
+	  struct sockaddr_in address; // the address information of the server socket
+	  int addrlen; // the length of the address
+	  int port;
 
-	static void *startNewGame(void *); //starts new threads for clients
-	
-  public:	
-	Server(int, const char**);
-	~Server();
-	int acceptConnection();
+  	static void *startNewGame(void *); //starts new threads for clients
+
+
+public:	
+	  Server(int, const char**);
+	  ~Server();
+	  int acceptConnection();
     void acceptConnections();
 	
-	// helper static function that puts a key and value into a 
+	  // helper static function that puts a key and value into a 
     // standardized format
     static string serializeKeyValuePair(string key, string value) {
         return key + "=" + value;

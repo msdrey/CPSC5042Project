@@ -12,6 +12,9 @@ Network::Network() {
         users.push_back(newUser);
     }
     userbankfile.close();
+
+    //initializing the socket data field's lock
+    pthread_mutex_init(&socket_lock, NULL);
 }
 
 void Network::setSocket(int newSocket) {
