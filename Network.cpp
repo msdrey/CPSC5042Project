@@ -28,6 +28,7 @@ int Network::getSocket() {
 int Network::checkAuthentication(string authInfo) {
     
     //extract username and entered password from authString
+    //authInfo = <loginOrSignup>;username=<inputUser>,password=<inputPass>
     int colonPos = authInfo.find(";");
     int equalPos = authInfo.find("=");
     int commaPos = authInfo.find(",");

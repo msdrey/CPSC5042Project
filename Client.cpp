@@ -53,11 +53,11 @@ string serializeKeyValuePair(string key, string value) {
 }
 
 //formats a username and password pair for communication with the server
-string serializeAuthString(string username, string password) {
+string serializeAuthString(string choice, string username, string password) {
     string result;
     result = serializeKeyValuePair("username", username);
     result += "," + serializeKeyValuePair("password", password);
-    return result;
+    return choice + ";" + result;
 }
 
 // prompt the user for a username and password and send it to server
@@ -84,7 +84,7 @@ void promptAndSendUserAuthentication(int sock) {
     cout << "Please enter your password: " << endl;
     cin >> password;
 
-    string authString = choice + ";" + serializeAuthString(username, password);
+    string authString = serializeAuthString(choice, username, password);
 
     sendToServer(sock, authString);
 }
