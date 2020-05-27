@@ -63,9 +63,11 @@ int Server::acceptConnection() {
 }
 
 void Server::acceptConnections() {
-    //infinite loop to keep the server running indefinitely 
+    //Initialize network data
     Network * networkPtr = new Network();
-	while (1) {
+
+	//infinite loop to keep the server running indefinitely
+    while (1) {
 		try{
 			// establish connection with a client		
 			int newSocket = this->acceptConnection();
@@ -98,7 +100,7 @@ void *Server::startNewGame(void * arg) {
 
     //receive client's authentication info: log in or sign up, username and pw
     string authInfo = connection->receive();
-    // ask the connection object to validate authentication info
+    // ask the network object to validate authentication info
     int authResult = network->checkAuthentication(authInfo);
     // send the result back to the client
     connection->sendToClient(Server::serializeKeyValuePair("isValidLogin", to_string(authResult)));
