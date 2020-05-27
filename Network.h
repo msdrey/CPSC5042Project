@@ -1,13 +1,10 @@
 #ifndef NETWORK_H
 #define NETWORK_H
-#include <unistd.h> 
-//#include <sys/socket.h> 
-//#include <stdlib.h> 
-#include <netinet/in.h> 
-#include <fstream>
-#include <iostream> 
 #include <string>
-#include <vector>
+#include <mutex>
+#include "Connection.h"
+#include "GameSession.h"
+#include "ThreadContext.h"
 
 // Audrey's port on cs1 for cpsc5042
 #define AUDREYS_PORT 12119
@@ -22,34 +19,15 @@ class Network {
 	int addrlen; // the length of the address
 	int port;
 
-	struct User { // a simple struct for keeping users information. 
-				  // may be expanded later with high score or other info
-				  // may be turned into a full class too
-		string username;
-		string password;
-		int socket;
-	};
-
-	vector<User> users; //the bank of users
-
-	int currentUserIndex;
-	int currentClientSocket;
-
-  public:
-	int getCurrentClientSocket(); 
-	string getCurrentUser();	
+	static void *startNewGame(void *); //starts new threads for clients
+	
+  public:	
 	Network(int, const char**);
 	~Network();
-    void connect();
-	string receive();
-	void sendToClient(const string& );
-	void disconnectClient();
-	void closeServerSocket();
-	int receiveAndCheckAuthentication();
-	int validateUsernamePassword(string , string);
-	int createNewUser(string, string);
+	int acceptConnection();
+    void acceptConnections();
 	
-    // helper static function that puts a key and value into a 
+	// helper static function that puts a key and value into a 
     // standardized format
     static string serializeKeyValuePair(string key, string value) {
         return key + "=" + value;

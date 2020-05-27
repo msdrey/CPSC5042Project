@@ -62,21 +62,7 @@ string serializeAuthString(string username, string password) {
 
 // prompt the user for a username and password and send it to server
 void promptAndSendUserAuthentication(int sock) {
-    string username;
-    string password;
-    string authString;
-
-
-    cout << "Please enter your username: " << endl;
-    cin >> username;
-    cout << "Please enter your password: " << endl;
-    cin >> password;
-
-    sendToServer(sock, serializeAuthString(username, password));
-}
-
-//returns 'log in' or 'sign up'
-void promptSignupOrLogin(int sock) {
+    
     string choice;
     bool validInput = false;
     while(!validInput) {
@@ -89,18 +75,27 @@ void promptSignupOrLogin(int sock) {
             validInput = true;
         }
     }
-    //send choice to server so it prepares to get log in or sign in
-    sendToServer(sock, choice);
-    receiveFromServer(sock);
+
+    string username;
+    string password;
+
+    cout << "Please enter your username: " << endl;
+    cin >> username;
+    cout << "Please enter your password: " << endl;
+    cin >> password;
+
+    string authString = choice + ";" + serializeAuthString(username, password);
+
+    sendToServer(sock, authString);
 }
+
 
 //check if authentication is valid. if valid,
 //finalize connection and return true. if not valid, return false.
 bool checkAuthResult(int sock, string serverResponse) {
-    //cout << "serverResponse = " << serverResponse<< endl;
     int authStatus = stoi(serverResponse.substr(13));
     //cout << "authStatus = " << authStatus<< endl;
-    if (authStatus == 0) {
+    if (authStatus >= 0) {
         cout << "Your login was successful." << endl;
         //Confirm authorization to server.
         sendToServer(sock, "true");
@@ -204,12 +199,8 @@ int main(int argc, char const *argv[]) {
         sock = create_connection(argc, argv);
         cout << "Post connection check. Sock = " << sock << endl;
         
-        // provide user with choice: sign in or log in?
-        promptSignupOrLogin(sock);
-
         promptAndSendUserAuthentication(sock);
-        
-        
+                
         //receive authentication result and check if valid, if not, disconnect
         if (!checkAuthResult(sock, receiveFromServer(sock))) {
             disconnect(sock);

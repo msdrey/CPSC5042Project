@@ -1,7 +1,11 @@
 #ifndef WORDLIBRARY_WORDLIBRARY_H
 #define WORDLIBRARY_WORDLIBRARY_H
-#include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 using namespace std;
 
@@ -12,13 +16,8 @@ class WordLibrary{
         string getHint(int);
         void addWord(string);
     private:
-
-        int count = 36;
-
         vector<string> library;
         void shuffle();
-
 };
-
 
 #endif //WORDLIBRARY_WORDLIBRARY_H
