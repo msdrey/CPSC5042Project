@@ -65,7 +65,7 @@ int Network::createNewUser(string inputUser, string inputPass) {
     newUser.username = inputUser;
     newUser.password = inputPass;
     users.push_back(newUser);   
-    cout << "A new user signed up." << endl;
+    cout << "A new user signed up: User " << users.size() - 1 << "." << endl;
     return users.size() - 1;
 }
 

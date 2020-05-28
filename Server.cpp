@@ -106,7 +106,7 @@ void *Server::startNewGame(void * arg) {
     connection->sendToClient(Server::serializeKeyValuePair("isValidLogin", to_string(authResult)));
     
     if (authResult > -1) { //successful authentication. Handshake from client.
-        cout << "User is authenticated" << endl;
+        cout << "User " << authResult << "is authenticated" << endl;
         connection->setCurrentUser(authResult);
         string clientConfirmsAuth = connection->receive();
         cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;

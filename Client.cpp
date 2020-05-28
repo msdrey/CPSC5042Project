@@ -66,11 +66,17 @@ void promptAndSendUserAuthentication(int sock) {
     string choice;
     bool validInput = false;
     while(!validInput) {
-        cout << "Please enter 'sign up' if you are a new user or 'log in' if you are a returning user" << endl;
+        cout << "\033[0;33m" 
+             << "Please enter 'sign up' if you are a new user or 'log in' if you are a returning user" 
+             << "\033[0m"
+             << endl;
         getline(cin, choice);
 
         if (choice.compare("sign up")!=0&&choice.compare("log in")!=0) {
-            cout << "This is not a valid choice. Try again." << endl;
+            cout << "\033[0;31m" 
+                 << "This is not a valid choice. Try again." 
+                 << "\033[0m"
+                 << endl;
         } else {
             validInput = true;
         }
@@ -79,9 +85,15 @@ void promptAndSendUserAuthentication(int sock) {
     string username;
     string password;
 
-    cout << "Please enter your username: " << endl;
+    cout << "\033[0;33m" 
+         << "Please enter your username: " 
+         << "\033[0m"
+         << endl;
     cin >> username;
-    cout << "Please enter your password: " << endl;
+    cout << "\033[0;33m" 
+         << "Please enter your password: " 
+         << "\033[0m"
+         << endl;
     cin >> password;
 
     string authString = serializeAuthString(choice, username, password);
@@ -96,17 +108,30 @@ bool checkAuthResult(int sock, string serverResponse) {
     int authStatus = stoi(serverResponse.substr(13));
     //cout << "authStatus = " << authStatus<< endl;
     if (authStatus >= 0) {
-        cout << "Your login was successful." << endl;
+        cout << "\n\033[0;32m" << "Your login was successful." <<  endl;
         //Confirm authorization to server.
         sendToServer(sock, "true");
+        cout << "Press any key to continue." << "\033[0m" << flush;
+        string dummy;
+        cin.ignore();
+        getline(cin, dummy);
         return true;
     } else if (authStatus == -1) {
-        cout << "Incorrect username. Disconnecting..." << endl;
+        cout << "\031[0;32m"
+             << "Incorrect username. Disconnecting..." 
+             << "\033[0m"
+             << endl;
         // TODO: allow retries
     } else if (authStatus == -2) {
-        cout << "Incorrect password. Disconnecting..." << endl;
+        cout << "\031[0;32m"
+             << "Incorrect password. Disconnecting..." 
+             << "\033[0m"
+             << endl;
     } else if (authStatus == -3) {
-        cout << "User already exists. Disconnecting..." << endl;
+        cout << "\031[0;32m"
+             << "User already exists. Disconnecting..."
+             << "\033[0m"
+             << endl;
     } else {
         cout << "auth error" << endl;
     }
@@ -197,8 +222,17 @@ int main(int argc, char const *argv[]) {
         //establishing connection with the server
         int sock;
         sock = create_connection(argc, argv);
-        cout << "Post connection check. Sock = " << sock << endl;
+        //cout << "Post connection check. Sock = " << sock << endl;
         
+        
+        system("clear");
+        cout << "\033[1;32m __          __           _                                       " << endl
+             << " \\ \\        / /          | |                                      " << endl
+             << "  \\ \\  /\\  / /__  _ __ __| | __ _ ___  __ _ _   _ _ __ _   _ ___  " << endl
+             << "   \\ \\/  \\/ / _ \\| '__/ _` |/ _` / __|/ _` | | | | '__| | | / __| " << endl
+             << "    \\  /\\  / (_) | | | (_| | (_| \\__ \\ (_| | |_| | |  | |_| \\__ \\ " << endl
+             << "     \\/  \\/ \\___/|_|  \\__,_|\\__,_|___/\\__,_|\\__,_|_|   \\__,_|___/ \033[0m" << endl << endl << endl;
+
         promptAndSendUserAuthentication(sock);
                 
         //receive authentication result and check if valid, if not, disconnect
@@ -207,15 +241,16 @@ int main(int argc, char const *argv[]) {
             exit(0);
         }
 
+        system("clear");
         //receive and display welcome message & prompt
-        cout << receiveFromServer(sock) << endl;
+        cout << "\033[0;33m" << receiveFromServer(sock) << "\033[0m"<< endl;
     
         //keep playing as long as the player does not issue the command ".exit"
         string userInput;
         do {
             if (wordAddingProcess == true) {    
                 addWord(sock);
-                cout << receiveFromServer(sock) << endl;
+                cout << "\033[0;33m"<<  receiveFromServer(sock) << "\033[0m" << endl;
             }
 
             //take in user's input and send to server
@@ -226,7 +261,7 @@ int main(int argc, char const *argv[]) {
             }
 
             //receive feedback + next prompt from server, and display them
-            cout << receiveFromServer(sock) << endl;
+            cout << "\033[0;33m" << receiveFromServer(sock) << "\033[0m" << endl;
         } while(userInput.compare(".exit") != 0);
 
         //close connection with server
