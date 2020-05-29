@@ -149,11 +149,11 @@ void *Server::startNewGame(void * arg) {
         }
 
 
-
 		//handle client's answer and send feedback
 		connection->sendToClient(thisSession->handleUserInput(userInput));
 	}
-
+    
+    network->logOutUser(connection->getCurrentUser());
 	connection->disconnectClient();
     return NULL;
 }

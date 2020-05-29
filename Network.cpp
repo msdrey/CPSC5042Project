@@ -19,6 +19,7 @@ Network::Network() {
 
         newUser.highestScore = stoi(line.substr(semiColon + 1, slash));
         newUser.highestStreak = stoi(line.substr(slash + 1));
+        newUser.isLoggedIn = false;
         users.push_back(newUser);
     }
     userbankfile.close();
@@ -87,6 +88,9 @@ int Network::createNewUser(string inputUser, string inputPass) {
     User newUser;
     newUser.username = inputUser;
     newUser.password = inputPass;
+    newUser.isLoggedIn = true;
+    newUser.highestScore = 0;
+    newUser.highestStreak = 0;
     users.push_back(newUser);   
     int userIndex = users.size() - 1;
 
@@ -100,15 +104,15 @@ int Network::createNewUser(string inputUser, string inputPass) {
 int Network::validateUsernamePassword(string inputUser, string inputPass) {
     //find the inputted user in our users bank, if so, initilize currentUserIndex
     bool isFound = false;
-    int currentUserIndex;
+    unsigned int currentUserIndex;
     pthread_mutex_lock(&userbankvector_lock);
-    for (unsigned int i = 0; i < users.size() && !isFound; i++) {
-        if (users[i].username.compare(inputUser) == 0)  {
-            currentUserIndex = i;
+    for (currentUserIndex = 0; currentUserIndex < users.size() && !isFound; currentUserIndex++) {
+        if (users[currentUserIndex].username.compare(inputUser) == 0)  {
             isFound = true;
+            break;
         }
     }
-
+    
     //if user is not found or if user is found but password is wrong, authentication fails
     if (!isFound) {
         pthread_mutex_unlock(&userbankvector_lock);
@@ -118,7 +122,12 @@ int Network::validateUsernamePassword(string inputUser, string inputPass) {
         pthread_mutex_unlock(&userbankvector_lock);
         cout << "Auth fail: wrong password " << endl;
         return -2;
+    } else if (users[currentUserIndex].isLoggedIn) {
+        pthread_mutex_unlock(&userbankvector_lock);
+        cout << "Auth fail: this user is already logged in" << endl;
+        return -4;
     } else {
+        users[currentUserIndex].isLoggedIn = true;
         pthread_mutex_unlock(&userbankvector_lock);
         //cout << "Auth success " << endl;// for string: " << authString << endl;
         return currentUserIndex;
@@ -196,4 +205,10 @@ string Network::getHighScore(int userIndex) {
     string result = "Your highest score: " + to_string(highScore) + "\n";
     result += "Your highest streak: " + to_string(highStreak) + "\n";
     return result;
+}
+
+void Network::logOutUser(int userIndex) {
+    pthread_mutex_lock(&userbankvector_lock);
+    users[userIndex].isLoggedIn = false;
+    pthread_mutex_unlock(&userbankvector_lock);
 }

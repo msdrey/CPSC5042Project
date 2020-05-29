@@ -28,10 +28,10 @@ class Network{
             string password;
             int highestScore;
             int highestStreak;
+            bool isLoggedIn;
         };
 
         vector<User> users; //the bank of users
-        //leaderboard;
 
         //WARNING: always lock file before vector when locking both!
         pthread_mutex_t userbankfile_lock;
@@ -52,6 +52,7 @@ class Network{
         void addWord(string);
         string getLeaderBoard();
         string getHighScore(int);
+        void logOutUser(int);
 	    
 };
 

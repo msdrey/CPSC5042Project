@@ -124,19 +124,24 @@ bool checkAuthResult(int sock, string serverResponse) {
         getline(cin, dummy);
         return true;
     } else if (authStatus == -1) {
-        cout << "\031[0;32m"
+        cout << "\033[0;31m"
              << "Incorrect username. Disconnecting..." 
              << "\033[0m"
              << endl;
         // TODO: allow retries
     } else if (authStatus == -2) {
-        cout << "\031[0;32m"
+        cout << "\033[0;31m"
              << "Incorrect password. Disconnecting..." 
              << "\033[0m"
              << endl;
     } else if (authStatus == -3) {
-        cout << "\031[0;32m"
+        cout << "\033[0;31m"
              << "User already exists. Disconnecting..."
+             << "\033[0m"
+             << endl;
+    } else if (authStatus == -4) {
+        cout << "\033[0;31m"
+             << "User is already logged in. Disconnecting..."
              << "\033[0m"
              << endl;
     } else {
