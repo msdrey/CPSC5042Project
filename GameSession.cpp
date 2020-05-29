@@ -101,11 +101,11 @@ string GameSession::checkGuess(const string& guess) {
 string GameSession::displayCommands() {
     string result = "Options:\n";
     return result 	+ "  .skip \t to skip the current word\n"
-                    + "  .score \t to display the current score and best streak\n"
+                    + "  .score \t to display the current score and best streak in this session\n"
                     + "  .help \t to display commands again\n"
                     + "  .addWord \t to add your own word and its hint to our game\n"
                     + "  .leaderboard \t to show the leaderboard of the server\n"
-                    + "  .highscore \t to display your high score\n"
+                    + "  .highscore \t to display your highest score and highest streak records\n"
                     + "  .exit \t to log out and exit\n\n";
 }
 

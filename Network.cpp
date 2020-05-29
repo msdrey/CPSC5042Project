@@ -191,7 +191,9 @@ void Network::addWord(string userWordHint){
 string Network::getHighScore(int userIndex) {
     pthread_mutex_lock(&userbankvector_lock);
     int highScore = users[userIndex].highestScore;
+    int highStreak = users[userIndex].highestStreak;
     pthread_mutex_unlock(&userbankvector_lock);
-    string result = "Your high score: " + to_string(highScore) + "\n";
+    string result = "Your highest score: " + to_string(highScore) + "\n";
+    result += "Your highest streak: " + to_string(highStreak) + "\n";
     return result;
 }
