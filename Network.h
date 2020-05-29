@@ -26,6 +26,8 @@ class Network{
                     // may be turned into a full class too
             string username;
             string password;
+            int highestScore;
+            int highestStreak;
         };
 
         vector<User> users; //the bank of users
@@ -48,6 +50,7 @@ class Network{
         int validateUsernamePassword(string, string);
         vector<string> * getWordsAndHints();
         void addWord(string);
+        string getLeaderBoard();
 	    
 };
 

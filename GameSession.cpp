@@ -24,7 +24,7 @@ string GameSession::handleCommand(const string& str) {
     } else if (isAMatch(str, ".addWord")) {
 		return "Your word has been added to the library.\nLet's continue playing.\n\n";
     } else if (isAMatch(str, ".leaderboard") ) {
-        return "todo: implement leaderboard";
+        return "\n";
     } else if (isAMatch(str, ".help")){
         return displayCommands();
     } else {
@@ -102,6 +102,7 @@ string GameSession::displayCommands() {
                     + "  .score \t to display the current score and best streak\n"
                     + "  .help \t to display commands again\n"
                     + "  .addWord \t to add your own word and its hint to our game\n"
+                    + "  .leaderboard \t to show the leaderboard of the server\n"
                     + "  .exit \t to log out and exit\n\n";
 }
 

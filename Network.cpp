@@ -8,9 +8,17 @@ Network::Network() {
     string line;
     while (getline(userbankfile, line)) {
         User newUser;
-        newUser.username = line;
-        getline(userbankfile, line);
-        newUser.password = line;
+
+        int comma = line.find(",");
+        int semiColon = line.find(";");
+        int slash = line.find("/");
+
+        // <username>,<password>;<highestScore>/<highestStreak>
+        newUser.username = line.substr(0, comma);
+        newUser.password = line.substr(comma + 1, semiColon - comma -1);
+
+        newUser.highestScore = stoi(line.substr(semiColon + 1, slash));
+        newUser.highestStreak = stoi(line.substr(slash + 1));
         users.push_back(newUser);
     }
     userbankfile.close();
@@ -68,7 +76,7 @@ int Network::createNewUser(string inputUser, string inputPass) {
     ofstream userbankfile;
     userbankfile.open("UserBank.txt", ios_base::app);//append to file
     if (userbankfile.is_open()) {
-        userbankfile << "\n"<< inputUser << "\n" << inputPass;
+        userbankfile << inputUser << "," << inputPass << ";0/0\n";
         userbankfile.close();
     }
     
@@ -136,6 +144,33 @@ vector<string>* Network::getWordsAndHints() {
 
     return result;
 
+}
+
+string Network::getLeaderBoard(){
+    
+
+    string result = "\n";
+
+    for (unsigned int i = 0; i < users.size() - 1; i++){
+
+        int maxIndex = i;
+        for (unsigned int j = i + 1; j < users.size(); j++)
+        {
+            if (users[j].highestScore > users[maxIndex].highestScore)
+                maxIndex = j;
+        }
+
+        User temp = users[maxIndex];
+        users[maxIndex] = users[i];
+        users[i] = temp;
+    }
+
+    //#1 ken, score: 29
+    result += "#1 " + users[0].username + ", score: " + to_string(users[0].highestScore) + "\n";
+    result += "#2 " + users[1].username + ", score: " + to_string(users[1].highestScore) + "\n";
+    result += "#3 " + users[2].username + ", score: " + to_string(users[2].highestScore) + "\n";
+
+    return result;
 }
 
 void Network::addWord(string userWordHint){
