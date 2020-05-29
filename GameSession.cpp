@@ -3,10 +3,9 @@
 using namespace std;
 
 void GameSession::selectWord() {
-    currentWord = wordBank->getWord(index);
-    currentClue = wordBank->getHint(index);
-    index++; // go to next word in the list (the list has been 
-             // randomized upon its creation)
+    currentWord = wordBank->getWord();
+    currentClue = wordBank->getHint();
+    wordBank->next();
 }
 
 //check if client's input is a command or not. 
@@ -23,8 +22,7 @@ string GameSession::handleCommand(const string& str) {
     } else if (isAMatch(str, ".score")) {
         return displayScore() + "\n";
     } else if (isAMatch(str, ".addWord")) {
-        wordAddingProcess = true;
-		return "Adding word processing...";
+		return "Your word has been added to the library.\nLet's continue playing.\n\n";
     } else if (isAMatch(str, ".leaderboard") ) {
         return "todo: implement leaderboard";
     } else if (isAMatch(str, ".help")){
@@ -32,15 +30,6 @@ string GameSession::handleCommand(const string& str) {
     } else {
         return "Invalid command. \n" + displayCommands();
     }
-}
-
-string GameSession::addingWord(const string& userInput) {
-
-	wordBank->addWord(userInput);
-			
-	wordAddingProcess = false;
-
-	return "Your word has been added to the library.\nLet's continue playing.\n\n";
 }
 
 // returns true if the two strings match. Case insensitive.
@@ -117,14 +106,12 @@ string GameSession::displayCommands() {
 }
 
 
-GameSession::GameSession() {
-    wordBank = new WordLibrary();
-    index = 0;
+GameSession::GameSession(vector<string> * wordsAndHints) {
+    wordBank = new WordLibrary(wordsAndHints);
     score = 0;
     currentStreak = 0;
     bestStreak = 0;
     status = 1;
-    wordAddingProcess = false;
     selectWord();
 }
 
@@ -144,13 +131,8 @@ string GameSession::handleUserInput(const string& userInput) {
             return "\n\n" + displayScore() + "\nThank you for playing! Goodbye.";
     }
 
-    if (isCommand(userInput) && !isAMatch(userInput, ".addword")) {
+    if (isCommand(userInput)) {
         result = handleCommand(userInput);
-    } else if (isCommand(userInput) && isAMatch(userInput, ".addword")) {
-		result = handleCommand(userInput);
-		return result;
-    } else if (wordAddingProcess == true){
-		result = addingWord(userInput);
     } else {
         result = checkGuess(userInput);
     }		

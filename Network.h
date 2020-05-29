@@ -31,18 +31,23 @@ class Network{
         vector<User> users; //the bank of users
         //leaderboard;
 
-    public:
-        pthread_mutex_t network_socket_lock;
         //WARNING: always lock file before vector when locking both!
         pthread_mutex_t userbankfile_lock;
         pthread_mutex_t userbankvector_lock;
+        pthread_mutex_t wordsandhints_lock;
+
+    public:
+        pthread_mutex_t network_socket_lock;
+
 
         Network();
         void setSocket(int);
         int getSocket();
         int checkAuthentication(string);
         int createNewUser(string, string);
-        int validateUsernamePassword(string , string);
+        int validateUsernamePassword(string, string);
+        vector<string> * getWordsAndHints();
+        void addWord(string);
 	    
 };
 

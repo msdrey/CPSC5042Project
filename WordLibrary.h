@@ -3,21 +3,23 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include <fstream>
 #include <iostream>
 #include <string>
+#include <algorithm> // for copy() and assign() 
+#include <iterator> // for back_inserter
 
 using namespace std;
 
 class WordLibrary{
     public:
-        WordLibrary();
-        string getWord(int);
-        string getHint(int);
-        void addWord(string);
+        WordLibrary(vector<string> *);
+        string getWord();
+        string getHint();
+        void next();
     private:
         vector<string> library;
         void shuffle();
+        int index; // index of the current word to be guessed in the word library
 };
 
 #endif //WORDLIBRARY_WORDLIBRARY_H

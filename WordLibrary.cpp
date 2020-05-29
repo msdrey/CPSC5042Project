@@ -1,35 +1,28 @@
 #include "WordLibrary.h"
 
-WordLibrary :: WordLibrary(){
+WordLibrary::WordLibrary(vector<string> * wordsAndHints){
 
-    ifstream infile;
-    infile.open("WordsAndHints.txt");
-
-    if (infile.is_open())
-    {
-        string line;
-
-        while (getline(infile, line))
-        {
-            library.push_back(line);
-        }
-    }
-
-    infile.close();
+    //make a local copy of the network's words and hints
+    copy((*wordsAndHints).begin(), (*wordsAndHints).end(), back_inserter(library));
 
     shuffle();
+    index = 0;
  
 }
 
-string WordLibrary::getWord(int index){
+string WordLibrary::getWord(){
 
     int comma = library.at(index).find(",");
     return library.at(index).substr(0, comma);
 }
 
-string WordLibrary::getHint(int index){
+string WordLibrary::getHint(){
     int comma = library.at(index).find(",");
     return library.at(index).substr(comma + 1);
+}
+
+void WordLibrary::next() {
+    index++;
 }
 
 
@@ -47,23 +40,5 @@ void WordLibrary :: shuffle(){
         library.at(i) = library.at(index);
         library.at(index) = temp;
     }
-
-}
-
-void WordLibrary :: addWord(string userWordHint){
-
-    ofstream outfile;
-    outfile.open("WordsAndHints.txt", ios::app);
-    if (outfile.is_open()) {
-        outfile << userWordHint << endl;
-        outfile.close();
-    }
-
-
-    // Add to the vector 
-
-    // Keep track of the sequence in vector
-
-    // Handle boundary
 
 }

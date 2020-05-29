@@ -13,7 +13,6 @@ using namespace std;
 #define PORT 12119
 #define AWS_IP "54.91.202.143"
 #define LOCAL_IP "127.0.0.1"
-bool wordAddingProcess = false;
 
 // Helper functions
 
@@ -37,6 +36,7 @@ void sendToServer(int sock, string message) {
 string takeInputAndSend(int sock) {
     string ans;
     cin >> ans;
+
     sendToServer(sock, ans);
     return ans;
 }
@@ -62,7 +62,14 @@ string serializeAuthString(string choice, string username, string password) {
 
 // prompt the user for a username and password and send it to server
 void promptAndSendUserAuthentication(int sock) {
-    
+    system("clear");
+    cout << "\033[1;32m __          __           _                                       " << endl
+        << " \\ \\        / /          | |                                      " << endl
+        << "  \\ \\  /\\  / /__  _ __ __| | __ _ ___  __ _ _   _ _ __ _   _ ___  " << endl
+        << "   \\ \\/  \\/ / _ \\| '__/ _` |/ _` / __|/ _` | | | | '__| | | / __| " << endl
+        << "    \\  /\\  / (_) | | | (_| | (_| \\__ \\ (_| | |_| | |  | |_| \\__ \\ " << endl
+        << "     \\/  \\/ \\___/|_|  \\__,_|\\__,_|___/\\__,_|\\__,_|_|   \\__,_|___/ \033[0m" << endl << endl << endl;
+
     string choice;
     bool validInput = false;
     while(!validInput) {
@@ -138,7 +145,7 @@ bool checkAuthResult(int sock, string serverResponse) {
     return false;
 }
 
-void addWord(int sock){
+void takeNewWordAndSend(int sock){
     string userWord;
     string userHint;
 
@@ -148,7 +155,6 @@ void addWord(int sock){
     cout <<"\nEnter hint for the word: ";
     getline(cin, userHint);
 
-    wordAddingProcess = false;
     sendToServer(sock, userWord + "," + userHint);
 }
 
@@ -223,15 +229,6 @@ int main(int argc, char const *argv[]) {
         int sock;
         sock = create_connection(argc, argv);
         //cout << "Post connection check. Sock = " << sock << endl;
-        
-        
-        system("clear");
-        cout << "\033[1;32m __          __           _                                       " << endl
-             << " \\ \\        / /          | |                                      " << endl
-             << "  \\ \\  /\\  / /__  _ __ __| | __ _ ___  __ _ _   _ _ __ _   _ ___  " << endl
-             << "   \\ \\/  \\/ / _ \\| '__/ _` |/ _` / __|/ _` | | | | '__| | | / __| " << endl
-             << "    \\  /\\  / (_) | | | (_| | (_| \\__ \\ (_| | |_| | |  | |_| \\__ \\ " << endl
-             << "     \\/  \\/ \\___/|_|  \\__,_|\\__,_|___/\\__,_|\\__,_|_|   \\__,_|___/ \033[0m" << endl << endl << endl;
 
         promptAndSendUserAuthentication(sock);
                 
@@ -247,21 +244,20 @@ int main(int argc, char const *argv[]) {
     
         //keep playing as long as the player does not issue the command ".exit"
         string userInput;
+        string response;
         do {
-            if (wordAddingProcess == true) {    
-                addWord(sock);
-                cout << "\033[0;33m"<<  receiveFromServer(sock) << "\033[0m" << endl;
-            }
-
             //take in user's input and send to server
             userInput = takeInputAndSend(sock);
 
-            if (toLowerCase(userInput).compare(".addword") == 0) {
-                wordAddingProcess = true;
+            if (userInput.compare(".addWord")==0) {
+                response = receiveFromServer(sock);
+                takeNewWordAndSend(sock);
             }
 
             //receive feedback + next prompt from server, and display them
-            cout << "\033[0;33m" << receiveFromServer(sock) << "\033[0m" << endl;
+            response = receiveFromServer(sock);
+            cout << "\033[0;33m" << response << "\033[0m" << endl;
+
         } while(userInput.compare(".exit") != 0);
 
         //close connection with server

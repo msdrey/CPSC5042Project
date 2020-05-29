@@ -115,7 +115,7 @@ void *Server::startNewGame(void * arg) {
     }
     
 	//set up a new game session
-	GameSession * thisSession = new GameSession();
+	GameSession * thisSession = new GameSession(network->getWordsAndHints());
 
 	//welcome user and start game
 	connection->sendToClient(thisSession->startSession());
@@ -131,6 +131,12 @@ void *Server::startNewGame(void * arg) {
 			thisSession->setStatus(0);
 			break;
 		}
+        if (userInput.compare(".addWord")==0) {
+            //send a command to client to start gathering word and hint
+            connection->sendToClient(".addWord");
+            //receive word and hint and pass to network to add to file
+            network->addWord(connection->receive());
+        }
         // get a struct or something from connection->someNewFunction(); getScores or something
         // user ID retrieved from connection
         // Network->updateLeaderboard(the struct of scores, streaks, packaged with current user ID)

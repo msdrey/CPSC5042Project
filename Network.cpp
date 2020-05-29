@@ -18,6 +18,8 @@ Network::Network() {
     //initializing the socket data field's lock
     pthread_mutex_init(&network_socket_lock, NULL);
     pthread_mutex_init(&userbankfile_lock, NULL);
+    pthread_mutex_init(&userbankvector_lock, NULL);
+    pthread_mutex_init(&wordsandhints_lock, NULL);
 }
 
 void Network::setSocket(int newSocket) {
@@ -29,7 +31,7 @@ void Network::setSocket(int newSocket) {
 int Network::getSocket() {
     //note: no need for locks here as this method
     //is only used while holding the socket_lock
-    return socket;
+    return this->socket;
 }
 
 int Network::checkAuthentication(string authInfo) {
@@ -113,4 +115,36 @@ int Network::validateUsernamePassword(string inputUser, string inputPass) {
     }
 }
 
+vector<string>* Network::getWordsAndHints() {
+    vector<string> * result = new vector<string>();
+    ifstream infile;
+    pthread_mutex_lock(&wordsandhints_lock);
+    infile.open("WordsAndHints.txt");
 
+    if (infile.is_open())
+    {
+        string line;
+
+        while (getline(infile, line))
+        {
+            result->push_back(line);
+        }
+    }
+
+    infile.close();
+    pthread_mutex_unlock(&wordsandhints_lock);
+
+    return result;
+
+}
+
+void Network::addWord(string userWordHint){
+    pthread_mutex_lock(&wordsandhints_lock);
+    ofstream outfile;
+    outfile.open("WordsAndHints.txt", ios::app);
+    if (outfile.is_open()) {
+        outfile << userWordHint << endl;
+        outfile.close();
+    }
+    pthread_mutex_unlock(&wordsandhints_lock);
+}
