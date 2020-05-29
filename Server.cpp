@@ -73,7 +73,7 @@ void Server::acceptConnections() {
 			int newSocket = this->acceptConnection();
             
             // lock mutex here
-            pthread_mutex_lock(&networkPtr->socket_lock);
+            pthread_mutex_lock(&networkPtr->network_socket_lock);
             // cout << "before sleep..." << endl;
             // sleep(20);
             // cout << "after sleep..." << endl;
@@ -95,8 +95,7 @@ void Server::acceptConnections() {
 void *Server::startNewGame(void * arg) {
     Network * network = (Network *) arg; // the shared data
     Connection * connection = new Connection(network->getSocket()); //the thread-specific data
-    //unlock race condition mutex here
-    pthread_mutex_unlock(&network->socket_lock);
+    pthread_mutex_unlock(&network->network_socket_lock);
 
     //receive client's authentication info: log in or sign up, username and pw
     string authInfo = connection->receive();
@@ -106,7 +105,7 @@ void *Server::startNewGame(void * arg) {
     connection->sendToClient(Server::serializeKeyValuePair("isValidLogin", to_string(authResult)));
     
     if (authResult > -1) { //successful authentication. Handshake from client.
-        cout << "User " << authResult << "is authenticated" << endl;
+        cout << "User " << authResult << " is authenticated" << endl;
         connection->setCurrentUser(authResult);
         string clientConfirmsAuth = connection->receive();
         cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;
@@ -133,7 +132,7 @@ void *Server::startNewGame(void * arg) {
 			break;
 		}
         // get a struct or something from connection->someNewFunction(); getScores or something
-        //user ID retrieved from connection
+        // user ID retrieved from connection
         // Network->updateLeaderboard(the struct of scores, streaks, packaged with current user ID)
 
 

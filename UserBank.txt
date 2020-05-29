@@ -8,3 +8,5 @@ default
 123
 olivier
 abc
+mickey
+mouse

@@ -32,7 +32,10 @@ class Network{
         //leaderboard;
 
     public:
-        pthread_mutex_t socket_lock;
+        pthread_mutex_t network_socket_lock;
+        //WARNING: always lock file before vector when locking both!
+        pthread_mutex_t userbankfile_lock;
+        pthread_mutex_t userbankvector_lock;
 
         Network();
         void setSocket(int);
