@@ -147,19 +147,17 @@ vector<string>* Network::getWordsAndHints() {
 }
 
 string Network::getLeaderBoard(){
-    
-
     string result = "\n";
 
-    for (unsigned int i = 0; i < users.size() - 1; i++){
-
+    //do 3 loops of selection sort to find the top 3 highest scoring users
+    for (unsigned int i = 0; i < 3; i++){
         int maxIndex = i;
         for (unsigned int j = i + 1; j < users.size(); j++)
         {
             if (users[j].highestScore > users[maxIndex].highestScore)
                 maxIndex = j;
         }
-
+        
         User temp = users[maxIndex];
         users[maxIndex] = users[i];
         users[i] = temp;
