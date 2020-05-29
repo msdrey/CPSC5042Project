@@ -247,9 +247,9 @@ int main(int argc, char const *argv[]) {
         string response;
         do {
             //take in user's input and send to server
-            userInput = takeInputAndSend(sock);
+            userInput = toLowerCase(takeInputAndSend(sock));
 
-            if (userInput.compare(".addWord")==0) {
+            if (userInput.compare(".addword")==0) {
                 response = receiveFromServer(sock);
                 takeNewWordAndSend(sock);
             }

@@ -131,9 +131,9 @@ void *Server::startNewGame(void * arg) {
 			thisSession->setStatus(0);
 			break;
 		}
-        if (userInput.compare(".addWord")==0) {
+        if (GameSession::isAMatch(userInput, ".addword")) {
             //send a command to client to start gathering word and hint
-            connection->sendToClient(".addWord");
+            connection->sendToClient(".");
             //receive word and hint and pass to network to add to file
             network->addWord(connection->receive());
         }

@@ -22,7 +22,7 @@ class GameSession {
     void selectWord();
     bool isCommand(const string& );
 	string handleCommand(const string& );
-	bool isAMatch(const string& , const string& );
+	
 	string promptWord();
 	string getHint();
 	string displayScore();
@@ -36,6 +36,8 @@ class GameSession {
 	string handleUserInput(const string& );
 	bool getStatus();
 	void setStatus(int s);
+	
+	static bool isAMatch(const string& , const string& );
 	
 };
 
