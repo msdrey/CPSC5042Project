@@ -68,6 +68,8 @@ int Network::createNewUser(string inputUser, string inputPass) {
     for (unsigned int i = 0; i < users.size(); i++) {
         if (users[i].username.compare(inputUser) == 0) {
             cout << "Auth fail: user already exists " << endl;
+            pthread_mutex_unlock(&userbankvector_lock);
+            pthread_mutex_unlock(&userbankfile_lock);
             return -3;
         }
     }
@@ -147,26 +149,30 @@ vector<string>* Network::getWordsAndHints() {
 }
 
 string Network::getLeaderBoard(){
-    string result = "\n";
+    pthread_mutex_lock(&userbankvector_lock);
+    //make a copy of the userbank
+    vector<User> highestScores(users);
+    pthread_mutex_unlock(&userbankvector_lock);
 
     //do 3 loops of selection sort to find the top 3 highest scoring users
     for (unsigned int i = 0; i < 3; i++){
         int maxIndex = i;
-        for (unsigned int j = i + 1; j < users.size(); j++)
+        for (unsigned int j = i + 1; j < highestScores.size(); j++)
         {
-            if (users[j].highestScore > users[maxIndex].highestScore)
+            if (highestScores[j].highestScore > highestScores[maxIndex].highestScore)
                 maxIndex = j;
         }
-        
-        User temp = users[maxIndex];
-        users[maxIndex] = users[i];
-        users[i] = temp;
+
+        User temp = highestScores[maxIndex];
+        highestScores[maxIndex] = highestScores[i];
+        highestScores[i] = temp;
     }
 
     //#1 ken, score: 29
-    result += "#1 " + users[0].username + ", score: " + to_string(users[0].highestScore) + "\n";
-    result += "#2 " + users[1].username + ", score: " + to_string(users[1].highestScore) + "\n";
-    result += "#3 " + users[2].username + ", score: " + to_string(users[2].highestScore) + "\n";
+    string result = "\n";
+    result += "#1 " + highestScores[0].username + ", score: " + to_string(highestScores[0].highestScore) + "\n";
+    result += "#2 " + highestScores[1].username + ", score: " + to_string(highestScores[1].highestScore) + "\n";
+    result += "#3 " + highestScores[2].username + ", score: " + to_string(highestScores[2].highestScore) + "\n";
 
     return result;
 }
@@ -180,4 +186,12 @@ void Network::addWord(string userWordHint){
         outfile.close();
     }
     pthread_mutex_unlock(&wordsandhints_lock);
+}
+
+string Network::getHighScore(int userIndex) {
+    pthread_mutex_lock(&userbankvector_lock);
+    int highScore = users[userIndex].highestScore;
+    pthread_mutex_unlock(&userbankvector_lock);
+    string result = "Your high score: " + to_string(highScore) + "\n";
+    return result;
 }

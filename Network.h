@@ -51,6 +51,7 @@ class Network{
         vector<string> * getWordsAndHints();
         void addWord(string);
         string getLeaderBoard();
+        string getHighScore(int);
 	    
 };
 

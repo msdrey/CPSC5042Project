@@ -25,6 +25,8 @@ string GameSession::handleCommand(const string& str) {
 		return "Your word has been added to the library.\nLet's continue playing.\n\n";
     } else if (isAMatch(str, ".leaderboard") ) {
         return "\n";
+    } else if (isAMatch(str, ".highScore") ) {
+        return "\n";
     } else if (isAMatch(str, ".help")){
         return displayCommands();
     } else {
@@ -103,6 +105,7 @@ string GameSession::displayCommands() {
                     + "  .help \t to display commands again\n"
                     + "  .addWord \t to add your own word and its hint to our game\n"
                     + "  .leaderboard \t to show the leaderboard of the server\n"
+                    + "  .highscore \t to display your high score\n"
                     + "  .exit \t to log out and exit\n\n";
 }
 

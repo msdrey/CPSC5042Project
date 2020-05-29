@@ -17,6 +17,7 @@ class Connection{
         Connection(int);
 	    void disconnectClient();
         void setCurrentUser(int);
+        int getCurrentUser();
         string receive();
         void sendToClient(const string &);
 };

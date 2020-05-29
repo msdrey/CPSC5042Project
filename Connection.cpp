@@ -11,8 +11,12 @@ void Connection::disconnectClient() {
     cout << "User " << currentUserIndex << " exited the game." << endl << endl;
 }
 
-void Connection::setCurrentUser(int currentUserIndex) {
-    this->currentUserIndex = currentUserIndex;
+void Connection::setCurrentUser(int currentUser) {
+    this->currentUserIndex = currentUser;
+}
+
+int Connection::getCurrentUser() {
+    return currentUserIndex;
 }
 
 // receives whatever is found in the client socket

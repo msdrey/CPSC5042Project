@@ -142,7 +142,10 @@ void *Server::startNewGame(void * arg) {
         // Network->updateLeaderboard(the struct of scores, streaks, packaged with current user ID)
         
         if (GameSession::isAMatch(userInput, ".leaderboard")){
-                connection->sendToClient(network->getLeaderBoard());
+            connection->sendToClient(network->getLeaderBoard());
+        }
+        if (GameSession::isAMatch(userInput, ".highScore")){
+            connection->sendToClient(network->getHighScore(connection->getCurrentUser()));
         }
 
 
