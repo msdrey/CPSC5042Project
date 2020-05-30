@@ -102,7 +102,7 @@ void *Server::startNewGame(void * arg) {
     // ask the network object to validate authentication info
     int authResult = network->checkAuthentication(authInfo);
     // send the result back to the client
-    connection->sendToClient(Server::serializeKeyValuePair("isValidLogin", to_string(authResult)));
+    connection->sendToClient(to_string(authResult));
     
     if (authResult > -1) { //successful authentication. Handshake from client.
         cout << "User " << authResult << " is authenticated" << endl;

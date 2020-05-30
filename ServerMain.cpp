@@ -4,7 +4,6 @@
  *  Group members: Audrey Morin, Ken Comvandee, Noah Glusenkamp
  */
 
-// Project files
 #include "Server.h"
 
 int main(int argc, char const *argv[]) 

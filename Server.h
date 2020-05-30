@@ -27,12 +27,7 @@ public:
 	  ~Server();
 	  int acceptConnection();
     void acceptConnections();
-	
-	  // helper static function that puts a key and value into a 
-    // standardized format
-    static string serializeKeyValuePair(string key, string value) {
-        return key + "=" + value;
-    }
+
 };
 
 #endif //SERVER_H

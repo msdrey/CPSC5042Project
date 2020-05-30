@@ -7,173 +7,15 @@
 
 #include <iostream> 
 #include <string>
+
+#include "InterfaceManager.h"
+
 using namespace std;
 
 //audrey's port on cs1 for cpsc5042
 #define PORT 12119
 #define AWS_IP "54.91.202.143"
 #define LOCAL_IP "127.0.0.1"
-
-// Helper functions
-
-string receiveFromServer(int sock) {
-    char message[1024] = {0};
-    int valread = recv(sock, message, 1024, 0);
-    if (valread == -1) {
-		throw "receiving error";
-	}
-    return string(message);
-}
-
-void sendToServer(int sock, string message) {
-    int valsend = send(sock, message.c_str(), message.length(), 0);
-    if (valsend == -1) {
-        throw "error occured while sending data to server";
-    }
-}
-
-//Takes in user's input, and then both sends it to the server and returns it
-string takeInputAndSend(int sock) {
-    string ans;
-    cin >> ans;
-
-    sendToServer(sock, ans);
-    return ans;
-}
-
-//closes the connection
-void disconnect(int socket) {
-    close(socket);
-    cout << "Disconnected from server." << endl;
-}
-
-//formats a key and value pair
-string serializeKeyValuePair(string key, string value) {
-    return key + "=" + value;
-}
-
-//formats a username and password pair for communication with the server
-string serializeAuthString(string choice, string username, string password) {
-    string result;
-    result = serializeKeyValuePair("username", username);
-    result += "," + serializeKeyValuePair("password", password);
-    return choice + ";" + result;
-}
-
-// prompt the user for a username and password and send it to server
-void promptAndSendUserAuthentication(int sock) {
-    system("clear");
-    cout << "\033[1;32m __          __           _                                       " << endl
-        << " \\ \\        / /          | |                                      " << endl
-        << "  \\ \\  /\\  / /__  _ __ __| | __ _ ___  __ _ _   _ _ __ _   _ ___  " << endl
-        << "   \\ \\/  \\/ / _ \\| '__/ _` |/ _` / __|/ _` | | | | '__| | | / __| " << endl
-        << "    \\  /\\  / (_) | | | (_| | (_| \\__ \\ (_| | |_| | |  | |_| \\__ \\ " << endl
-        << "     \\/  \\/ \\___/|_|  \\__,_|\\__,_|___/\\__,_|\\__,_|_|   \\__,_|___/ \033[0m" << endl << endl << endl;
-
-    string choice;
-    bool validInput = false;
-    while(!validInput) {
-        cout << "\033[0;33m" 
-             << "Please enter 'sign up' if you are a new user or 'log in' if you are a returning user" 
-             << "\033[0m"
-             << endl;
-        getline(cin, choice);
-
-        if (choice.compare("sign up")!=0&&choice.compare("log in")!=0) {
-            cout << "\033[0;31m" 
-                 << "This is not a valid choice. Try again." 
-                 << "\033[0m"
-                 << endl;
-        } else {
-            validInput = true;
-        }
-    }
-
-    string username;
-    string password;
-
-    cout << "\033[0;33m" 
-         << "Please enter your username: " 
-         << "\033[0m"
-         << endl;
-    cin >> username;
-    cout << "\033[0;33m" 
-         << "Please enter your password: " 
-         << "\033[0m"
-         << endl;
-    cin >> password;
-
-    string authString = serializeAuthString(choice, username, password);
-
-    sendToServer(sock, authString);
-}
-
-
-//check if authentication is valid. if valid,
-//finalize connection and return true. if not valid, return false.
-bool checkAuthResult(int sock, string serverResponse) {
-    int authStatus = stoi(serverResponse.substr(13));
-    //cout << "authStatus = " << authStatus<< endl;
-    if (authStatus >= 0) {
-        cout << "\n\033[0;32m" << "Your login was successful." <<  endl;
-        //Confirm authorization to server.
-        sendToServer(sock, "true");
-        cout << "Press any key to continue." << "\033[0m" << flush;
-        string dummy;
-        cin.ignore();
-        getline(cin, dummy);
-        return true;
-    } else if (authStatus == -1) {
-        cout << "\033[0;31m"
-             << "Incorrect username. Disconnecting..." 
-             << "\033[0m"
-             << endl;
-        // TODO: allow retries
-    } else if (authStatus == -2) {
-        cout << "\033[0;31m"
-             << "Incorrect password. Disconnecting..." 
-             << "\033[0m"
-             << endl;
-    } else if (authStatus == -3) {
-        cout << "\033[0;31m"
-             << "User already exists. Disconnecting..."
-             << "\033[0m"
-             << endl;
-    } else if (authStatus == -4) {
-        cout << "\033[0;31m"
-             << "User is already logged in. Disconnecting..."
-             << "\033[0m"
-             << endl;
-    } else {
-        cout << "auth error" << endl;
-    }
-    return false;
-}
-
-void takeNewWordAndSend(int sock){
-    string userWord;
-    string userHint;
-
-    cout << "Enter a word you want to add(with no space): ";
-    cin >> userWord;
-    cin.ignore();
-    cout <<"\nEnter hint for the word: ";
-    getline(cin, userHint);
-
-    sendToServer(sock, userWord + "," + userHint);
-}
-
-string toLowerCase(const string &userInput){
-    int len = userInput.length();
-    string temp;
-
-    for (int i = 0; i < len; i++)
-    {
-        temp += tolower(userInput[i]);
-    }
-
-    return temp;
-}
 
 //establishing connection with the server according to default ip and port 
 //or according to specified values when program was executed
@@ -227,47 +69,67 @@ int create_connection(int argc, char const *argv[]) {
     return sock;
 }
 
+string receiveFromServer(int sock) {
+    char message[1024] = {0};
+    int valread = recv(sock, message, 1024, 0);
+    if (valread == -1) {
+		throw "receiving error";
+	}
+    return string(message);
+}
+
+void sendToServer(int sock, string message) {
+    int valsend = send(sock, message.c_str(), message.length(), 0);
+    if (valsend == -1) {
+        throw "error occured while sending data to server";
+    }
+}
+
 int main(int argc, char const *argv[]) {    
-    
     try {
         //establishing connection with the server
-        int sock;
-        sock = create_connection(argc, argv);
-        //cout << "Post connection check. Sock = " << sock << endl;
+        int sock = create_connection(argc, argv);
 
-        promptAndSendUserAuthentication(sock);
+        clearScreen();
+        display(LOGO, "green");
+        sendToServer(sock, promptUserAuthentication());
                 
         //receive authentication result and check if valid, if not, disconnect
-        if (!checkAuthResult(sock, receiveFromServer(sock))) {
-            disconnect(sock);
+        int authResult = stoi(receiveFromServer(sock));
+        if (authResult < 0) {
+            display(errorMessage(authResult), "red");
+            close(sock);
             exit(0);
         }
+        display("Your log in was successful", "green");
+        sendToServer(sock, "true");
+        pressAnyKeyRoutine();
 
-        system("clear");
         //receive and display welcome message & prompt
-        cout << "\033[0;33m" << receiveFromServer(sock) << "\033[0m"<< endl;
+        clearScreen();
+        display(receiveFromServer(sock), "green");
     
         //keep playing as long as the player does not issue the command ".exit"
         string userInput;
         string response;
         do {
             //take in user's input and send to server
-            userInput = toLowerCase(takeInputAndSend(sock));
+            userInput = takeInput();
+            sendToServer(sock, userInput);
 
-            if (userInput.compare(".addword")==0) {
+            if (isAMatch(userInput, ".addword")) {
                 response = receiveFromServer(sock);
-                takeNewWordAndSend(sock);
+                sendToServer(sock, takeNewWord());
             }
 
             //receive feedback + next prompt from server, and display them
             response = receiveFromServer(sock);
-            cout << "\033[0;33m" << response << "\033[0m" << endl;
+            display(response, "green");
 
         } while(userInput.compare(".exit") != 0);
 
-        //close connection with server
-        disconnect(sock);
-    
+        close(sock);
+
     } catch (const char* message) {
         cerr << message << endl;
         exit(EXIT_FAILURE);
