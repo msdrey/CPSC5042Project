@@ -53,6 +53,8 @@ class Network{
         string getLeaderBoard();
         string getHighScore(int);
         void logOutUser(int);
+
+        static bool isAMatch(const string& , const string& );
 	    
 };
 

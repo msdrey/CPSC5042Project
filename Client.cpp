@@ -130,7 +130,7 @@ int main(int argc, char const *argv[]) {
             clearScreen();
             display(response.substr(clearPos + 1), "green");
 
-        } while(userInput.compare(".exit") != 0);
+        } while(!isAMatch(userInput, ".exit"));
 
         close(sock);
 

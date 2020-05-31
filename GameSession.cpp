@@ -130,9 +130,9 @@ string GameSession::startSession() {
 // determines if the user input is a command or a guess and calls the appropriate function
 string GameSession::handleUserInput(const string& userInput) {
     string result;
-    if (userInput.compare(".exit")==0) {
+    if (isAMatch(userInput,".exit")) {
             status = 0;
-            return "\n\n" + displayScore() + "\nThank you for playing! Goodbye.";
+            return displayScore() + "\nThank you for playing! Goodbye.@";
     }
 
     if (isCommand(userInput)) {

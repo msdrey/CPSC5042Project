@@ -54,7 +54,7 @@ int Network::checkAuthentication(string authInfo) {
     string inputUser = authInfo.substr(equalPos+1, commaPos - equalPos - 1);
     string inputPass = authInfo.substr(commaPos+10);
 
-    if (loginOrSignup.compare("log in")==0) {
+    if (isAMatch(loginOrSignup,"log in")) {
         return validateUsernamePassword(inputUser, inputPass);
     } else { // "sign up"
         return createNewUser(inputUser, inputPass);
@@ -67,7 +67,7 @@ int Network::createNewUser(string inputUser, string inputPass) {
     pthread_mutex_lock(&userbankvector_lock);
     //check if user already exists
     for (unsigned int i = 0; i < users.size(); i++) {
-        if (users[i].username.compare(inputUser) == 0) {
+        if (isAMatch(users[i].username, inputUser)) {
             cout << "Auth fail: user already exists " << endl;
             pthread_mutex_unlock(&userbankvector_lock);
             pthread_mutex_unlock(&userbankfile_lock);
@@ -107,7 +107,7 @@ int Network::validateUsernamePassword(string inputUser, string inputPass) {
     unsigned int currentUserIndex;
     pthread_mutex_lock(&userbankvector_lock);
     for (currentUserIndex = 0; currentUserIndex < users.size() && !isFound; currentUserIndex++) {
-        if (users[currentUserIndex].username.compare(inputUser) == 0)  {
+        if (isAMatch(users[currentUserIndex].username,inputUser))  {
             isFound = true;
             break;
         }
@@ -118,7 +118,7 @@ int Network::validateUsernamePassword(string inputUser, string inputPass) {
         pthread_mutex_unlock(&userbankvector_lock);
         cout << "Auth fail: user not found " << endl; 
         return -1;
-    } else if (inputPass.compare(users[currentUserIndex].password) != 0) {
+    } else if (!isAMatch(inputPass, users[currentUserIndex].password)) {
         pthread_mutex_unlock(&userbankvector_lock);
         cout << "Auth fail: wrong password " << endl;
         return -2;
@@ -211,4 +211,18 @@ void Network::logOutUser(int userIndex) {
     pthread_mutex_lock(&userbankvector_lock);
     users[userIndex].isLoggedIn = false;
     pthread_mutex_unlock(&userbankvector_lock);
+}
+
+// returns true if the two strings match. Case insensitive.
+bool Network::isAMatch(const string& str1, const string& str2) {
+    unsigned int len = str1.length();
+    if (str2.length() != len){
+        return false;
+    }
+    for (unsigned int i = 0; i < len; ++i) {
+        if (tolower(str1[i]) != tolower(str2[i])) {
+            return false;
+        }
+    }
+    return true;
 }
