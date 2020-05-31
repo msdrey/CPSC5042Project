@@ -1,15 +1,7 @@
 #include "InterfaceManager.h"
 
 void display(string str, string color) {//add color param
-    map<string, string> colorCode;
-    colorCode["red"] = "31";
-    colorCode["green"] = "32";
-    colorCode["yellow"] = "33";
-    colorCode["blue"] = "34";
-    colorCode["magenta"] = "35";
-    colorCode["cyan"] = "36";
-    colorCode["white"] = "37";
-    string colorCommand = "\033[0;" + colorCode[color] + "m";
+    string colorCommand = "\033[0;" + colorCode.at(color) + "m";
     cout << colorCommand << str << "\033[0m" << endl;
 }
 
