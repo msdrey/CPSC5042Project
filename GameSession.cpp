@@ -121,7 +121,7 @@ GameSession::GameSession(vector<string> * wordsAndHints) {
 
 // returns a welcoming message to the user
 string GameSession::startSession() {
-    string welcome = "\n\n\nWelcome to Wordasaurus!\n" ;
+    string welcome = "Welcome to Wordasaurus!\n" ;
     welcome += "This is a guessing word game. Just type your best guess!\n";
     welcome += displayCommands();
     return welcome + promptWord();
@@ -141,7 +141,7 @@ string GameSession::handleUserInput(const string& userInput) {
         result = checkGuess(userInput);
     }		
 
-    return result + promptWord();
+    return result + "@" + promptWord();
 }
 
 // returns the current status of the game session: 0 for inactive, 1 for active

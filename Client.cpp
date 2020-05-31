@@ -124,7 +124,11 @@ int main(int argc, char const *argv[]) {
 
             //receive feedback + next prompt from server, and display them
             response = receiveFromServer(sock);
-            display(response, "green");
+            int clearPos = response.find("@");
+            display(response.substr(0, clearPos), "green");
+            pressAnyKeyRoutine();
+            clearScreen();
+            display(response.substr(clearPos + 1), "green");
 
         } while(userInput.compare(".exit") != 0);
 
