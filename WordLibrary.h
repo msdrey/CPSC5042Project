@@ -19,7 +19,7 @@ class WordLibrary{
     private:
         vector<string> library;
         void shuffle();
-        int index; // index of the current word to be guessed in the word library
+        int currentWordIndex; // index of the current word to be guessed in the word library
 };
 
 #endif //WORDLIBRARY_WORDLIBRARY_H

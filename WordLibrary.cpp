@@ -6,23 +6,29 @@ WordLibrary::WordLibrary(vector<string> * wordsAndHints){
     copy((*wordsAndHints).begin(), (*wordsAndHints).end(), back_inserter(library));
 
     shuffle();
-    index = 0;
- 
+    // start at beginning of vector
+    currentWordIndex = 0;
+
 }
 
 string WordLibrary::getWord(){
 
-    int comma = library.at(index).find(",");
-    return library.at(index).substr(0, comma);
+    int comma = library.at(currentWordIndex).find(",");
+    return library.at(currentWordIndex).substr(0, comma);
 }
 
 string WordLibrary::getHint(){
-    int comma = library.at(index).find(",");
-    return library.at(index).substr(comma + 1);
+    int comma = library.at(currentWordIndex).find(",");
+    return library.at(currentWordIndex).substr(comma + 1);
 }
 
 void WordLibrary::next() {
-    index++;
+    currentWordIndex++;
+    // if you are at the end of the vector, loop to beginning of vector
+    if(library.size() < currentWordIndex + 1 ) {
+        currentWordIndex = 0;
+    }
+
 }
 
 
