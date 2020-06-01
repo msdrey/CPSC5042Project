@@ -25,7 +25,7 @@ string WordLibrary::getHint(){
 void WordLibrary::next() {
     currentWordIndex++;
     // if you are at the end of the vector, loop to beginning of vector
-    if(library.size() < currentWordIndex + 1 ) {
+    if((int)library.size() < currentWordIndex + 1 ) {
         currentWordIndex = 0;
     }
 
