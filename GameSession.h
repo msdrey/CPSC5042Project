@@ -36,6 +36,8 @@ class GameSession {
 	string handleUserInput(const string& );
 	bool getStatus();
 	void setStatus(int s);
+	int getScore();
+	int getBestStreak();
 	
 	static bool isAMatch(const string& , const string& );
 	

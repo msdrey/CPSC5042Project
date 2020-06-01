@@ -137,10 +137,6 @@ void *Server::startNewGame(void * arg) {
             //receive word and hint and pass to network to add to file
             network->addWord(connection->receive());
         }
-        // get a struct or something from connection->someNewFunction(); getScores or something
-        // user ID retrieved from connection
-        // Network->updateLeaderboard(the struct of scores, streaks, packaged with current user ID)
-        
         if (GameSession::isAMatch(userInput, ".leaderboard")){
             connection->sendToClient(network->getLeaderBoard());
         }
@@ -151,6 +147,9 @@ void *Server::startNewGame(void * arg) {
 
 		//handle client's answer and send feedback
 		connection->sendToClient(thisSession->handleUserInput(userInput));
+
+        network->updateUserScores(thisSession->getScore(), thisSession->getBestStreak(), connection->getCurrentUser());
+
 	}
 
     network->logOutUser(connection->getCurrentUser());

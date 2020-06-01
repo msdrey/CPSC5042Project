@@ -226,3 +226,29 @@ bool Network::isAMatch(const string& str1, const string& str2) {
     }
     return true;
 }
+
+void Network::updateUserScores(int newScore, int newBestStreak, int userIndex) {
+    bool changed = false;
+    pthread_mutex_lock(&userbankfile_lock);
+    pthread_mutex_lock(&userbankvector_lock);
+    if (newScore > users[userIndex].highestScore) {
+        users[userIndex].highestScore = newScore;
+        changed = true;
+    }
+    if (newBestStreak > users[userIndex].highestStreak) {
+        users[userIndex].highestStreak = newBestStreak;
+        changed = true;
+    }
+    if (changed) {
+        ofstream userbankfile;
+        userbankfile.open("UserBank.txt");//overwrite file
+        if (userbankfile.is_open()) {
+            for (User user: users) {
+                userbankfile << user.username << "," << user.password << ";"<< user.highestScore <<"/"<< user.highestStreak <<"\n";
+            } 
+            userbankfile.close();
+        }
+    }
+    pthread_mutex_unlock(&userbankvector_lock);
+    pthread_mutex_unlock(&userbankfile_lock);
+}

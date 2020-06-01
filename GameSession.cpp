@@ -153,4 +153,11 @@ bool GameSession::getStatus() {
 void GameSession::setStatus(int s) {
     status = s;
 }
-	
+
+int GameSession::getScore() {
+    return score;
+}
+
+int GameSession::getBestStreak() {
+    return bestStreak;
+}
