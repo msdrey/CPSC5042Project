@@ -15,22 +15,13 @@
 #include <iostream> 
 #include <vector>
 
+#include "User.h"
+
 using namespace std;
 
 class Network{
     private:
         int socket;
-
-        struct User { // a simple struct for keeping users information. 
-                    // may be expanded later with high score or other info
-                    // may be turned into a full class too
-            string username;
-            string password;
-            int highestScore;
-            int highestStreak;
-            bool isLoggedIn;
-        };
-
         vector<User> users; //the bank of users
 
         //WARNING: always lock file before vector when locking both!
