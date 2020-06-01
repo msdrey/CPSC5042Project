@@ -69,8 +69,9 @@ bool isAMatch(const string& str1, const string& str2) {
 }
 
 void pressAnyKeyRoutine() {
-    display("Press any key to continue.", "yellow");
-    takeInput();
+    string dummy;
+    display("Press enter to continue.", "yellow");
+    getline(cin, dummy);
 }
 
 string errorMessage(int authStatus) {
