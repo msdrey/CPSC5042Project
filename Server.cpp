@@ -105,10 +105,8 @@ void *Server::startNewGame(void * arg) {
     connection->sendToClient(to_string(authResult));
     
     if (authResult > -1) { //successful authentication. Handshake from client.
-        cout << "User " << authResult << " is authenticated" << endl;
         connection->setCurrentUser(authResult);
         string clientConfirmsAuth = connection->receive();
-        cout << "Did client confirm authentication? " << clientConfirmsAuth << endl;
     } else { // authentication failed. Disconnect and force exit thread.
         connection->disconnectClient();
         return NULL;

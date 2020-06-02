@@ -4,3 +4,5 @@ ken,zxcv;0/0
 default,123;9/9
 mickey,mouse;2/0
 ncomvandee,password;0/0
+bob,sponge;0/0
+cinderella,evil;0/0

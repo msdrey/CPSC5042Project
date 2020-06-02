@@ -8,7 +8,7 @@ Connection::Connection(int sock) {
 //closes the socket and confirms closure into console
 void Connection::disconnectClient() {
     close(socket);
-    cout << "User " << currentUserIndex << " exited the game." << endl << endl;
+    cout << "A connection was closed." << endl;
 }
 
 void Connection::setCurrentUser(int currentUser) {

@@ -136,7 +136,6 @@ int main(int argc, char const *argv[]) {
 
     } catch (const char* message) {
         cerr << message << endl;
-        close(sock);
         exit(EXIT_FAILURE);
     } 
     

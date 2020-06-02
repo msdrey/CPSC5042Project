@@ -68,7 +68,7 @@ int Network::createNewUser(string inputUser, string inputPass) {
     //check if user already exists
     for (unsigned int i = 0; i < users.size(); i++) {
         if (isAMatch(users[i].username, inputUser)) {
-            cout << "Auth fail: user already exists " << endl;
+            cout << "Authentication fail: user already exists " << endl;
             pthread_mutex_unlock(&userbankvector_lock);
             pthread_mutex_unlock(&userbankfile_lock);
             return -3;
@@ -97,7 +97,7 @@ int Network::createNewUser(string inputUser, string inputPass) {
     pthread_mutex_unlock(&userbankvector_lock);
     pthread_mutex_unlock(&userbankfile_lock);
 
-    cout << "A new user signed up: User " << userIndex << "." << endl;
+    cout << "A new user signed up: " << users[userIndex].username << "." << endl;
     return userIndex;
 }
 
@@ -116,20 +116,20 @@ int Network::validateUsernamePassword(string inputUser, string inputPass) {
     //if user is not found or if user is found but password is wrong, authentication fails
     if (!isFound) {
         pthread_mutex_unlock(&userbankvector_lock);
-        cout << "Auth fail: user not found " << endl; 
+        cout << "Authentication fail: user not found " << endl; 
         return -1;
     } else if (!isAMatch(inputPass, users[currentUserIndex].password)) {
         pthread_mutex_unlock(&userbankvector_lock);
-        cout << "Auth fail: wrong password " << endl;
+        cout << "Authentication fail: wrong password " << endl;
         return -2;
     } else if (users[currentUserIndex].isLoggedIn) {
         pthread_mutex_unlock(&userbankvector_lock);
-        cout << "Auth fail: this user is already logged in" << endl;
+        cout << "Authentication fail: this user is already logged in" << endl;
         return -4;
     } else {
         users[currentUserIndex].isLoggedIn = true;
         pthread_mutex_unlock(&userbankvector_lock);
-        //cout << "Auth success " << endl;// for string: " << authString << endl;
+        cout << "User " << users[currentUserIndex].username << " is authenticated" << endl;
         return currentUserIndex;
     }
 }
@@ -211,6 +211,7 @@ void Network::logOutUser(int userIndex) {
     pthread_mutex_lock(&userbankvector_lock);
     users[userIndex].isLoggedIn = false;
     pthread_mutex_unlock(&userbankvector_lock);
+    cout << "User " << users[userIndex].username << " has logged out." << endl;
 }
 
 // returns true if the two strings match. Case insensitive.
