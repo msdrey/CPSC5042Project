@@ -16,6 +16,7 @@ Possible enhancements include concurrent users playing the game, allowing users 
 ## Docs
 ### Compile
 ```
+cd src
 make
 ```
 
