@@ -1,7 +1,7 @@
 #include "Network.h"
 
-#define USER_BANK_FILE_PATH "./data/UserBank.txt"
-#define WORDS_AND_HINTS_FILE_PATH "./data/WordsAndHints.txt"
+#define USER_BANK_FILE_PATH "../data/UserBank.txt"
+#define WORDS_AND_HINTS_FILE_PATH "../data/WordsAndHints.txt"
 
 Network::Network() {
     //initializing the bank of users
