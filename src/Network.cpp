@@ -16,18 +16,18 @@ Network::Network() {
         int semiColon = line.find(";");
         int slash = line.find("/");
 
-        // <username>,<password>;<highestScore>/<highestStreak>
+        //<username>,<password>;<highestScore>/<highestStreak>
         newUser.username = line.substr(0, comma);
         newUser.password = line.substr(comma + 1, semiColon - comma -1);
-
         newUser.highestScore = stoi(line.substr(semiColon + 1, slash));
         newUser.highestStreak = stoi(line.substr(slash + 1));
         newUser.isLoggedIn = false;
+
         users.push_back(newUser);
     }
     userbankfile.close();
 
-    //initializing the socket data field's lock
+    //initializing the locks
     pthread_mutex_init(&network_socket_lock, NULL);
     pthread_mutex_init(&userbankfile_lock, NULL);
     pthread_mutex_init(&userbankvector_lock, NULL);
@@ -68,6 +68,7 @@ int Network::createNewUser(string inputUser, string inputPass) {
     //note: must lock the whole function to make sure users are unique
     pthread_mutex_lock(&userbankfile_lock);
     pthread_mutex_lock(&userbankvector_lock);
+    
     //check if user already exists
     for (unsigned int i = 0; i < users.size(); i++) {
         if (isAMatch(users[i].username, inputUser)) {
@@ -132,7 +133,7 @@ int Network::validateUsernamePassword(string inputUser, string inputPass) {
     } else {
         users[currentUserIndex].isLoggedIn = true;
         pthread_mutex_unlock(&userbankvector_lock);
-        //cout << "Auth success " << endl;// for string: " << authString << endl;
+        cout << "User " << currentUserIndex << " has successfully logged in." << endl;
         return currentUserIndex;
     }
 }
