@@ -6,8 +6,10 @@ void display(string str, string color) {//add color param
 }
 
 string takeInput() {
-    string ans;
-    getline(cin, ans);
+    string ans = "";
+    while(ans.length() == 0) {
+        getline(cin, ans);
+    }
     return ans;
 }
 
