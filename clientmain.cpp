@@ -35,14 +35,15 @@ int main(int argc, char const *argv[]) {
         int clearPos = response.find("@");
         display(response.substr(0, clearPos), "green");
         pressAnyKeyRoutine();
-
-        //display first prompt
-        clearScreen();
-        display(response.substr(clearPos + 1), "green");
-    
+        
         //keep playing as long as the player does not issue the command ".exit"
         string userInput;
         do {
+            //display prompt
+            clearScreen();
+            display("Type .help to display options again.\n\n", "yellow");
+            display(response.substr(clearPos + 1), "green");
+    
             //take in user's input and send to server
             userInput = takeInput();
             client->sendToServer(userInput);
@@ -55,14 +56,9 @@ int main(int argc, char const *argv[]) {
 
             //receive and display feedback from server
             response = client->receiveFromServer();
-            int clearPos = response.find("@");
+            clearPos = response.find("@");
             display(response.substr(0, clearPos), "green");
             pressAnyKeyRoutine();
-
-            //display next prompt
-            clearScreen();
-            display(response.substr(clearPos + 1), "green");
-
         } while(!isAMatch(userInput, ".exit"));
 
         client->closeSocket();

@@ -30,6 +30,4 @@ public:
     void closeSocket();
 };
 
-
-
 #endif //CLIENT_H
