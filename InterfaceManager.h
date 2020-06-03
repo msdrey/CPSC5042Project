@@ -17,6 +17,8 @@ const map<string, string> colorCode = {
     {"cyan","36"},
     {"white","37"}};
 
+const string DINOFILEPATH = "dino_color.txt";
+
 //unit methods
 void display(string str, string color = "white");
 void displayLogo();

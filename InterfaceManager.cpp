@@ -6,7 +6,7 @@ void display(string str, string color) {//add color param
 }
 
 void displayLogo() {
-    ifstream logoFile("dino.txt");
+    ifstream logoFile(DINOFILEPATH);
     string result;
     char c;
     while (logoFile.get(c)) {
