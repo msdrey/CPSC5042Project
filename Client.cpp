@@ -91,7 +91,7 @@ int main(int argc, char const *argv[]) {
         int sock = create_connection(argc, argv);
 
         clearScreen();
-        display(LOGO, "green");
+        displayLogo();
         sendToServer(sock, promptUserAuthentication());
                 
         //receive authentication result and check if valid, if not, disconnect
@@ -107,11 +107,16 @@ int main(int argc, char const *argv[]) {
 
         //receive and display welcome message & prompt
         clearScreen();
-        display(receiveFromServer(sock), "green");
+        displayLogo();
+        string response = receiveFromServer(sock);
+        int clearPos = response.find("@");
+        display(response.substr(0, clearPos), "green");
+        pressAnyKeyRoutine();
+        clearScreen();
+        display(response.substr(clearPos + 1), "green");
     
         //keep playing as long as the player does not issue the command ".exit"
         string userInput;
-        string response;
         do {
             //take in user's input and send to server
             userInput = takeInput();

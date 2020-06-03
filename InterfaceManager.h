@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <fstream>
 
 using namespace std;
 
@@ -16,18 +17,9 @@ const map<string, string> colorCode = {
     {"cyan","36"},
     {"white","37"}};
 
-const string LOGO = 
-    " __          __           _                                       \n"
-    " \\ \\        / /          | |                                      \n"
-    "  \\ \\  /\\  / /__  _ __ __| | __ _ ___  __ _ _   _ _ __ _   _ ___  \n"
-    "   \\ \\/  \\/ / _ \\| '__/ _` |/ _` / __|/ _` | | | | '__| | | / __| \n"
-    "    \\  /\\  / (_) | | | (_| | (_| \\__ \\ (_| | |_| | |  | |_| \\__ \\ \n"
-    "     \\/  \\/ \\___/|_|  \\__,_|\\__,_|___/\\__,_|\\__,_|_|   \\__,_|___/ \n\n";
-
-
-
 //unit methods
 void display(string str, string color = "white");
+void displayLogo();
 void clearScreen();
 string takeInput();
 string serializeAuthString(string, string, string);

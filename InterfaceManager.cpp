@@ -5,6 +5,25 @@ void display(string str, string color) {//add color param
     cout << colorCommand << str << "\033[0m" << endl;
 }
 
+void displayLogo() {
+    ifstream logoFile("dino.txt");
+    string result;
+    char c;
+    while (logoFile.get(c)) {
+        if (c == 'Y') { // switch to yellow
+            result += "\033[0;33m";
+        } else if (c == 'G') { // switch to green
+            result += "\033[0;32m";
+        } else if (c == 'S') {
+            result += "\033[0m"; // reset to white
+        } else {
+            result += c;
+        }
+    }
+    logoFile.close();
+    cout << result << endl;
+}
+
 string takeInput() {
     string ans = "";
     while(ans.length() == 0) {

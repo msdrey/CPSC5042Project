@@ -121,10 +121,10 @@ GameSession::GameSession(vector<string> * wordsAndHints) {
 
 // returns a welcoming message to the user
 string GameSession::startSession() {
-    string welcome = "Welcome to Wordasaurus!\n" ;
-    welcome += "This is a guessing word game. Just type your best guess!\n";
+    string welcome = "Welcome to Wordasaurus!\n\n" ;
+    welcome += "This is a guessing word game. Just type your best guess!\n\n";
     welcome += displayCommands();
-    return welcome + promptWord();
+    return welcome + "@" + promptWord();
 }
 
 // determines if the user input is a command or a guess and calls the appropriate function
