@@ -23,14 +23,14 @@ make
 Can either be run using published binaries in bin directory or by compiling as above.
 #### Server
 ```
-./bin/server  --->  will use default port 12119
+./bin/server         --->  will use default port 12119
 ./bin/server <PORT>  --->  will use specified port
 ```
 #### Client
 ```
-./bin/client  --->  will use default IP address 127.0.0.1 and default port 12119
-./bin/client <IP> <PORT>  --->   will use specified IP address and specified port number
-./bin/client aws  --->  will use our AWS machine's IP address and default port 12119
+./bin/client              --->  will use default IP address 127.0.0.1 and default port 12119
+./bin/client <IP> <PORT>  --->  will use specified IP address and specified port number
+./bin/client aws          --->  will use our AWS machine's IP address and default port 12119
 ```
 
 ## Credits

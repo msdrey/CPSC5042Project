@@ -1,10 +1,11 @@
-// Client side C/C++ program to demonstrate Socket programming 
-#include <stdio.h> 
-#include <sys/socket.h> 
+/*
+ * Client side C/C++ program to demonstrate Socket programming 
+ * 
+ * Audrey Morin, Noah Glusenkamp, Nitid Comvandee
+ */
+
 #include <arpa/inet.h> 
 #include <unistd.h> 
-#include <string.h> 
-
 #include <iostream> 
 #include <string>
 
@@ -12,25 +13,32 @@
 
 using namespace std;
 
-//audrey's port on cs1 for cpsc5042
-#define PORT 12119
-#define AWS_IP "54.91.202.143"
+#define PORT 12119 //audrey's port on cs1 for cpsc5042
+#define AWS_IP "54.91.202.143" // our aws server's IP address
 #define LOCAL_IP "127.0.0.1"
 
-//establishing connection with the server according to default ip and port 
-//or according to specified values when program was executed
-//ex: ./bin/client aws          will set up ip and port automatically
-//    ./bin/client              will set up default ip and port (localhost and 12119)
-//    ./bin/client <IP> <port>  will set up specified IP and port 
-int create_connection(int argc, char const *argv[]) {
-    struct sockaddr_in serv_addr; //a struct containing the info of the server's address
+/*
+ * Establishes connection with the server according to input parameters.
+ * 
+ * numberOfParameters is the number of parameters passed to the function call 
+ * argv is an array of the parameters, where we need to ignore item 0.
+ * argv[1], if specified, is the hostname. It is either an IP address or "aws".
+ * argv[2], if specified, is the port number.
+ * 
+ * Returns the int id of the created socket for the client.
+ * 
+ * Throws an error if socket creation fails
+ * Throws an error if converting the address fails
+ * Throws an error if connecting to the server fails
+ */
+int create_connection(int numberOfParameters, char const *argv[]) {
     string hostname;
     int port;
 
-    if (argc > 2) { //hostname and port were specified
+    if (numberOfParameters > 1) { //hostname and port were specified
         hostname = argv[1];
         port = atoi(argv[2]);
-    } else if (argc == 2 && string(argv[1]).compare("aws") == 0) {
+    } else if (numberOfParameters == 1 && string(argv[1]).compare("aws") == 0) {
         //connecting to aws box with default port
         hostname = AWS_IP;
         port = PORT;
@@ -42,11 +50,13 @@ int create_connection(int argc, char const *argv[]) {
     //create an endpoint socket for communication
     //AF_INET is an address family: IPv4 Internet protocols
     //SOCK_STREAM indicates the kind of socket to be created: a tcp socket
-    int sock = socket(AF_INET, SOCK_STREAM, 0);// returns a descriptor of this client's socket
+    int sock = socket(AF_INET, SOCK_STREAM, 0); // returns an id of this client's socket
     if (sock < 0) { 
         throw "Client's socket creation error";
     } 
+
     //defining the server's address.
+    struct sockaddr_in serv_addr;
     //first, specify address family
     serv_addr.sin_family = AF_INET;
     //then, the server's port number. 
@@ -69,6 +79,14 @@ int create_connection(int argc, char const *argv[]) {
     return sock;
 }
 
+/*
+ * Receives messages of maximum 1024 characters from the socket that is
+ * passed as input.
+ * 
+ * returns the message in the form of a string.
+ * 
+ * Throws and error if the receiving fails
+ */
 string receiveFromServer(int sock) {
     char message[1024] = {0};
     int valread = recv(sock, message, 1024, 0);
@@ -78,6 +96,12 @@ string receiveFromServer(int sock) {
     return string(message);
 }
 
+/*
+ * Sends an inputted message of maximum 1024 characters to the socket that is
+ * passed as input.
+ * 
+ * Throws an error if the send fails.
+ */
 void sendToServer(int sock, string message) {
     int valsend = send(sock, message.c_str(), message.length(), 0);
     if (valsend == -1) {
@@ -85,10 +109,13 @@ void sendToServer(int sock, string message) {
     }
 }
 
+/*
+ *
+ */
 int main(int argc, char const *argv[]) {    
     try {
         //establishing connection with the server
-        int sock = create_connection(argc, argv);
+        int sock = create_connection(argc - 1, argv);
 
         clearScreen();
         displayLogo();
