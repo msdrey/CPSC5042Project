@@ -20,7 +20,7 @@ using namespace std;
 
 class Client {
 public:
-    int clientSocket;
+    int clientSocket; /** the id of the client socket */
 
     Client(int, char const*argv[]);
 
