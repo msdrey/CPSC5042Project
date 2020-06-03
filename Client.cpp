@@ -1,4 +1,4 @@
-/*
+/**
  * Client side C/C++ program to demonstrate Socket programming 
  * 
  * Audrey Morin, Noah Glusenkamp, Nitid Comvandee
@@ -17,19 +17,19 @@ using namespace std;
 #define AWS_IP "54.91.202.143" // our aws server's IP address
 #define LOCAL_IP "127.0.0.1"
 
-/*
+/**
  * Establishes connection with the server according to input parameters.
  * 
- * numberOfParameters is the number of parameters passed to the function call 
- * argv is an array of the parameters, where we need to ignore item 0.
- * argv[1], if specified, is the hostname. It is either an IP address or "aws".
- * argv[2], if specified, is the port number.
+ * @param numberOfParameters is the number of parameters passed to the function call 
+ * @param argv is an array of the parameters, where we need to ignore item 0.
+ *             argv[1], if specified, is the hostname. It is either an IP address or "aws".
+ *             argv[2], if specified, is the port number.
  * 
- * Returns the int id of the created socket for the client.
+ * @return the int id of the created socket for the client.
  * 
- * Throws an error if socket creation fails
- * Throws an error if converting the address fails
- * Throws an error if connecting to the server fails
+ * @throw an error if socket creation fails
+ * @throw an error if converting the address fails
+ * @throw an error if connecting to the server fails
  */
 int create_connection(int numberOfParameters, char const *argv[]) {
     string hostname;
@@ -79,13 +79,13 @@ int create_connection(int numberOfParameters, char const *argv[]) {
     return sock;
 }
 
-/*
+/**
  * Receives messages of maximum 1024 characters from the socket that is
- * passed as input.
+ * passed as input and returns the received message.
  * 
- * returns the message in the form of a string.
- * 
- * Throws and error if the receiving fails
+ * @param sock the socket from which to receive
+ * @return the message in the form of a string.
+ * @throw an error if the receiving fails
  */
 string receiveFromServer(int sock) {
     char message[1024] = {0};
@@ -96,11 +96,13 @@ string receiveFromServer(int sock) {
     return string(message);
 }
 
-/*
+/**
  * Sends an inputted message of maximum 1024 characters to the socket that is
  * passed as input.
  * 
- * Throws an error if the send fails.
+ * @param sock the socket on which to send
+ * @param message the message to be sent
+ * @throw an error if the send fails.
  */
 void sendToServer(int sock, string message) {
     int valsend = send(sock, message.c_str(), message.length(), 0);
@@ -109,7 +111,7 @@ void sendToServer(int sock, string message) {
     }
 }
 
-/*
+/**
  *
  */
 int main(int argc, char const *argv[]) {    
