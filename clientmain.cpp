@@ -1,5 +1,7 @@
 /**
- *
+ *  Client side C/C++ program to demonstrate Socket programming 
+ * 	Group project for Seattle University class CPSC 5042 Operating Systems, Spring 2020
+ *  Group members: Audrey Morin, Ken Comvandee, Noah Glusenkamp
  */
 
 #include "Client.h"
