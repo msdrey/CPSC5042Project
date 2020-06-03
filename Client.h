@@ -19,9 +19,10 @@ using namespace std;
 #define LOCAL_IP "127.0.0.1"
 
 class Client {
-public:
+private:
     int clientSocket; /** the id of the client socket */
 
+public:
     Client(int, char const*argv[]);
 
     string receiveFromServer();
