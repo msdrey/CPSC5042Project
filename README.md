@@ -63,7 +63,7 @@ cd CPSC5042Project
 ```
 or on macOS run
 ```
-./releases/mac/client
+./releases/mac/client aws
 ```
 ## Credits
 Used [GeeksforGeeks - Socket Programming in C](https://www.geeksforgeeks.org/socket-programming-cc/) example as the starting point.
