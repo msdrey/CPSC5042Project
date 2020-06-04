@@ -29,9 +29,13 @@ class Network{
         int socket;             // momentarily holds a new socket address before thread creation, then hand to Connection object in a thread
         vector<User> users;     // the bank of users
 
-        //WARNING: always lock file before vector when locking both!
+        //WARNING: when locking both the userbank file and the userbank vector, 
+        //         to avoid deadlocks, always lock and unlock in the same order
+        //         in this project, we always lock the file before the vector
+        //         and unlock the vector before the file.
         pthread_mutex_t userbankfile_lock;          // the lock for the user bank text file
         pthread_mutex_t userbankvector_lock;        // the lock for the user vector
+        
         pthread_mutex_t wordsandhints_lock;         // the lock for the words and hints text file
 
     public:
