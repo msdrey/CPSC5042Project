@@ -145,7 +145,7 @@ void pressAnyKeyRoutine() {
 }
 
 /**
- * returns an appropriate error message according to an interger authentication
+ * returns an appropriate error message according to an integer authentication
  * status code
  * 
  * @param authStatus the code for the authentication status

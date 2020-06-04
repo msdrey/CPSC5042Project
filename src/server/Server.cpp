@@ -3,7 +3,8 @@
 using namespace std;
 
 /**
- * Constructor for server, sets up socket file descriptor and TCP/IP internet socket
+ * Constructor for server, sets up socket file descriptor and TCP/IP internet socket. Sets up the 
+ * server so it listens to incoming connections.
  *
  *  @param argc number of command line arguments forwarded from main inputs
  *  @param argv[] array of command line arugment forwarded from main, used to set custom port if desired
