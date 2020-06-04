@@ -99,6 +99,11 @@ void *Server::startNewGame(void * arg) {
 
     //receive client's authentication info: log in or sign up, username and pw
     string authInfo = connection->receive();
+    if (authInfo.empty()) {
+		cout << "The client has unexpectedly disconnected" << endl;
+	    connection->disconnectClient();
+        return NULL;
+	}
     // ask the network object to validate authentication info
     int authResult = network->checkAuthentication(authInfo);
     // send the result back to the client
