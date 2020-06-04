@@ -4,7 +4,7 @@ Network::Network() {
     //initializing the bank of users
     //note: no need for locks here as this constructor
     //is executed before any threads are created.
-    ifstream userbankfile("UserBank.txt");
+    ifstream userbankfile(USER_BANK_FILE_PATH);
     string line;
     while (getline(userbankfile, line)) {
         User newUser;
@@ -77,7 +77,7 @@ int Network::createNewUser(string inputUser, string inputPass) {
     
     //add to file
     ofstream userbankfile;
-    userbankfile.open("UserBank.txt", ios_base::app);//append to file
+    userbankfile.open(USER_BANK_FILE_PATH, ios_base::app);//append to file
     if (userbankfile.is_open()) {
         userbankfile << inputUser << "," << inputPass << ";0/0\n";
         userbankfile.close();
@@ -138,7 +138,7 @@ vector<string>* Network::getWordsAndHints() {
     vector<string> * result = new vector<string>();
     ifstream infile;
     pthread_mutex_lock(&wordsandhints_lock);
-    infile.open("WordsAndHints.txt");
+    infile.open(WORDS_AND_HINTS_FILE_PATH);
 
     if (infile.is_open())
     {
@@ -189,7 +189,7 @@ string Network::getLeaderBoard(){
 void Network::addWord(string userWordHint){
     pthread_mutex_lock(&wordsandhints_lock);
     ofstream outfile;
-    outfile.open("WordsAndHints.txt", ios::app);
+    outfile.open(WORDS_AND_HINTS_FILE_PATH, ios::app);
     if (outfile.is_open()) {
         outfile << userWordHint << endl;
         outfile.close();
@@ -242,7 +242,7 @@ void Network::updateUserScores(int newScore, int newBestStreak, int userIndex) {
     }
     if (changed) {
         ofstream userbankfile;
-        userbankfile.open("UserBank.txt");//overwrite file
+        userbankfile.open(USER_BANK_FILE_PATH);//overwrite file
         if (userbankfile.is_open()) {
             for (User user: users) {
                 userbankfile << user.username << "," << user.password << ";"<< user.highestScore <<"/"<< user.highestStreak <<"\n";

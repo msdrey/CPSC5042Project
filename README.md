@@ -15,12 +15,16 @@ Possible enhancements include concurrent users playing the game, allowing users 
 
 ## Docs
 ### Compile
+#### Server
 ```
-make
+make -C src/server
+```
+#### Client
+```
+make -C src/client
 ```
 
 ### Run
-Can either be run using published binaries in bin directory or by compiling as above.
 #### Server
 ```
 ./bin/server         --->  will use default port 12119

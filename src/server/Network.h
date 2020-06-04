@@ -10,6 +10,11 @@
 * accessed by multiple concurrent threads.
 */
 
+// Note that server must be started from project directory, like so: 
+// "./bin/server" for these paths to be found
+#define USER_BANK_FILE_PATH "data/UserBank.txt"
+#define WORDS_AND_HINTS_FILE_PATH "data/WordsAndHints.txt"
+
 #include <fstream>
 #include <string>
 #include <iostream> 

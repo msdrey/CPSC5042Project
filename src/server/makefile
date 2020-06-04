@@ -1,13 +1,11 @@
 CC=g++
 CFLAGS= -std=c++11 -Wall -Werror -pedantic -ggdb -lpthread
+OUT_PATH=../../bin
 
-all: server client
+all: server
 
-server: ServerMain.cpp WordLibrary.cpp Server.cpp GameSession.cpp Network.cpp Connection.cpp
-	$(CC) $(CFLAGS) ServerMain.cpp WordLibrary.cpp Server.cpp GameSession.cpp Network.cpp Connection.cpp -o bin/server
-
-client: clientmain.cpp Client.cpp InterfaceManager.cpp
-	$(CC) $(CFLAGS) clientmain.cpp Client.cpp InterfaceManager.cpp -o bin/client
+server: main.cpp WordLibrary.cpp Server.cpp GameSession.cpp Network.cpp Connection.cpp
+	$(CC) $(CFLAGS) main.cpp WordLibrary.cpp Server.cpp GameSession.cpp Network.cpp Connection.cpp -o ${OUT_PATH}/server
 
 clean:
-	rm bin/*.o
+	rm ${OUT_PATH}/*.o
