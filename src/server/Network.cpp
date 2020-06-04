@@ -233,6 +233,11 @@ string Network::getLeaderBoard(){
     return result;
 }
 
+/**
+ * Adds a word/hint pair to the words and hints text file database.
+ * 
+ * @param string a new userWordHint pair, comma seperated, e.g. Carrot,Rabbit's favourite
+ */ 
 void Network::addWord(string userWordHint){
     pthread_mutex_lock(&wordsandhints_lock);
     ofstream outfile;
@@ -244,6 +249,13 @@ void Network::addWord(string userWordHint){
     pthread_mutex_unlock(&wordsandhints_lock);
 }
 
+/**
+ * Gets the high score for a user from the user file database. 
+ * Renders a send to client ready string.
+ * 
+ * @param int userIndex the user index into the word bank vecotr to get the high score for
+ * @return string the high score string to send to the client.
+ */
 string Network::getHighScore(int userIndex) {
     pthread_mutex_lock(&userbankvector_lock);
     int highScore = users[userIndex].highestScore;
