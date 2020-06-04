@@ -2,32 +2,35 @@
 #define SERVER_H
 #include <string>
 #include <mutex>
+
 #include "Network.h"
 #include "GameSession.h"
 #include "Connection.h"
 
-// Audrey's port on cs1 for cpsc5042
-#define AUDREYS_PORT 12119
+#define AUDREYS_PORT 12119      // Audrey's port on cs1 for cpsc5042
 
-using namespace std;
-// This class holds the details of the established server socket and its
-// address and allows the server to create a new socket, 
+/**
+ * The Server class is responsible for accepting new connections and spawning threads.
+ * It holds the details of the established server socket and makes the connections between 
+ * each thread's: 
+ * 				- pointer to the global Network singleton object
+ * 				- unique Connection object used for communiction to the unique client socket
+ * 				- unique GameSession object to manage Game functions and state
+ */
 class Server {
 private:
-    int server_fd; //the server's socket
-	  struct sockaddr_in address; // the address information of the server socket
-	  int addrlen; // the length of the address
-	  int port;
+    int server_fd; 				// the server's socket file descriptor 
+	struct sockaddr_in address; // the address information of the server socket
+	int addrlen; 				// the length of the address
+	int port;
 
   	static void *startNewGame(void *); //starts new threads for clients
 
-
 public:	
-	  Server(int, const char**);
-	  ~Server();
-	  int acceptConnection();
+	Server(int, const char**);
+	~Server();
+	int acceptConnection();
     void acceptConnections();
-
 };
 
 #endif //SERVER_H
