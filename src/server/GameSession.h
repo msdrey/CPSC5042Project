@@ -1,23 +1,25 @@
 #ifndef GAMESESSION_H
 #define GAMESESSION_H
 
-#include "WordLibrary.h"
-
 #include <iostream> 
 #include <string>
 
-//This class manages a game of guessing word. A game lasts as long as the player wants
-//to continue playing and keeps asking the user to guess words according to some
-//clues.
+#include "WordLibrary.h"
+
+using namespace std;
+
+/**
+ * The Game Session manages the state of gameplay for each client. 
+ */
 class GameSession {
   private:  
-    WordLibrary *wordBank;
-    string currentWord;
-    string currentClue;
-    int score; // number of correct guesses since the beginning of the session
-    int currentStreak; // current streak of correct guesses by the player
-	int bestStreak; // greatest streak of correct guesses in the current game session
-	int status; //1 if the game is ongoing, 0 if the client decides to quit
+    WordLibrary *wordBank;	// this thread's unique instance of the Word Library
+    string currentWord;		// the current word
+    string currentClue;		// the current hint
+    int score; 				// number of correct guesses since the beginning of the session
+    int currentStreak; 		// current streak of correct guesses by the player
+	int bestStreak; 		// greatest streak of correct guesses in the current game session
+	int status; 			// set to 1 if the game is ongoing, 0 if the client decides to quit
 
     void selectWord();
     bool isCommand(const string& );
