@@ -37,5 +37,13 @@ make -C src/client
 ./bin/client aws          --->  will use our AWS machine's IP address and default port 12119
 ```
 
+## Play on our live server
+Just clone this repo, cd into the project directory, and run the client release with the *aws* option.
+```
+git clone https://github.com/msdrey/CPSC5042Project.git
+cd CPSC5042Project
+./releases/client aws
+```
+
 ## Credits
 Used [GeeksforGeeks - Socket Programming in C](https://www.geeksforgeeks.org/socket-programming-cc/) example as the starting point.
