@@ -59,8 +59,11 @@ Just clone this repo, cd into the project directory, and run the client release 
 ```
 git clone https://github.com/msdrey/CPSC5042Project.git
 cd CPSC5042Project
-./releases/client aws
+./releases/linux/client aws
 ```
-
+or on macOS run
+```
+./releases/mac/client
+```
 ## Credits
 Used [GeeksforGeeks - Socket Programming in C](https://www.geeksforgeeks.org/socket-programming-cc/) example as the starting point.
