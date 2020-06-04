@@ -1,3 +1,10 @@
+/**
+*	This class responsibles for the game logic. It takes the user input and executes wheather it is the command or user guess, then return
+*	the correspondence.
+*
+*	Audrey Morin, Noah Glusenkamp, Nitid Comvandee
+*/
+
 #ifndef GAMESESSION_H
 #define GAMESESSION_H
 

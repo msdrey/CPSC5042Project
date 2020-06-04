@@ -2,18 +2,28 @@
 
 using namespace std;
 
+/**
+*   Gets the word and hint from WordLibrary and stores in local variables
+*/
 void GameSession::selectWord() {
     currentWord = wordBank->getWord();
     currentClue = wordBank->getHint();
     wordBank->next();
 }
-
-//check if client's input is a command or not. 
+/**
+*   check if client's input is a command or not.
+*
+*   @retuen True if the input is command, false if not.
+*/
 bool GameSession::isCommand(const string& str) {
     return str[0] == '.';
 }
 
-//handling commands
+/**
+*   Handles the command from user.
+*
+*   @return The correspondence of each command.
+*/
 string GameSession::handleCommand(const string& str) {
     if (isAMatch(str, ".skip")) {
         selectWord();
@@ -34,7 +44,13 @@ string GameSession::handleCommand(const string& str) {
     }
 }
 
-// returns true if the two strings match. Case insensitive.
+/**
+*   Helper function for comparing user input and valid commands. Ignore cas sensitive.
+*
+*   @param str1 User input
+*   @param str2 Valid command
+*   @return True if user input is the valid command.
+*/
 bool GameSession::isAMatch(const string& str1, const string& str2) {
     unsigned int len = str1.length();
     if (str2.length() != len){
@@ -48,12 +64,21 @@ bool GameSession::isAMatch(const string& str1, const string& str2) {
     return true;
 }
 
-// returns a string prompting the user for an answer
+/**
+*   Prompts user a message for guessing.
+*
+*   @return String message asking for user input.
+*/
 string GameSession::promptWord() {
     return "Guess the word: " + getHint() + "\n";
 }
 
-// returns a formatted hint for the current word
+/**
+*   Provides hint for user and number of word's characters in space format.
+*
+*   @return Hint for current word and number of word's characters.
+*/
+
 string GameSession::getHint() {
     string result = "";
     for (int i = 0; i < (int) currentWord.length(); i++) {
@@ -63,7 +88,11 @@ string GameSession::getHint() {
     return result;
 }
 
-// returns a string that displays the current score and streak
+/**
+*   Gets the current scores and currect best streak.
+*
+*   @return Current scores and streak.
+*/
 string GameSession::displayScore() {
     string result = "Your score: " + to_string(score);
     result += "\n";
@@ -80,8 +109,12 @@ void GameSession::updateBestStreak() {
     }
 }
 
-//checks the user's guess, modifies the state of the game accordingly
-// and returns an appropriate response to be sent to the user 
+/**
+*   Checks the user guess, updates scores and streak and return the appropriate feedback.
+*
+*   @param guess User guess
+*   @return String message with appropriate feedback.
+*/
 string GameSession::checkGuess(const string& guess) {
     if (isAMatch(guess, currentWord)) {
         string win = "\nCongrats, you win!\n";
@@ -97,7 +130,11 @@ string GameSession::checkGuess(const string& guess) {
     }
 }
 
-// returns a formatted string explaining the available commands to the user
+/**
+*   Provides user the valid commands and explanation.
+*
+*   @return String message with valid commands and explanation.
+*/
 string GameSession::displayCommands() {
     string result = "Options:\n";
     return result 	+ "  .skip \t to skip the current word\n"
@@ -109,7 +146,11 @@ string GameSession::displayCommands() {
                     + "  .exit \t to log out and exit\n\n";
 }
 
-
+/**
+*   Constructor
+*
+*   @param *wordsAndHints A string vector containing all words and hints which was passed from Network after reading from file.
+*/
 GameSession::GameSession(vector<string> * wordsAndHints) {
     wordBank = new WordLibrary(wordsAndHints);
     score = 0;
@@ -119,7 +160,11 @@ GameSession::GameSession(vector<string> * wordsAndHints) {
     selectWord();
 }
 
-// returns a welcoming message to the user
+/**
+*   Welcome user.
+*
+*   @return String message with welcome note and prompt user for guessing.
+*/
 string GameSession::startSession() {
     string welcome = "Welcome to Wordasaurus!\n\n" ;
     welcome += "This is a guessing word game. Just type your best guess!\n\n";
@@ -127,7 +172,12 @@ string GameSession::startSession() {
     return welcome + "@" + promptWord();
 }
 
-// determines if the user input is a command or a guess and calls the appropriate function
+/**
+*   Determines if the user input is a command or a guess and calls the appropriate function
+*
+*   @param userInput 
+*   @return The appropriate respond associate with user input.
+*/
 string GameSession::handleUserInput(const string& userInput) {
     string result;
     if (isAMatch(userInput,".exit")) {
@@ -144,20 +194,36 @@ string GameSession::handleUserInput(const string& userInput) {
     return result + "@" + promptWord();
 }
 
-// returns the current status of the game session: 0 for inactive, 1 for active
+/**
+*   Gets the current status of the game session.
+*
+*   @return True if active, false if inactive.
+*/
 bool GameSession::getStatus() {
     return status;
 }
 
-// sets the current status of the game session: 0 for inactive, 1 for active
+/**
+*   sets the current status of the game session: 0 for inactive, 1 for active
+*/
 void GameSession::setStatus(int s) {
     status = s;
 }
 
+/**
+*   Gets user's scores.
+*
+*   @return user's scores.
+*/
 int GameSession::getScore() {
     return score;
 }
 
+/**
+*   Gets user's best streak.
+*
+*   @return User's best streak.
+*/
 int GameSession::getBestStreak() {
     return bestStreak;
 }
