@@ -2,7 +2,12 @@
 
 using namespace std;
 
-// class constructor sets up the server
+/**
+ * Constructor for server, sets up socket file descriptor and TCP/IP internet socket
+ *
+ *  @param argc number of command line arguments forwarded from main inputs
+ *  @param argv[] array of command line arugment forwarded from main, used to set custom port if desired
+ */
 Server::Server(int argc, char const *argv[]) {
     if (argc == 2) {
         port = atoi(argv[1]);
@@ -46,12 +51,18 @@ Server::Server(int argc, char const *argv[]) {
     cout << "Server is listening on port " << port << endl;
 }
 
-// class destructor
+/**
+ *  Server destructor
+ */
 Server::~Server() {
 }
 
-// this call is accepting a connection from a client and returning the 
-// id of the socket of the new client connection
+/**
+ *  Blocking call that waits for a new socket connection
+ *  on accept, returns socket number for a connection  
+ * 
+ *  @returns int the socket number for a new client connection
+ */
 int Server::acceptConnection() {
     int newSocket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
     if (newSocket < 0) 
@@ -62,6 +73,12 @@ int Server::acceptConnection() {
     return newSocket;
 }
 
+/**
+ * Primary Server loop, use to start the server
+ * Creates Network singleton the enters infinite loop to wait on new connects.
+ * When a new connection is made, put a lock on the new socket number until it can be read by a thread.
+ * Start a new thread for each new connect, pass in the network singleton as shared global context, startNewGame as thread main function
+ */
 void Server::acceptConnections() {
     //Initialize network data
     Network * networkPtr = new Network();
@@ -92,6 +109,14 @@ void Server::acceptConnections() {
 	}
 }
 
+/**
+ *  The main function for each new thread. 
+ *  Reads socket number from network singleton shared context, which is used to create a unique Connection object.
+ *  Once socket number has been read, unlock socket address in network object.
+ *  Authenticates the user making the connection.
+ *  Creates unique Game Session object for this thread and starts the game
+ *  Handles user commands that reference shared state in network
+ */
 void *Server::startNewGame(void * arg) {
     Network * network = (Network *) arg; // the shared data
     Connection * connection = new Connection(network->getSocket()); //the thread-specific data
@@ -106,13 +131,16 @@ void *Server::startNewGame(void * arg) {
 	}
     // ask the network object to validate authentication info
     int authResult = network->checkAuthentication(authInfo);
+    // FIXME? add fast fail here?
     // send the result back to the client
     connection->sendToClient(to_string(authResult));
     
-    if (authResult > -1) { //successful authentication. Handshake from client.
+    if (authResult > -1) { 
+        //successful authentication. Handshake from client.
         connection->setCurrentUser(authResult);
         string clientConfirmsAuth = connection->receive();
-    } else { // authentication failed. Disconnect and force exit thread.
+    } else { 
+        // authentication failed. Disconnect and force exit thread.
         connection->disconnectClient();
         return NULL;
     }
