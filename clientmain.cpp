@@ -25,7 +25,7 @@ int main(int argc, char const *argv[]) {
             exit(0);
         }
         display("Your log in was successful", "green");
-        client->sendToServer("true");
+        client->sendToServer("1"); //handshake
         pressAnyKeyRoutine();
 
         //receive and display welcome message
@@ -36,7 +36,6 @@ int main(int argc, char const *argv[]) {
         display(response.substr(0, clearPos), "green");
         pressAnyKeyRoutine();
         
-        //keep playing as long as the player does not issue the command ".exit"
         string userInput;
         do {
             //display prompt
