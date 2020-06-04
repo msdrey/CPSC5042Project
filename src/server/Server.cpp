@@ -147,7 +147,6 @@ void *Server::startNewGame(void * arg) {
             connection->sendToClient(network->getHighScore(connection->getCurrentUser()));
         }
 
-
 		//handle client's answer and send feedback
 		connection->sendToClient(thisSession->handleUserInput(userInput));
 
