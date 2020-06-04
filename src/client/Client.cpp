@@ -97,6 +97,9 @@ void Client::sendToServer(string message) {
     }
 }
 
+/**
+ * Closes the socket connection with the server.
+ */
 void Client::closeSocket() {
     close(this->clientSocket);
 }
