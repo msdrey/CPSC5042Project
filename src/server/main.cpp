@@ -8,7 +8,7 @@
 
 int main(int argc, char const *argv[]) 
 { 	
-	// Creating a network object opens a socket
+	// Creating a server object opens a socket
 	Server * server = new Server(argc, argv);
 	// Starts an infinite loop blocking on accept
 	server->acceptConnections();
