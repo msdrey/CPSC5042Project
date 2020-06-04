@@ -1,9 +1,14 @@
 #include "Network.h"
 
+/**
+ *  Network Constructor
+ *  Used as a singleton across all threads 
+ *  Reads and parses user bank from data file to store as vector
+ */
 Network::Network() {
-    //initializing the bank of users
-    //note: no need for locks here as this constructor
-    //is executed before any threads are created.
+    // initialize the bank of users
+    // note: no need for locks here as this constructor
+    // is executed before any threads are created.
     ifstream userbankfile(USER_BANK_FILE_PATH);
     string line;
     while (getline(userbankfile, line)) {
@@ -24,29 +29,44 @@ Network::Network() {
     }
     userbankfile.close();
 
-    //initializing the socket data field's lock
+    // initializing the socket data field's lock
     pthread_mutex_init(&network_socket_lock, NULL);
     pthread_mutex_init(&userbankfile_lock, NULL);
     pthread_mutex_init(&userbankvector_lock, NULL);
     pthread_mutex_init(&wordsandhints_lock, NULL);
 }
 
+/**
+ *  Saves the socket number for a new connect, only used momentarily
+ * 
+ *  @param newSocket the new socket that is created from connect 
+ */
 void Network::setSocket(int newSocket) {
     //note: no need for locks here as this method
     //is only used while holding the socket_lock
     this->socket = newSocket;
 }
 
+/**
+ *  Gets the socket number for a new connect
+ * 
+ *  @return int the socket number for a new connection
+ */
 int Network::getSocket() {
-    //note: no need for locks here as this method
-    //is only used while holding the socket_lock
+    // note: no need for locks here as this method
+    // is only used while holding the socket_lock
     return this->socket;
 }
 
+/** 
+ * Parses authentication string from client, dispatches to userword/password validation or new user creation
+ * 
+ * @param string authInfo sereialized username password from client <loginOrSignup>;username=<inputUser>,password=<inputPass>
+ * @return int on success returns a postitivv user index into the user bank, on fail negative fail code
+ */
 int Network::checkAuthentication(string authInfo) {
-    
-    //extract username and entered password from authString
-    //authInfo = <loginOrSignup>;username=<inputUser>,password=<inputPass>
+    // extract username and entered password from authInfo
+    // authInfo = <loginOrSignup>;username=<inputUser>,password=<inputPass>
     int colonPos = authInfo.find(";");
     int equalPos = authInfo.find("=");
     int commaPos = authInfo.find(",");
@@ -61,6 +81,14 @@ int Network::checkAuthentication(string authInfo) {
     }
 }
 
+/**
+ * Adds a new user to the user bank next file and user bank vector.
+ * Locks both while making writes.
+ * 
+ * @param string inputUser the new user's username
+ * @param string inputPass the new user's password
+ * @return int new user's index in the updated user bank vector
+ */
 int Network::createNewUser(string inputUser, string inputPass) {
     //note: must lock the whole function to make sure users are unique
     pthread_mutex_lock(&userbankfile_lock);
@@ -83,7 +111,6 @@ int Network::createNewUser(string inputUser, string inputPass) {
         userbankfile.close();
     }
     
-    
     //add to loaded userbank
     User newUser;
     newUser.username = inputUser;
@@ -101,6 +128,14 @@ int Network::createNewUser(string inputUser, string inputPass) {
     return userIndex;
 }
 
+/**
+ *  Check if username and password sent by client match the user's database (file)
+ *  Log failure messages on server std out.
+ * 
+ *  @param string inputUser
+ *  @param string inputPass 
+ *  @return int postive if success, negative fail code if auth fail
+ */
 int Network::validateUsernamePassword(string inputUser, string inputPass) {
     //find the inputted user in our users bank, if so, initilize currentUserIndex
     bool isFound = false;
@@ -134,6 +169,12 @@ int Network::validateUsernamePassword(string inputUser, string inputPass) {
     }
 }
 
+/**
+ * Reads the words and hinds file and stores as a vector
+ * Locks the file for safe reads.
+ * 
+ * @return vector<string> the curernt list of all words and hints
+ */
 vector<string>* Network::getWordsAndHints() {
     vector<string> * result = new vector<string>();
     ifstream infile;
@@ -157,6 +198,12 @@ vector<string>* Network::getWordsAndHints() {
 
 }
 
+/**
+ * Computes the leaderboard results by looking at all stored user high scores in user bank file
+ * Locks user bank file for safe reads.
+ * 
+ * @return string the send to client ready rendering of the current leaderboard
+ */
 string Network::getLeaderBoard(){
     pthread_mutex_lock(&userbankvector_lock);
     //make a copy of the userbank
