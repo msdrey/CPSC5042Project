@@ -1,10 +1,21 @@
 #include "InterfaceManager.h"
 
+/**
+ * displays the inputted string using the inputted color
+ * 
+ * @param str the string to print to console
+ * @param color a string containing the color the str should be 
+ *              printed in. Choices are red, green, yellow, blue, 
+ *              magenta, cyan or white.  
+ */
 void display(string str, string color) {//add color param
     string colorCommand = "\033[0;" + colorCode.at(color) + "m";
     cout << colorCommand << str << "\033[0m" << endl;
 }
 
+/**
+ * displays to console the logo of the game
+ */
 void displayLogo() {
     ifstream logoFile(DINO_FILE_PATH);
     string result;
@@ -24,6 +35,11 @@ void displayLogo() {
     cout << result << endl;
 }
 
+/**
+ * gets the first non-empty line from console and returns it. Ignores empty lines.
+ * 
+ * @return the non empty line the user inputs
+ */
 string takeInput() {
     string ans = "";
     while(ans.length() == 0) {
@@ -32,6 +48,12 @@ string takeInput() {
     return ans;
 }
 
+/**
+ * On a cleared consoled, asks for a word and a hint and returns them 
+ * formatted.
+ * 
+ * @return the inputted word and hint separated by a comma
+ */
 string takeNewWord(){
     clearScreen();
     string userWord;
@@ -43,7 +65,12 @@ string takeNewWord(){
     return userWord + "," + userHint;
 }
 
-// prompt the user for a username and password and send it to server
+/**
+ * interacts with the user on console to get his choice of log in or sign up, his
+ * username and his password. Return all three combined in a formatted string
+ * 
+ * @return <'log in' or 'sign up'>;username=<inputted username>,password=<inputted password>
+ */
 string promptUserAuthentication() {
     string choice;
     bool validInput = false;
@@ -65,10 +92,21 @@ string promptUserAuthentication() {
     return serializeAuthString(choice, username, password);
 }
 
+/**
+ * clears the text from the console
+ */
 void clearScreen() {
     system("clear");
 }
 
+/**
+ * formats three wtrings together in one string for the server to understand
+ * 
+ * @param choice either "log in" or "sign up"
+ * @param username the username
+ * @param password the password
+ * @return <'log in' or 'sign up'>;username=<inputted username>,password=<inputted password>
+ */
 string serializeAuthString(string choice, string username, string password) {
     string result = choice + ";";
     result += "username=" + username;
@@ -76,6 +114,13 @@ string serializeAuthString(string choice, string username, string password) {
     return result;
 }
 
+/**
+ * returns true if two strings are equal while ignoring case.
+ * 
+ * @param str1 the first string
+ * @param str2 the second string
+ * @return true if the strings are equal (ignoring case), false otherwise.
+ */
 bool isAMatch(const string& str1, const string& str2) {
     unsigned int len = str1.length();
     if (str2.length() != len){
@@ -89,12 +134,23 @@ bool isAMatch(const string& str1, const string& str2) {
     return true;
 }
 
+/**
+ * displays a "press any key to continue" message to console and
+ * waits for the user to press "enter"
+ */
 void pressAnyKeyRoutine() {
     string dummy;
     display("Press enter to continue.", "yellow");
     getline(cin, dummy);
 }
 
+/**
+ * returns an appropriate error message according to an interger authentication
+ * status code
+ * 
+ * @param authStatus the code for the authentication status
+ * @return the error message to display to the user
+ */
 string errorMessage(int authStatus) {
     switch(authStatus){
         case -1: 

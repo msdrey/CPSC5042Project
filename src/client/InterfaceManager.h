@@ -1,3 +1,9 @@
+/**
+ * Collection of helper functions to manage the display of a Client object
+ * 
+ * Audrey Morin, Noah Glusenkamp, Nitid Comvandee
+ */
+
 #ifndef INTERFACEMANAGER_H
 #define INTERFACEMANAGER_H
 
@@ -12,6 +18,7 @@
 
 using namespace std;
 
+/** color codes for \033 cout color display */
 const map<string, string> colorCode = { 
     {"red", "31"}, 
     {"green", "32"}, 
@@ -21,14 +28,12 @@ const map<string, string> colorCode = {
     {"cyan","36"},
     {"white","37"}};
 
-
 //unit methods
 void display(string str, string color = "white");
 void displayLogo();
 void clearScreen();
 string takeInput();
 string serializeAuthString(string, string, string);
-
 
 //routine methods
 string takeNewWord();
