@@ -131,8 +131,9 @@ void *Server::startNewGame(void * arg) {
 	}
     // ask the network object to validate authentication info
     int authResult = network->checkAuthentication(authInfo);
-    // FIXME? add fast fail here?
-    // send the result back to the client
+   
+    // send the result back to the client, positive user index if success
+    // if failure, send negative int fail code that client has mappings for meaning
     connection->sendToClient(to_string(authResult));
     
     if (authResult > -1) { 
