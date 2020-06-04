@@ -6,6 +6,10 @@
 #include <map>
 #include <fstream>
 
+// Note that client must be started from project directory, like so: 
+// "./bin/client" for this path to be found
+#define DINO_FILE_PATH "data/dino_color.txt"
+
 using namespace std;
 
 const map<string, string> colorCode = { 
@@ -17,7 +21,6 @@ const map<string, string> colorCode = {
     {"cyan","36"},
     {"white","37"}};
 
-const string DINOFILEPATH = "dino_color.txt";
 
 //unit methods
 void display(string str, string color = "white");
