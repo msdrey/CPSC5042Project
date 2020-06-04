@@ -13,7 +13,7 @@ void GameSession::selectWord() {
 /**
 *   check if client's input is a command or not.
 *
-*   @retuen True if the input is command, false if not.
+*   @return True if the input is command, false if not.
 */
 bool GameSession::isCommand(const string& str) {
     return str[0] == '.';
@@ -45,7 +45,7 @@ string GameSession::handleCommand(const string& str) {
 }
 
 /**
-*   Helper function for comparing user input and valid commands. Ignore cas sensitive.
+*   Helper function for comparing user input and valid commands. Ignores case.
 *
 *   @param str1 User input
 *   @param str2 Valid command
@@ -149,7 +149,7 @@ string GameSession::displayCommands() {
 /**
 *   Constructor
 *
-*   @param *wordsAndHints A string vector containing all words and hints which was passed from Network after reading from file.
+*   @param wordsAndHints A string vector containing all words and hints which was passed from Network after reading from file.
 */
 GameSession::GameSession(vector<string> * wordsAndHints) {
     wordBank = new WordLibrary(wordsAndHints);
@@ -211,9 +211,9 @@ void GameSession::setStatus(int s) {
 }
 
 /**
-*   Gets user's scores.
+*   Gets user's score.
 *
-*   @return user's scores.
+*   @return user's score.
 */
 int GameSession::getScore() {
     return score;
