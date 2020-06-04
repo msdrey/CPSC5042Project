@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS= -std=c++11 -Wall -Werror -pedantic -ggdb -lpthread
+CFLAGS= -std=c++11 -Wall -Werror -pedantic -ggdb
 OUT_PATH=../../bin
 
 all: client
