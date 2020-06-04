@@ -26,7 +26,7 @@ using namespace std;
 */
 class Network{
     private:
-        int socket;             // momentarily holds a new socket address before thread creation, then hand to Connection object in a thread
+        int socket;             // momentarily holds a new socket number before thread creation, then hand to Connection object in a thread
         vector<User> users;     // the bank of users
 
         //WARNING: when locking both the userbank file and the userbank vector, 
@@ -39,7 +39,7 @@ class Network{
         pthread_mutex_t wordsandhints_lock;         // the lock for the words and hints text file
 
     public:
-        pthread_mutex_t network_socket_lock;        // the lock for the new socket address, unlocked once thread Connection object has it
+        pthread_mutex_t network_socket_lock;        // the lock for the new socket number, unlocked once thread Connection object has it
 
         Network();
         void setSocket(int);  
