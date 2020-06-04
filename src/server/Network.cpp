@@ -266,6 +266,11 @@ string Network::getHighScore(int userIndex) {
     return result;
 }
 
+/** 
+ *  Logs the user out
+ * 
+ *  @param int userIndex the index of the user to log out
+ */
 void Network::logOutUser(int userIndex) {
     pthread_mutex_lock(&userbankvector_lock);
     users[userIndex].isLoggedIn = false;
@@ -273,7 +278,13 @@ void Network::logOutUser(int userIndex) {
     cout << "User " << users[userIndex].username << " has logged out." << endl;
 }
 
-// returns true if the two strings match. Case insensitive.
+/**
+ * A utility function that for string comparisons. Case insensitive.
+ * 
+ * @param string& str1 the first string
+ * @param string& str2 the second string
+ * @return bool true if strings match, false if not
+ */
 bool Network::isAMatch(const string& str1, const string& str2) {
     unsigned int len = str1.length();
     if (str2.length() != len){
@@ -287,6 +298,14 @@ bool Network::isAMatch(const string& str1, const string& str2) {
     return true;
 }
 
+/**
+ *  Updates the user bank file and vector with a single user's new highsest score and streak.
+ *  Overwrites entire file.
+ * 
+ *  @param int newScore the new highscore for this user
+ *  @param int newBestStreal the new best streak count for this user
+ *  @param int userIndex the user bank vector index for the user to update
+ */
 void Network::updateUserScores(int newScore, int newBestStreak, int userIndex) {
     bool changed = false;
     pthread_mutex_lock(&userbankfile_lock);
