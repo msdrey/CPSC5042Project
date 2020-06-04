@@ -1,3 +1,8 @@
+/**
+*   User object, to contain user information for identifying player in server.
+*
+*   Audrey Morin, Noah Glusenkamp, Nitid Comvandee
+*/
 #ifndef USER_H
 #define USER_H
 
@@ -5,12 +10,12 @@
 
 using namespace std;
 
+
 struct User { // a simple struct for keeping users information. 
-                    // may be expanded later with high score or other info
-                    // may be turned into a full class too
-    string username;
-    string password;
-    int highestScore;
+                    
+    string username;    
+    string password;    
+    int highestScore;  
     int highestStreak;
     bool isLoggedIn;
 };

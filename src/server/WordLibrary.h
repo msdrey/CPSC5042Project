@@ -1,3 +1,9 @@
+/**
+*   WordLibrary object, responsible as the actual library for distribute words and hints to user. 
+*   
+*   Audrey Morin, Noah Glusenkamp, Nitid Comvandee
+*/
+
 #ifndef WORDLIBRARY_WORDLIBRARY_H
 #define WORDLIBRARY_WORDLIBRARY_H
 #include <vector>
@@ -17,9 +23,9 @@ class WordLibrary{
         string getHint();
         void next();
     private:
-        vector<string> library;
         void shuffle();
-        int currentWordIndex; // index of the current word to be guessed in the word library
+        vector<string> library; // Vector containing all words and hints reading from file
+        int currentWordIndex;   // index of the current word to be guessed in the word library
 };
 
 #endif //WORDLIBRARY_WORDLIBRARY_H
