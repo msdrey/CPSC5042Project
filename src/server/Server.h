@@ -24,7 +24,7 @@ private:
 	int addrlen; 				// the length of the address
 	int port;
 
-  	static void *startNewGame(void *); //starts new threads for clients
+  	static void *startNewGame(void *); // starts new threads for clients
 
 public:	
 	Server(int, const char**);
