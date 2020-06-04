@@ -8,10 +8,14 @@
 
 using namespace std;
 
+/**
+ * The Connection class holds a unique socket number for each client and
+ * manages the send and recieve back and forth messaging between server and client
+ */
 class Connection{
     private:
-        int socket;     
-        int currentUserIndex;
+        int socket;             // unique socket number per client
+        int currentUserIndex;   // index into Network's user bank for the user on this connection
 
     public:
         Connection(int);
