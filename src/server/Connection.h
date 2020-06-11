@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream> 
 
+#include "GameSession.h"
+
 using namespace std;
 
 /**
@@ -14,15 +16,23 @@ using namespace std;
  */
 class Connection{
     private:
-        int socket;             // unique socket number per client
-        int currentUserIndex;   // index into Network's user bank for the user on this connection
+        int socket;                   // unique socket number per client
+        int currentUserIndex;         // index into Network's user bank for the user on this connection
+        GameSession * currentSession; // game context
 
     public:
         Connection(int);
+        void startNewGame(vector<string>*);
+        bool getGameStatus();
+        void setGameStatus(bool);
 	    void disconnectClient();
         void setCurrentUser(int);
         int getCurrentUser();
-        string receive();
+        int getCurrentScore();
+        int getCurrentBestStreak();
+        void handleInput(string);
+
+        string receiveFromClient();
         void sendToClient(const string &);
 };
 

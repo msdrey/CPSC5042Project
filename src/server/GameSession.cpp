@@ -156,7 +156,7 @@ GameSession::GameSession(vector<string> * wordsAndHints) {
     score = 0;
     currentStreak = 0;
     bestStreak = 0;
-    status = 1;
+    status = true;
     selectWord();
 }
 
@@ -204,9 +204,9 @@ bool GameSession::getStatus() {
 }
 
 /**
-*   sets the current status of the game session: 0 for inactive, 1 for active
+*   sets the current status of the game session: false for inactive, true for active
 */
-void GameSession::setStatus(int s) {
+void GameSession::setStatus(bool s) {
     status = s;
 }
 

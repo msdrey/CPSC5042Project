@@ -26,7 +26,7 @@ class GameSession {
     int score; 				// number of correct guesses since the beginning of the session
     int currentStreak; 		// current streak of correct guesses by the player
 	int bestStreak; 		// greatest streak of correct guesses in the current game session
-	int status; 			// set to 1 if the game is ongoing, 0 if the client decides to quit
+	bool status; 			// set to true if the game is ongoing, false if the client decides to quit
 
     void selectWord();
     bool isCommand(const string& );
@@ -44,7 +44,7 @@ class GameSession {
 	string startSession() ;
 	string handleUserInput(const string& );
 	bool getStatus();
-	void setStatus(int s);
+	void setStatus(bool s);
 	int getScore();
 	int getBestStreak();
 	

@@ -4,7 +4,6 @@
 #include <mutex>
 
 #include "Network.h"
-#include "GameSession.h"
 #include "Connection.h"
 
 #define AUDREYS_PORT 12119      // Audrey's port on cs1 for cpsc5042

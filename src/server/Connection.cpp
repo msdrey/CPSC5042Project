@@ -11,6 +11,31 @@ Connection::Connection(int sock) {
 }
 
 /**
+ * starting a new game
+ */
+void Connection::startNewGame(vector<string> * wordsAndHints) {
+    currentSession = new GameSession(wordsAndHints);
+    sendToClient(currentSession->startSession());
+}
+
+/**
+ * returns 1 if the current game status is active, 0 otherwise.
+ */
+bool Connection::getGameStatus() {
+    if (currentSession == NULL) {
+        return false;
+    }
+    return currentSession->getStatus();
+}
+
+/**
+ * sets the current game status to the input boolean value
+ */
+void Connection::setGameStatus(bool status) {
+    currentSession->setStatus(status);
+}
+
+/**
  *  Closes the socket and confirms closure into console
  */
 void Connection::disconnectClient() {
@@ -29,13 +54,25 @@ int Connection::getCurrentUser() {
     return currentUserIndex;
 }
 
+int Connection::getCurrentScore() {
+    return currentSession->getScore();
+}
+
+int Connection::getCurrentBestStreak() {
+    return currentSession->getBestStreak();
+}
+
+void Connection::handleInput(string userInput) {
+    sendToClient(currentSession->handleUserInput(userInput));
+}
+
 /**
  *  Receives messages from the client socket
  * 
  *  @returns string the text that the user input
  *  @throw if an error occurs while receiving from the client
  */ 
-string Connection::receive() {
+string Connection::receiveFromClient() {
     char userInput[1024] = {0};
     int valread = recv(this->socket, userInput, 1024, 0);
     if (valread == 0) {

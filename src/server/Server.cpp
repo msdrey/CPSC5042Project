@@ -124,7 +124,7 @@ void *Server::startNewGame(void * arg) {
     pthread_mutex_unlock(&network->network_socket_lock);
 
     //receive client's authentication info: log in or sign up, username and pw
-    string authInfo = connection->receive();
+    string authInfo = connection->receiveFromClient();
     if (authInfo.empty()) {
 		cout << "The client has unexpectedly disconnected" << endl;
 	    connection->disconnectClient();
@@ -140,7 +140,7 @@ void *Server::startNewGame(void * arg) {
     if (authResult > -1) { 
         //successful authentication. Handshake from client.
         connection->setCurrentUser(authResult);
-        string clientConfirmsAuth = connection->receive();
+        string clientConfirmsAuth = connection->receiveFromClient();
     } else { 
         // authentication failed. Disconnect and force exit thread.
         connection->disconnectClient();
@@ -148,27 +148,23 @@ void *Server::startNewGame(void * arg) {
     }
     
 	//set up a new game session
-	GameSession * thisSession = new GameSession(network->getWordsAndHints());
-
-	//welcome user and start game
-	connection->sendToClient(thisSession->startSession());
+    connection->startNewGame(network->getWordsAndHints());
 
 	string userInput;
-	while (thisSession->getStatus() == 1) { //while session is active
+	while (connection->getGameStatus()) { //while game is active
 
 		//receive client's answer
-		userInput = connection->receive();
-		// cout << "userInput : " << userInput << endl;
+		userInput = connection->receiveFromClient();
 		if (userInput.empty()) {
 			cout << "The client has unexpectedly disconnected" << endl;
-			thisSession->setStatus(0);
+			connection->setGameStatus(false);
 			break;
 		}
         if (GameSession::isAMatch(userInput, ".addword")) {
             //send a command to client to start gathering word and hint
-            connection->sendToClient(".");
+            connection->sendToClient(".addword");
             //receive word and hint and pass to network to add to file
-            network->addWord(connection->receive());
+            network->addWord(connection->receiveFromClient());
         }
         if (GameSession::isAMatch(userInput, ".leaderboard")){
             connection->sendToClient(network->getLeaderBoard());
@@ -178,9 +174,9 @@ void *Server::startNewGame(void * arg) {
         }
 
 		//handle client's answer and send feedback
-		connection->sendToClient(thisSession->handleUserInput(userInput));
+		connection->handleInput(userInput);
 
-        network->updateUserScores(thisSession->getScore(), thisSession->getBestStreak(), connection->getCurrentUser());
+        network->updateUserScores(connection->getCurrentScore(), connection->getCurrentBestStreak(), connection->getCurrentUser());
 
 	}
 
