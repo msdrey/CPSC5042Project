@@ -19,7 +19,7 @@
 Word guessing game demonstrating client and server programming in C++.  
 
 ## Overview
-Creeated as group project for Seattle University class CSPC5042, spring quarter 2020.  
+Created as group project for Seattle University class CSPC5042, spring quarter 2020.  
 
 Project members:
 - Audrey Morin
@@ -62,4 +62,4 @@ cd CPSC5042Project
 ```
 
 ## Credits
-Used [GeeksforGeeks - Socket Programming in C](https://www.geeksforgeeks.org/socket-programming-cc/) example as the starting point.
+Used [GeeksforGeeks - Socket Programming in C] (https://www.geeksforgeeks.org/socket-programming-cc/) example as the starting point.
