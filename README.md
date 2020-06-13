@@ -59,7 +59,7 @@ Just clone this repo, cd into the project directory, and run the client release 
 ```
 git clone https://github.com/msdrey/CPSC5042Project.git
 cd CPSC5042Project
-./releases/linux/client aws
+./releases/linux/client cloud
 ```
 
 ## Credits
