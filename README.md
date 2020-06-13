@@ -27,8 +27,7 @@ Project members:
 - Noah Glusenkamp
 
 ### Project Idea
-We are building a word guessing game that is inspired by the online game [Drawasaurus](https://www.drawasaurus.org/). A player can use the command-line client program to can connect to the server with a username and password and start a new game. The server will choose a secret word at random from a bank and give the player the number of letters in the word as well as a clue. The player sends guesses to the server until the correct word is guessed. Then, a new word is picked by the server and the game continues. The client can also send commands to to skip a word, display their score or exit the game.
-Possible enhancements include concurrent users playing the game, allowing users to submit word/hint combinations to the present game's word bank, and allowing users to play socially.
+We built a word guessing game that is inspired by the online game [Drawasaurus](https://www.drawasaurus.org/). A player can use the command-line client program to can connect to the server by logging in or signinp up with a username and password and start a new game. The server will choose a secret word at random from a bank and give the player the number of letters in the word as well as a clue. The player sends guesses to the server until the correct word is guessed. Then, a new word is picked by the server and the game continues. The client can also send commands to to skip a word, display their score, display the leaderboard, display the highest score recorded to their account, or exit the game. The user can also contribute to our bank of words and hints. The server is multithreaded and can accept multiple clients playing concurrently.
 
 ## Docs
 ### Compile
