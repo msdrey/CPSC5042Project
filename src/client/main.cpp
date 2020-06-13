@@ -52,6 +52,16 @@ int main(int argc, char const *argv[]) {
                 response = client->receiveFromServer();
                 client->sendToServer(takeNewWord());
             }
+            if (isAMatch(userInput, ".leaderboard")) {
+                response = client->receiveFromServer();
+                display(response, "green");
+                client->sendToServer("leaderboard diplayed");
+            }
+            if (isAMatch(userInput, ".highscore")) {
+                response = client->receiveFromServer();
+                display(response, "green");
+                client->sendToServer("highscores displayed");
+            }
 
             //receive and display feedback from server
             response = client->receiveFromServer();

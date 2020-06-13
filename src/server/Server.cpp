@@ -168,9 +168,11 @@ void *Server::startNewGame(void * arg) {
         }
         if (GameSession::isAMatch(userInput, ".leaderboard")){
             connection->sendToClient(network->getLeaderBoard());
+            connection->receiveFromClient();
         }
         if (GameSession::isAMatch(userInput, ".highScore")){
             connection->sendToClient(network->getHighScore(connection->getCurrentUser()));
+            connection->receiveFromClient();
         }
 
 		//handle client's answer and send feedback
