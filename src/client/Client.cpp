@@ -25,9 +25,9 @@ Client::Client(int numberOfParameters, char const *argv[]) {
         hostname = argv[1];
         port = atoi(argv[2]);
     } else if (numberOfParameters == 1 && 
-               string(argv[1]).compare("aws") == 0) {
+               string(argv[1]).compare("cloud") == 0) {
         //connecting to aws box with default port
-        hostname = AWS_IP;
+        hostname = VM_IP;
         port = PORT;
     } else { //default values
         hostname = LOCAL_IP;

@@ -14,8 +14,8 @@
 
 using namespace std;
 
-#define PORT 12119 //audrey's port on cs1 for cpsc5042
-#define AWS_IP "54.91.202.143" // our aws server's IP address
+#define PORT 12119 //default port that is accessible on the virtual machine
+#define VM_IP "34.82.231.190" // our google cloud virtual machine's IP address
 #define LOCAL_IP "127.0.0.1"
 
 class Client {

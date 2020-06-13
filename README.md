@@ -51,19 +51,16 @@ make -C src/client
 ```
 ./bin/client              --->  will use default IP address 127.0.0.1 and default port 12119
 ./bin/client <IP> <PORT>  --->  will use specified IP address and specified port number
-./bin/client aws          --->  will use our AWS machine's IP address and default port 12119
+./bin/client cloud        --->  will use our google cloud virtual machine's IP address and default port 12119
 ```
 
 ## Play on our live server
-Just clone this repo, cd into the project directory, and run the client release with the *aws* option.
+Just clone this repo, cd into the project directory, and run the client release with the *cloud* option.
 ```
 git clone https://github.com/msdrey/CPSC5042Project.git
 cd CPSC5042Project
 ./releases/linux/client aws
 ```
-or on macOS run
-```
-./releases/mac/client aws
-```
+
 ## Credits
 Used [GeeksforGeeks - Socket Programming in C](https://www.geeksforgeeks.org/socket-programming-cc/) example as the starting point.
