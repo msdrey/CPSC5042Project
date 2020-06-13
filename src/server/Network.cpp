@@ -224,7 +224,9 @@ string Network::getLeaderBoard(){
         highestScores[i] = temp;
     }
 
-    //#1 ken, score: 29
+    //#1 <user>, score: <score>
+    //#2 <user>, score: <score>
+    //#3 <user>, score: <score>
     string result = "\n";
     result += "#1 " + highestScores[0].username + ", score: " + to_string(highestScores[0].highestScore) + "\n";
     result += "#2 " + highestScores[1].username + ", score: " + to_string(highestScores[1].highestScore) + "\n";
