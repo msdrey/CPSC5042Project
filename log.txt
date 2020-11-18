@@ -1,0 +1,61 @@
+Server is listening on port 12119
+New connection was made.
+User audrey is authenticated
+User audrey has logged out.
+A connection was closed.
+New connection was made.
+The client has unexpectedly disconnected
+A connection was closed.
+New connection was made.
+User audrey is authenticated
+User audrey has logged out.
+A connection was closed.
+New connection was made.
+User audrey is authenticated
+User audrey has logged out.
+A connection was closed.
+New connection was made.
+User audrey is authenticated
+User audrey has logged out.
+A connection was closed.
+New connection was made.
+User audrey is authenticated
+User audrey has logged out.
+A connection was closed.
+New connection was made.
+User audrey is authenticated
+User audrey has logged out.
+A connection was closed.
+New connection was made.
+User audrey is authenticated
+User audrey has logged out.
+A connection was closed.
+Server is listening on port 12119
+New connection was made.
+User audrey is authenticated
+User audrey has logged out.
+A connection was closed.
+Server is listening on port 12119
+New connection was made.
+User audrey is authenticated
+User audrey has logged out.
+A connection was closed.
+New connection was made.
+User audrey is authenticated
+User audrey has logged out.
+A connection was closed.
+New connection was made.
+A new user signed up: audrey2.
+User audrey2 has logged out.
+A connection was closed.
+New connection was made.
+terminate called after throwing an instance of 'std::out_of_range'
+  what():  basic_string::substr: __pos (which is 9) > this->size() (which is 1)
+Server is listening on port 12119
+New connection was made.
+Authentication fail: wrong password 
+A connection was closed.
+New connection was made.
+User audrey is authenticated
+User audrey has logged out.
+A connection was closed.
